@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <AspNetCoreHostingModel>OutInProcess</AspNetCoreHostingModel>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.2.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.2.6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FacilityMonitoring.Common\FacilityMonitoring.Common.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="NModbus4">
+      <HintPath>..\..\..\Libraries\NModbus4-portable-3.0\NModbus4\bin\Release\netstandard2.0\NModbus4.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

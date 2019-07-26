@@ -1,0 +1,45 @@
+﻿@page
+@using FacilityMonitoringClient.Models
+@using FacilityMonitoring.Common.Data_Layer;
+
+<h2 class="content-block">Realtime</h2>
+
+@(Html.DevExtreme().DataGrid<AmmoniaTankView>()
+    .ID("gridContainer")
+    .ShowBorders(false)
+    .RepaintChangesOnly(true)
+    .HighlightChanges(true)
+    .Columns(columns => {
+        columns.AddFor(m => m.Tank).DataField("tank");
+        columns.AddFor(m => m.Status).DataField("status");
+        columns.AddFor(m => m.Weight).DataField("weight");
+        columns.AddFor(m => m.Temperature).DataField("temperature");
+        columns.AddFor(m => m.Alarm).DataField("alarm");
+        columns.AddFor(m => m.Warning).DataField("warning");
+    })
+)
+
+<script src="~/signalr/signalr-client.js"></script>
+<script>
+    var connection = new signalR.HubConnectionBuilder()
+        .withUrl("@Url.Content("https://localhost:44376/hubs/monitor")")
+        .configureLogging(signalR.LogLevel.Information)
+        .build();
+    $(function () {
+        connection.start()
+            .then(function () {
+                var store = new DevExpress.data.CustomStore({
+                    load: function () {
+                        return connection.invoke("GetAllTanks");
+                    }, key: "tank"
+                });
+                $("#gridContainer").dxDataGrid({
+                    dataSource: store,
+                    visible: true
+                });
+                connection.on("BroadcastAllTanks", function (data) {
+                    store.push([{ type: "update", key: data.tank, data: data }]);
+                });               
+            });        
+    });  
+</script>
