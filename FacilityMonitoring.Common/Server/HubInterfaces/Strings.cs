@@ -4,6 +4,7 @@ using System.Text;
 
 namespace FacilityMonitoring.Common.Server {
     public static class Strings {
+
         public static string HubUrl= "https://localhost:44376/hubs/monitor";
 
         public static class Events {

@@ -7,6 +7,5 @@ namespace FacilityMonitoring.Common.Server {
         Task BroadcastReading(AmmoniaTankView tankView);
         Task BroadcastAllTanks(IEnumerable<AmmoniaTankView> tankViews);
         IEnumerable<AmmoniaTankView> GetAllTanks();
-        
     }
 }

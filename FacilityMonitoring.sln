@@ -13,11 +13,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Server", "Server", "{DD41F2
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Clients", "Clients", "{9BFA9E61-CC25-465E-BFAF-4B3A7E1A0616}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FacilityMonitoring.MonitoringServer", "FacilityMonitoring.MonitoringServer\FacilityMonitoring.MonitoringServer.csproj", "{845C827F-89BB-4C71-8A96-D5FB700592C7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FacilityMonitoring.MonitoringServer", "FacilityMonitoring.MonitoringServer\FacilityMonitoring.MonitoringServer.csproj", "{845C827F-89BB-4C71-8A96-D5FB700592C7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FacilityMonitoring.MonitoringWebpage", "FacilityMonitoring.MonitoringWebpage\FacilityMonitoring.MonitoringWebpage.csproj", "{FD334C60-83F9-47A6-B9CA-BF6F178EC108}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FacilityMonitoring.MonitorApi", "FacilityMonitoring.MonitorApi\FacilityMonitoring.MonitorApi.csproj", "{E917FF78-0483-4FDB-AC82-5F63EFDE6BDB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FacilityMonitoring.MonitorApi", "FacilityMonitoring.MonitorApi\FacilityMonitoring.MonitorApi.csproj", "{E917FF78-0483-4FDB-AC82-5F63EFDE6BDB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -37,10 +35,6 @@ Global
 		{845C827F-89BB-4C71-8A96-D5FB700592C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{845C827F-89BB-4C71-8A96-D5FB700592C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{845C827F-89BB-4C71-8A96-D5FB700592C7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FD334C60-83F9-47A6-B9CA-BF6F178EC108}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FD334C60-83F9-47A6-B9CA-BF6F178EC108}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FD334C60-83F9-47A6-B9CA-BF6F178EC108}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FD334C60-83F9-47A6-B9CA-BF6F178EC108}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E917FF78-0483-4FDB-AC82-5F63EFDE6BDB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E917FF78-0483-4FDB-AC82-5F63EFDE6BDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E917FF78-0483-4FDB-AC82-5F63EFDE6BDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -53,7 +47,6 @@ Global
 		{1A2AD572-BB03-47CB-B0E7-D6FBD26AD89D} = {4C8F3F0C-B913-4AA7-8BC4-8CBEB6BF0DED}
 		{0F5FB984-2424-4BB4-A34E-8F376FB301E4} = {4C8F3F0C-B913-4AA7-8BC4-8CBEB6BF0DED}
 		{845C827F-89BB-4C71-8A96-D5FB700592C7} = {DD41F26A-EC6E-4465-AE17-BA0B28D99A56}
-		{FD334C60-83F9-47A6-B9CA-BF6F178EC108} = {9BFA9E61-CC25-465E-BFAF-4B3A7E1A0616}
 		{E917FF78-0483-4FDB-AC82-5F63EFDE6BDB} = {DD41F26A-EC6E-4465-AE17-BA0B28D99A56}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution

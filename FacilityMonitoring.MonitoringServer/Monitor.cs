@@ -18,7 +18,6 @@ namespace FacilityMonitoring.MonitoringServer {
     public class Monitor : BackgroundService {
         private readonly ILogger<Monitor> _logger;
         private readonly IHubContext<MonitorHub, IFacilityAmmoniaReading> _hubContext;
-        //private readonly FacilityContext _context;
         private List<AmmoniaTankView> _dataViews;
 
         public Monitor(ILogger<Monitor> logger,IHubContext<MonitorHub, IFacilityAmmoniaReading> hubContext) {

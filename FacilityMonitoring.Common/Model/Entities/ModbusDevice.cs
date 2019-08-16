@@ -34,11 +34,73 @@ namespace FacilityMonitoring.Common.Model {
         public int Id { get; set; }
         public DateTime TimeStamp { get; set; }
         public string Identifier { get; set; }
-
         public int ModbusDeviceId { get; set; }
         public ModbusDevice ModbusDevice { get; set; }
+    }
 
+    public partial class GenericBoxReading : Reading {
+        public GenericBoxReading() { }
 
+        public GenericBoxReading(DateTime timestamp, string identifier, ModbusDevice device) {
+            this.TimeStamp = timestamp;
+            this.Identifier = identifier;
+            this.ModbusDevice = device;
+        }
+
+        public float AnalogCh1 { get; set; }
+        public float AnalogCh2 { get; set; }
+        public float AnalogCh3 { get; set; }
+        public float AnalogCh4 { get; set; }
+        public float AnalogCh5 { get; set; }
+        public float AnalogCh6 { get; set; }
+        public float AnalogCh7 { get; set; }
+        public float AnalogCh8 { get; set; }
+        public float AnalogCh9 { get; set; }
+        public float AnalogCh10 { get; set; }
+        public float AnalogCh11 { get; set; }
+        public float AnalogCh12 { get; set; }
+        public float AnalogCh13 { get; set; }
+        public float AnalogCh14 { get; set; }
+        public float AnalogCh15 { get; set; }
+        public float AnalogCh16 { get; set; }
+        public bool DigitalCh1 { get; set; }
+        public bool DigitalCh2 { get; set; }
+        public bool DigitalCh3 { get; set; }
+        public bool DigitalCh4 { get; set; }
+        public bool DigitalCh5 { get; set; }
+        public bool DigitalCh6 { get; set; }
+        public bool DigitalCh7 { get; set; }
+        public bool DigitalCh8 { get; set; }
+        public bool DigitalCh9 { get; set; }
+        public bool DigitalCh10 { get; set; }
+        public bool DigitalCh11 { get; set; }
+        public bool DigitalCh12 { get; set; }
+        public bool DigitalCh13 { get; set; }
+        public bool DigitalCh14 { get; set; }
+        public bool DigitalCh15 { get; set; }
+        public bool DigitalCh16 { get; set; }
+        public bool DigitalCh17 { get; set; }
+        public bool DigitalCh18 { get; set; }
+        public bool DigitalCh19 { get; set; }
+        public bool DigitalCh20 { get; set; }
+        public bool DigitalCh21 { get; set; }
+        public bool DigitalCh22 { get; set; }
+        public bool DigitalCh23 { get; set; }
+        public bool DigitalCh24 { get; set; }
+        public bool DigitalCh25 { get; set; }
+        public bool DigitalCh26 { get; set; }
+        public bool DigitalCh27 { get; set; }
+        public bool DigitalCh28 { get; set; }
+        public bool DigitalCh29 { get; set; }
+        public bool DigitalCh30 { get; set; }
+        public bool DigitalCh31 { get; set; }
+        public bool DigitalCh32 { get; set; }
+        public bool DigitalCh33 { get; set; }
+        public bool DigitalCh34 { get; set; }
+        public bool DigitalCh35 { get; set; }
+        public bool DigitalCh36 { get; set; }
+        public bool DigitalCh37 { get; set; }
+        public bool DigitalCh38 { get; set; }
     }
 
     public partial class H2GenReading:Reading {

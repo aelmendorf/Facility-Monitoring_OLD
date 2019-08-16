@@ -25,12 +25,12 @@ namespace FacilityMonitoring.Common.Model {
 
             builder.Entity<AmmoniaBoxReading>().HasBaseType<Reading>();
             builder.Entity<H2GenReading>().HasBaseType<Reading>();
+            builder.Entity<GenericBoxReading>().HasBaseType<Reading>();
 
             builder.Entity<ModbusDevice>()
                 .HasMany(e => e.Readings)
                 .WithOne(e => e.ModbusDevice)
                 .HasForeignKey(e => e.ModbusDeviceId);
-
         }
     }
 }
