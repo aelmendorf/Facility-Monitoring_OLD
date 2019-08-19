@@ -13,39 +13,43 @@ namespace FacilityMonitoring.ConsoleTesting
 {
     class Program {
         static void Main(string[] args) {
-            using(var context=new FacilityContext()) {
-                ModbusDevice device = new ModbusDevice("GB-1","Gas Bay", "172.20.1.62", 502, 0, "");
-                context.Add(device);
-                context.SaveChanges();
-            }
-            //if (CheckConnection("172.20.1.62", 1000)) {
-            //    ushort[] regData;
-            //    bool[] coilData;
-            //    while (true) {
-            //        using (TcpClient client = new TcpClient("172.20.1.62", 502)) {
-            //            ModbusIpMaster master = ModbusIpMaster.CreateIp(client);
-            //            regData = master.ReadHoldingRegisters(0, 16);
-            //            coilData = master.ReadCoils(0, 38);
-            //            client.Close();
-            //        }
-            //        Console.WriteLine("Analog");
-            //        for (int i = 0; i < regData.Length; i++) {
-            //            Console.Write(" A{0}: {1}", i, regData[i]);
-            //        }
-            //        Console.WriteLine();
-            //        Console.WriteLine("Digitals: ");
-            //        for (int i = 0; i < coilData.Length; i++) {
-            //            Console.Write(" D{0}: {1}", i, coilData[i]);
-            //        }
-            //        Console.WriteLine();
-            //        Console.WriteLine("Press C to continue");
-            //        var key = Console.ReadKey();
-            //        if (key.Key != ConsoleKey.C)
-            //            break;
-            //    }
-            //} else {
-            //    Console.WriteLine("Connection Failed");
+            //using(var context=new FacilityContext()) {
+            //    ModbusDevice device = new ModbusDevice("GB-1","Gas Bay", "172.20.1.62", 502, 0, "");
+            //    context.Add(device);
+            //    context.SaveChanges();
             //}
+            if (CheckConnection("172.21.100.30", 100)) {
+                ushort[] regData;
+                bool[] coilData;
+                while (true) {
+                    using (TcpClient client = new TcpClient("172.21.100.30", 502)) {
+                        ModbusIpMaster master = ModbusIpMaster.CreateIp(client);
+                        regData = master.ReadHoldingRegisters(0, 16);
+                        coilData = master.ReadCoils(0, 38);
+                        client.Close();
+                    }
+                    Console.WriteLine("Analog");
+                    for (int i = 0; i < regData.Length; i++) {
+                        float x = regData[i];
+                        x = (x / 1000);
+                        //float y = x * 1.0151f - .0618f;
+
+                        Console.Write(" A{0}: {1}", i,x);
+                    }
+                    Console.WriteLine();
+                    //Console.WriteLine("Digitals: ");
+                    //for (int i = 0; i < coilData.Length; i++) {
+                    //    Console.Write(" D{0}: {1}", i, coilData[i]);
+                    //}
+                    Console.WriteLine();
+                    Console.WriteLine("Press C to continue");
+                    var key = Console.ReadKey();
+                    if (key.Key != ConsoleKey.C)
+                        break;
+                }
+            } else {
+                Console.WriteLine("Connection Failed");
+            }
             Console.ReadKey();
         }
 
