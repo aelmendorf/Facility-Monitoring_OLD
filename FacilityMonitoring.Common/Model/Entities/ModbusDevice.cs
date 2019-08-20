@@ -4,6 +4,11 @@ using System;
 using System.Collections.Generic;
 
 namespace FacilityMonitoring.Common.Model {
+
+    public enum AnalogSensorType {
+        H2,O2,NH3,N,NONE
+    }
+
     public partial class ModbusDevice {
         public int Id { get; set; }
         public string Identifier { get; set; }
@@ -30,6 +35,162 @@ namespace FacilityMonitoring.Common.Model {
         }
     }
 
+    public partial class GenericMonitorBox : ModbusDevice {
+
+        public int AnalogChannelId { get; set; }
+        public virtual AnalogCalibration AnalogCalibration { get; set; }
+
+        public int AnalogMappingId { get; set; }
+        public virtual AnalogMapping AnalogMapping { get; set; }
+
+
+    }
+
+    public partial class AnalogMapping {
+        public int Id { get; set; }
+
+        public int GenericMonitorBoxId { get; set; }
+        public virtual GenericMonitorBox GenericMonitorBox { get; set; }
+
+        public bool Chan1Connected { get; set; }
+        public string Chan1Name { get; set; }
+        public AnalogSensorType Chan1Type { get; set; }
+
+        public bool Chan2Connected { get; set; }
+        public string Chan2Name { get; set; }
+        public AnalogSensorType Chan2Type { get; set; }
+
+        public bool Chan3Connected { get; set; }
+        public string Chan3Name { get; set; }
+        public AnalogSensorType Chan3Type { get; set; }
+
+        public bool Chan4Connected { get; set; }
+        public string Chan4Name { get; set; }
+        public AnalogSensorType Chan4Type { get; set; }
+
+        public bool Chan5Connected { get; set; }
+        public string Chan5Name { get; set; }
+        public AnalogSensorType Chan5Type { get; set; }
+
+        public bool Chan6Connected { get; set; }
+        public string Chan6Name { get; set; }
+        public AnalogSensorType Chan6Type { get; set; }
+
+        public bool Chan7Connected { get; set; }
+        public string Chan7Name { get; set; }
+        public AnalogSensorType Chan7Type { get; set; }
+
+        public bool Chan8Connected { get; set; }
+        public string Chan8Name { get; set; }
+        public AnalogSensorType Chan8Type { get; set; }
+
+        public bool Chan9Connected { get; set; }
+        public string Chan9Name { get; set; }
+        public AnalogSensorType Chan9Type { get; set; }
+
+        public bool Chan10Connected { get; set; }
+        public string Chan10Name { get; set; }
+        public AnalogSensorType Chan10Type { get; set; }
+
+        public bool Chan11Connected { get; set; }
+        public string Chan11Name { get; set; }
+        public AnalogSensorType Chan11Type { get; set; }
+
+        public bool Chan12Connected { get; set; }
+        public string Chan12Name { get; set; }
+        public AnalogSensorType Chan12Type { get; set; }
+
+        public bool Chan13Connected { get; set; }
+        public string Chan13Name { get; set; }
+        public AnalogSensorType Chan13Type { get; set; }
+
+        public bool Chan14Connected { get; set; }
+        public string Chan14Name { get; set; }
+        public AnalogSensorType Chan14Type { get; set; }
+
+        public bool Chan15Connected { get; set; }
+        public string Chan15Name { get; set; }
+        public AnalogSensorType Chan15Type { get; set; }
+
+        public bool Chan16Connected { get; set; }
+        public string Chan16Name { get; set; }
+        public AnalogSensorType Chan16Type { get; set; }
+    }
+
+    public partial class DigitalMapping {
+
+    }
+
+    public partial class AnalogCalibration {
+        public int Id { get; set; }
+        public int GenericMonitorBoxId { get; set; }
+        public virtual GenericMonitorBox GenericMonitorBox { get; set; }
+
+        public float Chan1Slope { get; set; }
+        public float Chan1Offset { get; set; }
+        public float Chan1Resistance { get; set; }
+
+        public float Chan2Slope { get; set; }
+        public float Chan2Offset { get; set; }
+        public float Chan2Resistance { get; set; }
+
+        public float Chan3Slope { get; set; }
+        public float Chan3Offset { get; set; }
+        public float Chan3Resistance { get; set; }
+
+        public float Chan4Slope { get; set; }
+        public float Chan4Offset { get; set; }
+        public float Chan4Resistance { get; set; }
+
+        public float Chan5Slope { get; set; }
+        public float Chan5Offset { get; set; }
+        public float Chan5Resistance { get; set; }
+
+        public float Chan6Slope { get; set; }
+        public float Chan6Offset { get; set; }
+        public float Chan6Resistance { get; set; }
+
+        public float Chan7Slope { get; set; }
+        public float Chan7Offset { get; set; }
+        public float Chan7Resistance { get; set; }
+
+        public float Chan8Slope { get; set; }
+        public float Chan8Offset { get; set; }
+        public float Chan8Resistance { get; set; }
+
+        public float Chan9Slope { get; set; }
+        public float Chan9Offset { get; set; }
+        public float Chan9Resistance { get; set; }
+
+        public float Chan10Slope { get; set; }
+        public float Chan10Offset { get; set; }
+        public float Chan10Resistance { get; set; }
+
+        public float Chan11Slope { get; set; }
+        public float Chan11Offset { get; set; }
+        public float Chan11Resistance { get; set; }
+
+        public float Chan12Slope { get; set; }
+        public float Chan12Offset { get; set; }
+        public float Chan12Resistance { get; set; }
+
+        public float Chan13Slope { get; set; }
+        public float Chan13Offset { get; set; }
+        public float Chan13Resistance { get; set; }
+
+        public float Chan14Slope { get; set; }
+        public float Chan14Offset { get; set; }
+        public float Chan14Resistance { get; set; }
+
+        public float Chan15Slope { get; set; }
+        public float Chan15Offset { get; set; }
+        public float Chan15Resistance { get; set; }
+
+        public float Chan16Slope { get; set; }
+        public float Chan16Offset { get; set; }
+        public float Chan16Resistance { get; set; }
+    }
+
     public abstract class Reading {
         public int Id { get; set; }
         public DateTime TimeStamp { get; set; }
@@ -46,7 +207,7 @@ namespace FacilityMonitoring.Common.Model {
             this.Identifier = identifier;
             this.ModbusDevice = device;
         }
-
+        
         public float AnalogCh1 { get; set; }
         public float AnalogCh2 { get; set; }
         public float AnalogCh3 { get; set; }

@@ -12,17 +12,25 @@ using ModbusDevice = FacilityMonitoring.Common.Model.ModbusDevice;
 namespace FacilityMonitoring.ConsoleTesting
 {
     class Program {
+        static double[] SlopeValues = {1.00476,1.00577,1.004007,1.00488,1.00448,1.00454,.99849,0.000,1.00448,1.00455,1.00450,1.00451,1.00456,1.00414,1.00456,0};
+        static double[] OffsetValues = { 0.00998,0.00920,.008976,0.00919,0.00744,0.00791,-.00462,0.0000,0.00787,0.00763,0.00761,0.00761,0.00761,0.00833,0.00782,0.0000};
+        static double[] RValues = {250.81,250.474,246.2776,210.223,250.58,240.204,332.018,0.000,250.902,250.918,250.684,250.808,251.002,250.576,250.821,0.000};
         static void Main(string[] args) {
             //using(var context=new FacilityContext()) {
             //    ModbusDevice device = new ModbusDevice("GB-1","Gas Bay", "172.20.1.62", 502, 0, "");
             //    context.Add(device);
             //    context.SaveChanges();
             //}
+            //Console.BufferHeight = 800;
+            //Console.BufferWidth = 800;
+            //Console.WindowHeight = 600;
+            //Console.WindowWidth = 600;
+
             if (CheckConnection("172.21.100.30", 100)) {
                 ushort[] regData;
                 bool[] coilData;
                 while (true) {
-                    using (TcpClient client = new TcpClient("172.21.100.30", 502)) {
+                    using (TcpClient client = new TcpClient("172.21.100.30", 502)){
                         ModbusIpMaster master = ModbusIpMaster.CreateIp(client);
                         regData = master.ReadHoldingRegisters(0, 16);
                         coilData = master.ReadCoils(0, 38);
@@ -30,17 +38,18 @@ namespace FacilityMonitoring.ConsoleTesting
                     }
                     Console.WriteLine("Analog");
                     for (int i = 0; i < regData.Length; i++) {
-                        float x = regData[i];
+                        double x = regData[i];
                         x = (x / 1000);
-                        //float y = x * 1.0151f - .0618f;
-
-                        Console.Write(" A{0}: {1}", i,x);
+                        double y = SlopeValues[i] * x + OffsetValues[i];
+                        double current = (RValues[i] != 0) ? (y / RValues[i])*1000 : 0.00;
+                        
+                        Console.WriteLine(" A{0}: Voltage: {1} Current: {2}", i,y,current);
                     }
                     Console.WriteLine();
-                    //Console.WriteLine("Digitals: ");
-                    //for (int i = 0; i < coilData.Length; i++) {
-                    //    Console.Write(" D{0}: {1}", i, coilData[i]);
-                    //}
+                    Console.WriteLine("Digitals: ");
+                    for (int i = 0; i < coilData.Length; i++) {
+                        Console.WriteLine(" D{0}: {1}", i, coilData[i]);
+                    }
                     Console.WriteLine();
                     Console.WriteLine("Press C to continue");
                     var key = Console.ReadKey();
@@ -77,6 +86,10 @@ namespace FacilityMonitoring.ConsoleTesting
             Console.WriteLine("Started!");
             Console.WriteLine("Press Any Key To Quit");
             Console.ReadKey();
+        }
+
+        private static double Map(double value, double fromLow, double fromHigh, double toLow, double toHigh) {
+            return (value - fromLow) * (toHigh - toLow) / (fromHigh - fromLow) + toLow;
         }
 
         private static void Timer_Elapsed(object sender, ElapsedEventArgs e) {
