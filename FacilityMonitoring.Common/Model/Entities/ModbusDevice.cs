@@ -36,14 +36,11 @@ namespace FacilityMonitoring.Common.Model {
     }
 
     public partial class GenericMonitorBox : ModbusDevice {
-
         public int AnalogChannelId { get; set; }
         public virtual AnalogCalibration AnalogCalibration { get; set; }
 
         public int AnalogMappingId { get; set; }
         public virtual AnalogMapping AnalogMapping { get; set; }
-
-
     }
 
     public partial class AnalogMapping {
