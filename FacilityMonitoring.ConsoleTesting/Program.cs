@@ -103,17 +103,18 @@ namespace FacilityMonitoring.ConsoleTesting
             Console.Clear();
             Console.WriteLine("Raising Alarm Please Wait....");
             if (CheckConnection("172.21.100.30", 500)) {
-                ushort[] regData= {0,0,0,0,0,0,1,1,1,1};
                 using (TcpClient client = new TcpClient("172.21.100.30", 502)) {
+                    bool[] com = { true, false, false, false };
                     ModbusIpMaster master = ModbusIpMaster.CreateIp(client);
-                    regData[8] = 0;
-                    master.WriteMultipleRegisters(16, regData);
-                    master.WriteSingleCoil(38, true);
+                    com[1] = false;
+                    com[2] = false;
+                    com[3] = true;
+                    master.WriteMultipleCoils(39, com);
                     Stopwatch timer = new Stopwatch();
                     timer.Start();
                     bool success=false;
                     while (true) {
-                        var check=master.ReadCoils(38, 1);
+                        var check=master.ReadCoils(39, 1);
                         if (!check[0]) {
                             Console.WriteLine("Success, Waiting 2sec then turning off Alarm");
                             success = true;
@@ -122,12 +123,10 @@ namespace FacilityMonitoring.ConsoleTesting
                     }
                     if (success) {
                         System.Threading.Thread.Sleep(5000);
-                        regData[6] = 0;
-                        regData[7] = 1;
-                        regData[8] = 1;
-                        regData[9] = 1;
-                        master.WriteMultipleRegisters(16, regData);
-                        master.WriteSingleCoil(38, true);
+                        com[1] = false;
+                        com[2] = false;
+                        com[3] = false;
+                        master.WriteMultipleCoils(39, com);
                     }
                     client.Close();
                 }
@@ -142,17 +141,19 @@ namespace FacilityMonitoring.ConsoleTesting
             Console.Clear();
             Console.WriteLine("Raising Warning Signal Please Wait....");
             if (CheckConnection("172.21.100.30", 500)) {
-                ushort[] regData = { 0, 0, 0, 0, 0, 0, 1, 1, 1, 1 };
+                bool[] com = { true, false, false, false };
+
                 using (TcpClient client = new TcpClient("172.21.100.30", 502)) {
                     ModbusIpMaster master = ModbusIpMaster.CreateIp(client);
-                    regData[7] = 0;
-                    master.WriteMultipleRegisters(16, regData);
-                    master.WriteSingleCoil(38, true);
+                    com[1] = false;
+                    com[2] = true;
+                    com[3] = false;
+                    master.WriteMultipleCoils(39, com);
                     Stopwatch timer = new Stopwatch();
                     timer.Start();
                     bool success = false;
                     while (true) {
-                        var check = master.ReadCoils(38, 1);
+                        var check = master.ReadCoils(39, 1);
                         if (!check[0]) {
                             Console.WriteLine("Success, Waiting 5 sec then turning off Warning");
                             success = true;
@@ -161,12 +162,10 @@ namespace FacilityMonitoring.ConsoleTesting
                     }
                     if (success) {
                         System.Threading.Thread.Sleep(5000);
-                        regData[6] = 0;
-                        regData[7] = 1;
-                        regData[8] = 1;
-                        regData[9] = 1;
-                        master.WriteMultipleRegisters(16, regData);
-                        master.WriteSingleCoil(38, true);
+                        com[1] = false;
+                        com[2] = false;
+                        com[3] = false;
+                        master.WriteMultipleCoils(39, com);
                     }
                     client.Close();
                 }
@@ -255,16 +254,17 @@ namespace FacilityMonitoring.ConsoleTesting
             if (CheckConnection("172.21.100.30", 500)) {
                 ushort[] regData = { 0, 0, 0, 0, 0, 0, 1, 1, 1, 1 };
                 using (TcpClient client = new TcpClient("172.21.100.30", 502)) {
+                    bool[] com = { true, false, false, false };
                     ModbusIpMaster master = ModbusIpMaster.CreateIp(client);
-                    regData[7] = 0;
-                    regData[6] = 0;
-                    master.WriteMultipleRegisters(16, regData);
-                    master.WriteSingleCoil(38, true);
+                    com[1] = true;
+                    com[2] = false;
+                    com[3] = false;
+                    master.WriteMultipleCoils(39, com);
                     Stopwatch timer = new Stopwatch();
                     timer.Start();
                     bool success = false;
                     while (true) {
-                        var check = master.ReadCoils(38, 1);
+                        var check = master.ReadCoils(39, 1);
                         if (!check[0]) {
                             Console.WriteLine("Success, Waiting 5 sec then turning off Warning");
                             success = true;
@@ -273,12 +273,10 @@ namespace FacilityMonitoring.ConsoleTesting
                     }
                     if (success) {
                         System.Threading.Thread.Sleep(5000);
-                        regData[6] = 0;
-                        regData[7] = 1;
-                        regData[8] = 1;
-                        regData[9] = 1;
-                        master.WriteMultipleRegisters(16, regData);
-                        master.WriteSingleCoil(38, true);
+                        com[1] = false;
+                        com[2] = false;
+                        com[3] = false;
+                        master.WriteMultipleCoils(39, com);
                     }
                     client.Close();
                 }

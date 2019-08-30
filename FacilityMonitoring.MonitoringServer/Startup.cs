@@ -21,13 +21,19 @@ namespace FacilityMonitoring.MonitoringServer {
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env) {
-            if (env.IsDevelopment()) {
-                app.UseDeveloperExceptionPage();
-            }
-            app.UseSignalR((routes) => {
-                routes.MapHub<MonitorHub>("/hubs/monitor");
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env) {
+            //if (env.IsDevelopment()) {
+            //    app.UseDeveloperExceptionPage();
+            //}
+            app.UseRouting();
+
+            app.UseEndpoints(endpoints => {
+                endpoints.MapHub<MonitorHub>("/hubs/monitor");
             });
+
+            //app.UseSignalR((routes) => {
+            //    routes.MapHub<MonitorHub>("/hubs/monitor");
+            //});
         }
     }
 }
