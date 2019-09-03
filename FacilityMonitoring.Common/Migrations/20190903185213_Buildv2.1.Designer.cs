@@ -4,14 +4,16 @@ using FacilityMonitoring.Common.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace FacilityMonitoring.Common.Migrations
 {
     [DbContext(typeof(FacilityContext))]
-    partial class FacilityContextModelSnapshot : ModelSnapshot
+    [Migration("20190903185213_Buildv2.1")]
+    partial class Buildv21
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -55,8 +57,6 @@ namespace FacilityMonitoring.Common.Migrations
                     b.Property<int>("GenericMonitorBoxId");
 
                     b.Property<string>("Name");
-
-                    b.Property<string>("PropertyMap");
 
                     b.HasKey("Id");
 
@@ -123,13 +123,13 @@ namespace FacilityMonitoring.Common.Migrations
                 {
                     b.HasBaseType("FacilityMonitoring.Common.Model.Category");
 
-                    b.Property<double>("MaxCalibration");
+                    b.Property<float>("MaxCalibration");
 
-                    b.Property<double>("MaxValue");
+                    b.Property<float>("MaxValue");
 
-                    b.Property<double>("ZeroCalibration");
+                    b.Property<float>("ZeroCalibration");
 
-                    b.Property<double>("ZeroValue");
+                    b.Property<float>("ZeroValue");
 
                     b.HasDiscriminator().HasValue("SensorType");
                 });
@@ -250,37 +250,37 @@ namespace FacilityMonitoring.Common.Migrations
                 {
                     b.HasBaseType("FacilityMonitoring.Common.Model.Reading");
 
-                    b.Property<double>("AnalogCh1");
+                    b.Property<float>("AnalogCh1");
 
-                    b.Property<double>("AnalogCh10");
+                    b.Property<float>("AnalogCh10");
 
-                    b.Property<double>("AnalogCh11");
+                    b.Property<float>("AnalogCh11");
 
-                    b.Property<double>("AnalogCh12");
+                    b.Property<float>("AnalogCh12");
 
-                    b.Property<double>("AnalogCh13");
+                    b.Property<float>("AnalogCh13");
 
-                    b.Property<double>("AnalogCh14");
+                    b.Property<float>("AnalogCh14");
 
-                    b.Property<double>("AnalogCh15");
+                    b.Property<float>("AnalogCh15");
 
-                    b.Property<double>("AnalogCh16");
+                    b.Property<float>("AnalogCh16");
 
-                    b.Property<double>("AnalogCh2");
+                    b.Property<float>("AnalogCh2");
 
-                    b.Property<double>("AnalogCh3");
+                    b.Property<float>("AnalogCh3");
 
-                    b.Property<double>("AnalogCh4");
+                    b.Property<float>("AnalogCh4");
 
-                    b.Property<double>("AnalogCh5");
+                    b.Property<float>("AnalogCh5");
 
-                    b.Property<double>("AnalogCh6");
+                    b.Property<float>("AnalogCh6");
 
-                    b.Property<double>("AnalogCh7");
+                    b.Property<float>("AnalogCh7");
 
-                    b.Property<double>("AnalogCh8");
+                    b.Property<float>("AnalogCh8");
 
-                    b.Property<double>("AnalogCh9");
+                    b.Property<float>("AnalogCh9");
 
                     b.Property<bool>("DigitalCh1");
 

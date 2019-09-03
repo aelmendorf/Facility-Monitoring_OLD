@@ -4,20 +4,61 @@ using FacilityMonitoring.Common.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace FacilityMonitoring.Common.Migrations
 {
     [DbContext(typeof(FacilityContext))]
-    partial class FacilityContextModelSnapshot : ModelSnapshot
+    [Migration("20190903170030_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "2.2.6-servicing-10079")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+            modelBuilder.Entity("FacilityMonitoring.Common.Model.AnalogChannel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<double>("Alarm1SetPoint");
+
+                    b.Property<double>("Alarm2SetPoint");
+
+                    b.Property<double>("Alarm3SetPoint");
+
+                    b.Property<bool>("Bypass");
+
+                    b.Property<int>("ChannelNumber");
+
+                    b.Property<bool>("Connected");
+
+                    b.Property<int>("GenericMonitorBoxId");
+
+                    b.Property<string>("Name");
+
+                    b.Property<double>("Offset");
+
+                    b.Property<double>("Resistance");
+
+                    b.Property<int?>("SensorTypeId");
+
+                    b.Property<double>("Slope");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GenericMonitorBoxId");
+
+                    b.HasIndex("SensorTypeId");
+
+                    b.ToTable("AnalogChannels");
+                });
 
             modelBuilder.Entity("FacilityMonitoring.Common.Model.Category", b =>
                 {
@@ -37,7 +78,7 @@ namespace FacilityMonitoring.Common.Migrations
                     b.HasDiscriminator<string>("Discriminator").HasValue("Category");
                 });
 
-            modelBuilder.Entity("FacilityMonitoring.Common.Model.Channel", b =>
+            modelBuilder.Entity("FacilityMonitoring.Common.Model.DigitalChannel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -49,22 +90,19 @@ namespace FacilityMonitoring.Common.Migrations
 
                     b.Property<bool>("Connected");
 
-                    b.Property<string>("Discriminator")
-                        .IsRequired();
+                    b.Property<int>("Direction");
 
                     b.Property<int>("GenericMonitorBoxId");
 
-                    b.Property<string>("Name");
+                    b.Property<int>("Logic");
 
-                    b.Property<string>("PropertyMap");
+                    b.Property<string>("Name");
 
                     b.HasKey("Id");
 
                     b.HasIndex("GenericMonitorBoxId");
 
-                    b.ToTable("Channels");
-
-                    b.HasDiscriminator<string>("Discriminator").HasValue("Channel");
+                    b.ToTable("DigitalChannels");
                 });
 
             modelBuilder.Entity("FacilityMonitoring.Common.Model.ModbusDevice", b =>
@@ -123,49 +161,15 @@ namespace FacilityMonitoring.Common.Migrations
                 {
                     b.HasBaseType("FacilityMonitoring.Common.Model.Category");
 
-                    b.Property<double>("MaxCalibration");
+                    b.Property<float>("MaxCalibration");
 
-                    b.Property<double>("MaxValue");
+                    b.Property<float>("MaxValue");
 
-                    b.Property<double>("ZeroCalibration");
+                    b.Property<float>("ZeroCalibration");
 
-                    b.Property<double>("ZeroValue");
+                    b.Property<float>("ZeroValue");
 
                     b.HasDiscriminator().HasValue("SensorType");
-                });
-
-            modelBuilder.Entity("FacilityMonitoring.Common.Model.AnalogChannel", b =>
-                {
-                    b.HasBaseType("FacilityMonitoring.Common.Model.Channel");
-
-                    b.Property<double>("Alarm1SetPoint");
-
-                    b.Property<double>("Alarm2SetPoint");
-
-                    b.Property<double>("Alarm3SetPoint");
-
-                    b.Property<double>("Offset");
-
-                    b.Property<double>("Resistance");
-
-                    b.Property<int?>("SensorTypeId");
-
-                    b.Property<double>("Slope");
-
-                    b.HasIndex("SensorTypeId");
-
-                    b.HasDiscriminator().HasValue("AnalogChannel");
-                });
-
-            modelBuilder.Entity("FacilityMonitoring.Common.Model.DigitalChannel", b =>
-                {
-                    b.HasBaseType("FacilityMonitoring.Common.Model.Channel");
-
-                    b.Property<int>("Direction");
-
-                    b.Property<int>("Logic");
-
-                    b.HasDiscriminator().HasValue("DigitalChannel");
                 });
 
             modelBuilder.Entity("FacilityMonitoring.Common.Model.GenericMonitorBox", b =>
@@ -250,37 +254,37 @@ namespace FacilityMonitoring.Common.Migrations
                 {
                     b.HasBaseType("FacilityMonitoring.Common.Model.Reading");
 
-                    b.Property<double>("AnalogCh1");
+                    b.Property<float>("AnalogCh1");
 
-                    b.Property<double>("AnalogCh10");
+                    b.Property<float>("AnalogCh10");
 
-                    b.Property<double>("AnalogCh11");
+                    b.Property<float>("AnalogCh11");
 
-                    b.Property<double>("AnalogCh12");
+                    b.Property<float>("AnalogCh12");
 
-                    b.Property<double>("AnalogCh13");
+                    b.Property<float>("AnalogCh13");
 
-                    b.Property<double>("AnalogCh14");
+                    b.Property<float>("AnalogCh14");
 
-                    b.Property<double>("AnalogCh15");
+                    b.Property<float>("AnalogCh15");
 
-                    b.Property<double>("AnalogCh16");
+                    b.Property<float>("AnalogCh16");
 
-                    b.Property<double>("AnalogCh2");
+                    b.Property<float>("AnalogCh2");
 
-                    b.Property<double>("AnalogCh3");
+                    b.Property<float>("AnalogCh3");
 
-                    b.Property<double>("AnalogCh4");
+                    b.Property<float>("AnalogCh4");
 
-                    b.Property<double>("AnalogCh5");
+                    b.Property<float>("AnalogCh5");
 
-                    b.Property<double>("AnalogCh6");
+                    b.Property<float>("AnalogCh6");
 
-                    b.Property<double>("AnalogCh7");
+                    b.Property<float>("AnalogCh7");
 
-                    b.Property<double>("AnalogCh8");
+                    b.Property<float>("AnalogCh8");
 
-                    b.Property<double>("AnalogCh9");
+                    b.Property<float>("AnalogCh9");
 
                     b.Property<bool>("DigitalCh1");
 
@@ -536,10 +540,22 @@ namespace FacilityMonitoring.Common.Migrations
                     b.HasDiscriminator().HasValue("H2GenReading");
                 });
 
-            modelBuilder.Entity("FacilityMonitoring.Common.Model.Channel", b =>
+            modelBuilder.Entity("FacilityMonitoring.Common.Model.AnalogChannel", b =>
                 {
                     b.HasOne("FacilityMonitoring.Common.Model.GenericMonitorBox", "GenericMonitorBox")
-                        .WithMany("Channels")
+                        .WithMany("AnalogChannels")
+                        .HasForeignKey("GenericMonitorBoxId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("FacilityMonitoring.Common.Model.SensorType", "SensorType")
+                        .WithMany("AnalogChannels")
+                        .HasForeignKey("SensorTypeId");
+                });
+
+            modelBuilder.Entity("FacilityMonitoring.Common.Model.DigitalChannel", b =>
+                {
+                    b.HasOne("FacilityMonitoring.Common.Model.GenericMonitorBox", "GenericMonitorBox")
+                        .WithMany("DigitalChannels")
                         .HasForeignKey("GenericMonitorBoxId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
@@ -550,13 +566,6 @@ namespace FacilityMonitoring.Common.Migrations
                         .WithMany("Readings")
                         .HasForeignKey("ModbusDeviceId")
                         .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("FacilityMonitoring.Common.Model.AnalogChannel", b =>
-                {
-                    b.HasOne("FacilityMonitoring.Common.Model.SensorType", "SensorType")
-                        .WithMany("AnalogChannels")
-                        .HasForeignKey("SensorTypeId");
                 });
 #pragma warning restore 612, 618
         }

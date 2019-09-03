@@ -9,6 +9,24 @@ namespace FacilityMonitoring.Common.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "Categories",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    Name = table.Column<string>(nullable: true),
+                    Discriminator = table.Column<string>(nullable: false),
+                    ZeroValue = table.Column<float>(nullable: true),
+                    ZeroCalibration = table.Column<float>(nullable: true),
+                    MaxValue = table.Column<float>(nullable: true),
+                    MaxCalibration = table.Column<float>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Categories", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "ModbusDevices",
                 columns: table => new
                 {
@@ -19,11 +37,76 @@ namespace FacilityMonitoring.Common.Migrations
                     IpAddress = table.Column<string>(nullable: true),
                     Port = table.Column<int>(nullable: false),
                     SlaveAddress = table.Column<int>(nullable: false),
-                    Status = table.Column<string>(nullable: true)
+                    Status = table.Column<string>(nullable: true),
+                    Discriminator = table.Column<string>(nullable: false),
+                    AnalogChannelCount = table.Column<int>(nullable: true),
+                    DigitalInputChannelCount = table.Column<int>(nullable: true),
+                    DigitalOutputChannelCount = table.Column<int>(nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ModbusDevices", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AnalogChannels",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    Name = table.Column<string>(nullable: true),
+                    ChannelNumber = table.Column<int>(nullable: false),
+                    Connected = table.Column<bool>(nullable: false),
+                    Bypass = table.Column<bool>(nullable: false),
+                    GenericMonitorBoxId = table.Column<int>(nullable: false),
+                    SensorTypeId = table.Column<int>(nullable: true),
+                    Slope = table.Column<double>(nullable: false),
+                    Offset = table.Column<double>(nullable: false),
+                    Resistance = table.Column<double>(nullable: false),
+                    Alarm1SetPoint = table.Column<double>(nullable: false),
+                    Alarm2SetPoint = table.Column<double>(nullable: false),
+                    Alarm3SetPoint = table.Column<double>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AnalogChannels", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AnalogChannels_ModbusDevices_GenericMonitorBoxId",
+                        column: x => x.GenericMonitorBoxId,
+                        principalTable: "ModbusDevices",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_AnalogChannels_Categories_SensorTypeId",
+                        column: x => x.SensorTypeId,
+                        principalTable: "Categories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "DigitalChannels",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    Name = table.Column<string>(nullable: true),
+                    ChannelNumber = table.Column<int>(nullable: false),
+                    Connected = table.Column<bool>(nullable: false),
+                    Bypass = table.Column<bool>(nullable: false),
+                    GenericMonitorBoxId = table.Column<int>(nullable: false),
+                    Logic = table.Column<int>(nullable: false),
+                    Direction = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_DigitalChannels", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_DigitalChannels_ModbusDevices_GenericMonitorBoxId",
+                        column: x => x.GenericMonitorBoxId,
+                        principalTable: "ModbusDevices",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -65,6 +148,70 @@ namespace FacilityMonitoring.Common.Migrations
                     Tank2Alarm = table.Column<bool>(nullable: true),
                     Tank3Alarm = table.Column<bool>(nullable: true),
                     Tank4Alarm = table.Column<bool>(nullable: true),
+                    AnalogCh1 = table.Column<float>(nullable: true),
+                    AnalogCh2 = table.Column<float>(nullable: true),
+                    AnalogCh3 = table.Column<float>(nullable: true),
+                    AnalogCh4 = table.Column<float>(nullable: true),
+                    AnalogCh5 = table.Column<float>(nullable: true),
+                    AnalogCh6 = table.Column<float>(nullable: true),
+                    AnalogCh7 = table.Column<float>(nullable: true),
+                    AnalogCh8 = table.Column<float>(nullable: true),
+                    AnalogCh9 = table.Column<float>(nullable: true),
+                    AnalogCh10 = table.Column<float>(nullable: true),
+                    AnalogCh11 = table.Column<float>(nullable: true),
+                    AnalogCh12 = table.Column<float>(nullable: true),
+                    AnalogCh13 = table.Column<float>(nullable: true),
+                    AnalogCh14 = table.Column<float>(nullable: true),
+                    AnalogCh15 = table.Column<float>(nullable: true),
+                    AnalogCh16 = table.Column<float>(nullable: true),
+                    DigitalCh1 = table.Column<bool>(nullable: true),
+                    DigitalCh2 = table.Column<bool>(nullable: true),
+                    DigitalCh3 = table.Column<bool>(nullable: true),
+                    DigitalCh4 = table.Column<bool>(nullable: true),
+                    DigitalCh5 = table.Column<bool>(nullable: true),
+                    DigitalCh6 = table.Column<bool>(nullable: true),
+                    DigitalCh7 = table.Column<bool>(nullable: true),
+                    DigitalCh8 = table.Column<bool>(nullable: true),
+                    DigitalCh9 = table.Column<bool>(nullable: true),
+                    DigitalCh10 = table.Column<bool>(nullable: true),
+                    DigitalCh11 = table.Column<bool>(nullable: true),
+                    DigitalCh12 = table.Column<bool>(nullable: true),
+                    DigitalCh13 = table.Column<bool>(nullable: true),
+                    DigitalCh14 = table.Column<bool>(nullable: true),
+                    DigitalCh15 = table.Column<bool>(nullable: true),
+                    DigitalCh16 = table.Column<bool>(nullable: true),
+                    DigitalCh17 = table.Column<bool>(nullable: true),
+                    DigitalCh18 = table.Column<bool>(nullable: true),
+                    DigitalCh19 = table.Column<bool>(nullable: true),
+                    DigitalCh20 = table.Column<bool>(nullable: true),
+                    DigitalCh21 = table.Column<bool>(nullable: true),
+                    DigitalCh22 = table.Column<bool>(nullable: true),
+                    DigitalCh23 = table.Column<bool>(nullable: true),
+                    DigitalCh24 = table.Column<bool>(nullable: true),
+                    DigitalCh25 = table.Column<bool>(nullable: true),
+                    DigitalCh26 = table.Column<bool>(nullable: true),
+                    DigitalCh27 = table.Column<bool>(nullable: true),
+                    DigitalCh28 = table.Column<bool>(nullable: true),
+                    DigitalCh29 = table.Column<bool>(nullable: true),
+                    DigitalCh30 = table.Column<bool>(nullable: true),
+                    DigitalCh31 = table.Column<bool>(nullable: true),
+                    DigitalCh32 = table.Column<bool>(nullable: true),
+                    DigitalCh33 = table.Column<bool>(nullable: true),
+                    DigitalCh34 = table.Column<bool>(nullable: true),
+                    DigitalCh35 = table.Column<bool>(nullable: true),
+                    DigitalCh36 = table.Column<bool>(nullable: true),
+                    DigitalCh37 = table.Column<bool>(nullable: true),
+                    DigitalCh38 = table.Column<bool>(nullable: true),
+                    OutputCh1 = table.Column<bool>(nullable: true),
+                    OutputCh2 = table.Column<bool>(nullable: true),
+                    OutputCh3 = table.Column<bool>(nullable: true),
+                    OutputCh4 = table.Column<bool>(nullable: true),
+                    OutputCh5 = table.Column<bool>(nullable: true),
+                    OutputCh6 = table.Column<bool>(nullable: true),
+                    OutputCh7 = table.Column<bool>(nullable: true),
+                    OutputCh8 = table.Column<bool>(nullable: true),
+                    OutputCh9 = table.Column<bool>(nullable: true),
+                    OutputCh10 = table.Column<bool>(nullable: true),
                     A200_Level_Flooded = table.Column<bool>(nullable: true),
                     A200_Level_High = table.Column<bool>(nullable: true),
                     A200_Level_Low = table.Column<bool>(nullable: true),
@@ -152,6 +299,21 @@ namespace FacilityMonitoring.Common.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_AnalogChannels_GenericMonitorBoxId",
+                table: "AnalogChannels",
+                column: "GenericMonitorBoxId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AnalogChannels_SensorTypeId",
+                table: "AnalogChannels",
+                column: "SensorTypeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DigitalChannels_GenericMonitorBoxId",
+                table: "DigitalChannels",
+                column: "GenericMonitorBoxId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Readings_ModbusDeviceId",
                 table: "Readings",
                 column: "ModbusDeviceId");
@@ -160,7 +322,16 @@ namespace FacilityMonitoring.Common.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "AnalogChannels");
+
+            migrationBuilder.DropTable(
+                name: "DigitalChannels");
+
+            migrationBuilder.DropTable(
                 name: "Readings");
+
+            migrationBuilder.DropTable(
+                name: "Categories");
 
             migrationBuilder.DropTable(
                 name: "ModbusDevices");

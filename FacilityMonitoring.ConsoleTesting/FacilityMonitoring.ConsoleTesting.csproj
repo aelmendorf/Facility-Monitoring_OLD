@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.0</TargetFramework>
-    <StartupObject>FacilityMonitoring.ConsoleTesting.Program</StartupObject>
+    <StartupObject></StartupObject>
     <ApplicationIcon />
   </PropertyGroup>
 

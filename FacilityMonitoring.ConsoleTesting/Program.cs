@@ -13,13 +13,299 @@ using ModbusDevice = FacilityMonitoring.Common.Model.ModbusDevice;
 namespace FacilityMonitoring.ConsoleTesting
 {
     class Program {
+        static string[] AnalogIdentifiers = {"H2 Detector 1","NH3 Detector","O2 Detector","Bad Channel","N2 Dew Point","H2 Detector",
+                                            "Bad Channel" , "Bad Channel","Not Connected","Not Connected","Not Connected","Not Connected" ,"Not Connected","Not Connected" ,
+                                            "Not Connected","Not Connected"};
+
         static double[] SlopeValues = {1.00476,1.00577,1.004007,1.00488,1.00448,1.00454,.99849,0.000,1.00448,1.00455,1.00450,1.00451,1.00456,1.00414,1.00456,0};
         static double[] OffsetValues = { 0.00998,0.00920,.008976,0.00919,0.00744,0.00791,-.00462,0.0000,0.00787,0.00763,0.00761,0.00761,0.00761,0.00833,0.00782,0.0000};
         static double[] RValues = {250.81,250.474,246.2776,210.223,250.58,240.204,332.018,0.000,250.902,250.918,250.684,250.808,251.002,250.576,250.821,0.000};
 
-
         static void Main(string[] args) {
-            TestingProgram();
+            //TestingFacilityModel();
+            ////ViewModelTesting();
+            //TestingCategories();
+            //TestingCategories2();
+            //TestingAnalogRead();
+            //TestingAddChannels();
+            //TestingProgram();
+
+        }
+
+
+        private static void TestingAnalogRead() {
+            using (var context = new FacilityContext()) {
+                var box = context.ModbusDevices.OfType<GenericMonitorBox>()
+                    .Include(e => e.Channels)
+                    .Include(e => e.Readings)
+                    .FirstOrDefault(e => e.Identifier == "GasBay");
+                if (box != null) {
+                    if (CheckConnection(box.IpAddress, 100)) {
+                        ushort[] regData;
+                        using (TcpClient client = new TcpClient(box.IpAddress, 502)) {
+                            ModbusIpMaster master = ModbusIpMaster.CreateIp(client);
+                            regData = master.ReadHoldingRegisters(0, (ushort)box.AnalogChannelCount);
+                            client.Close();
+                        }
+
+                        GenericBoxReading reading = new GenericBoxReading(DateTime.Now, "", box);
+                        foreach (var channel in box.Channels.OfType<AnalogChannel>().OrderBy(e=>e.ChannelNumber)) {
+                            double x = regData[channel.ChannelNumber-1];
+                            x = (x / 1000);
+                            double y = channel.Slope * x + channel.Offset;
+                            double current = (channel.Resistance != 0) ? (y / channel.Resistance) * 1000 : 0.00;
+                            reading[channel.PropertyMap] = current;
+                        }
+                        box.Readings.Add(reading);
+                        context.Readings.Add(reading);
+                        context.SaveChanges();
+                        Console.WriteLine("Press any key to continue");
+                        Console.ReadKey();
+                    } else {
+                        Console.WriteLine("Connection Failed");
+                    }
+                } else {
+                    Console.WriteLine("Error: Could not find device");
+                    Console.ReadKey();
+                }
+            }
+        }
+
+        private static void TestingCategories2() {
+            using(var context=new FacilityContext()) {
+                var h2Detect= context.Categories.OfType<SensorType>().FirstOrDefault(e => e.Name == "H2 Detector");
+                var NH3Detect= context.Categories.OfType<SensorType>().FirstOrDefault(e => e.Name == "NH3 Detector");
+                var O2Detect= context.Categories.OfType<SensorType>().FirstOrDefault(e => e.Name == "O2 Detector");
+                var N2Detect= context.Categories.OfType<SensorType>().FirstOrDefault(e => e.Name == "N2 Dewpoint Detector");
+
+                var h2_1 = context.Channels.OfType<AnalogChannel>().Include(e => e.SensorType).FirstOrDefault(e => e.Name == "H2 Detector 1");
+                if (h2_1 != null) {
+                    h2_1.Alarm1SetPoint = 50;
+                    h2_1.Alarm2SetPoint = 500;
+                    h2_1.Alarm3SetPoint = 1000;
+                    h2_1.SensorType = h2Detect;
+                    h2Detect.AnalogChannels.Add(h2_1);
+                    context.SaveChanges();
+                    Console.WriteLine("H2-1 Done");
+                } else {
+                    Console.WriteLine("Could not Find H2 Detector 1");
+                }
+
+                var Nh3 = context.Channels.OfType<AnalogChannel>().Include(e => e.SensorType).FirstOrDefault(e => e.Name == "NH3 Detector");
+                if (Nh3 != null) {
+                    Nh3.Alarm1SetPoint = 50;
+                    Nh3.Alarm2SetPoint = 500;
+                    Nh3.Alarm3SetPoint = 1000;
+                    Nh3.SensorType = NH3Detect;
+                    NH3Detect.AnalogChannels.Add(Nh3);
+                    context.SaveChanges();
+                    Console.WriteLine("Nh3 Done");
+                } else {
+                    Console.WriteLine("Could not Find H2 Detector 1");
+                }
+
+                var o2 = context.Channels.OfType<AnalogChannel>().Include(e => e.SensorType).FirstOrDefault(e => e.Name == "O2 Detector");
+                if (o2 != null) {
+                    o2.Alarm1SetPoint = 50;
+                    o2.Alarm2SetPoint = 500;
+                    o2.Alarm3SetPoint = 1000;
+                    o2.SensorType = O2Detect;
+                    O2Detect.AnalogChannels.Add(o2);
+                    context.SaveChanges();
+                    Console.WriteLine("o2 Done");
+                } else {
+                    Console.WriteLine("Could not Find H2 Detector 1");
+                }
+
+                var n2 = context.Channels.OfType<AnalogChannel>().Include(e => e.SensorType).FirstOrDefault(e => e.Name == "N2 Dew Point");
+                if (n2 != null) {
+                    n2.Alarm1SetPoint = 50;
+                    n2.Alarm2SetPoint = 500;
+                    n2.Alarm3SetPoint = 1000;
+                    n2.SensorType = N2Detect;
+                    N2Detect.AnalogChannels.Add(n2);
+                    context.SaveChanges();
+                    Console.WriteLine("n2 Done");
+                } else {
+                    Console.WriteLine("Could not Find H2 Detector 1");
+                }
+
+                //var h2_2 = context.Channels.OfType<AnalogChannel>().Include(e => e.SensorType).FirstOrDefault(e => e.Name == "H2 Detector");
+                //if (h2_2 != null) {
+                //    h2_2.Alarm1SetPoint = 50;
+                //    h2_2.Alarm2SetPoint = 500;
+                //    h2_2.Alarm3SetPoint = 1000;
+                //    h2_2.SensorType = h2Detect;
+                //    h2Detect.AnalogChannels.Add(h2_2);
+                //    context.SaveChanges();
+                //    Console.WriteLine("H2-2 Done");
+                //} else {
+                //    Console.WriteLine("Could not Find H2 Detector 1");
+                //}
+            }
+        }
+
+        private static void TestingCategories() {
+            using (var context = new FacilityContext()) {
+                SensorType h2 = new SensorType();
+                h2.ZeroCalibration = 0;
+                h2.MaxCalibration = 1066;
+                h2.ZeroValue = 4;
+                h2.MaxValue = 20;
+                h2.Name = "H2 Detector";
+
+                SensorType o2 = new SensorType();
+                o2.ZeroCalibration = 0;
+                o2.MaxCalibration = 26.66;
+                o2.ZeroValue = 4;
+                o2.MaxValue = 20;
+                o2.Name = "O2 Detector";
+
+                SensorType NH3 = new SensorType();
+                NH3.ZeroCalibration = 0;
+                NH3.MaxCalibration = 80.06;
+                NH3.ZeroValue = 4;
+                NH3.MaxValue = 20;
+                NH3.Name = "NH3 Detector";
+
+                SensorType N2 = new SensorType();
+                N2.ZeroCalibration = -120;
+                N2.MaxCalibration = -40;
+                N2.ZeroValue = 4;
+                N2.MaxValue = 20;
+                N2.Name = "N2 Dewpoint Detector";
+
+                context.Categories.Add(N2);
+                context.Categories.Add(NH3);
+                context.Categories.Add(o2);
+                context.Categories.Add(h2);
+                context.SaveChanges();
+                Console.WriteLine();
+            }
+            Console.ReadKey();
+        }
+
+        private static void TestingAddChannels() {
+            using (var context = new FacilityContext()) {
+                var device = context.ModbusDevices.OfType<GenericMonitorBox>()
+                    .Include(e => e.Readings)
+                    .Include(e => e.Channels)
+                    .FirstOrDefault(e => e.Identifier == "GasBay");
+
+                if (device != null) {
+                    Console.WriteLine("Device Found: {0}", device.Identifier);
+                    for (int i = 0; i < 38; i++) {
+                        DigitalChannel channel = new DigitalChannel("DigitalChannel" + (i + 1), (i + 1), false, true, LogicType.HIGH, Direction.INPUT);
+                        channel.PropertyMap = "DigitalCh"+(i+1);
+                        device.Channels.Add(channel);
+                        context.Channels.Add(channel);
+                    }
+
+
+                    for (int i = 0; i < 10; i++) {
+                        DigitalChannel channel = new DigitalChannel("OutputChannel" + (i + 1), (i + 1), false, true, LogicType.HIGH, Direction.OUTPUT);
+                        channel.PropertyMap = "OutputCh" + (i + 1);
+                        device.Channels.Add(channel);
+                        context.Channels.Add(channel);
+                    }
+                    context.SaveChanges();
+                    Console.WriteLine("Should be Done");
+                } else {
+                    Console.WriteLine("Error: Device Not Found");
+                }
+            }
+            Console.ReadKey();
+        }
+
+        private static void ViewModelTesting() {
+            using (var context = new FacilityContext()) {
+                var device = context.ModbusDevices.OfType<GenericMonitorBox>().Include(e => e.Readings).Include(e => e.Channels).FirstOrDefault(e => e.Identifier == "GasBay");
+                if (device != null) {
+                    Console.WriteLine("Device Found: {0}", device.Identifier);
+                    Console.WriteLine("Displaying Analog Channels");
+                    device.Channels.OfType<AnalogChannel>().ToList().ForEach(x => {
+                        Console.WriteLine("Name: {0}", x.Name);
+                    });
+                    Console.WriteLine("Should be done");
+                } else {
+                    Console.WriteLine("Error: Device Not Found");
+                }
+            }
+            Console.ReadKey();
+        }
+
+        private static void TestingFacilityModel() {
+            using (FacilityContext context = new FacilityContext()) {
+                GenericMonitorBox monitorBox = new GenericMonitorBox();
+                monitorBox.IpAddress = "172.21.100.30";
+                monitorBox.Port = 0;
+                monitorBox.Identifier = "GasBay";
+                monitorBox.SlaveAddress = 0;
+                monitorBox.Status = "Okay";
+                monitorBox.AnalogChannelCount = 16;
+                monitorBox.DigitalInputChannelCount = 38;
+                monitorBox.DigitalOutputChannelCount = 10;
+                context.ModbusDevices.Add(monitorBox);
+
+                for (int i = 0; i < SlopeValues.Length; i++) {
+                    AnalogChannel channel = new AnalogChannel(AnalogIdentifiers[i], i + 1, false, false);
+                    channel.Slope = SlopeValues[i];
+                    channel.Offset = OffsetValues[i];
+                    channel.Resistance = RValues[i];
+                    channel.GenericMonitorBox = monitorBox;
+                    channel.PropertyMap = "AnalogCh" + (i + 1);
+                    monitorBox.Channels.Add(channel);
+                    context.Channels.Add(channel);
+                }
+
+                //DigitalChannel digitalChannel1 = new DigitalChannel("Channel 1", 1, false, true, LogicType.HIGH, Direction.INPUT);
+                //DigitalChannel digitalChannel2 = new DigitalChannel("Ch2", 2, false, true, LogicType.HIGH, Direction.INPUT);
+                //DigitalChannel digitalChannel3 = new DigitalChannel("Ch3", 3, false, true, LogicType.HIGH, Direction.INPUT);
+                //DigitalChannel digitalChannel4 = new DigitalChannel("Ch4", 4, false, true, LogicType.HIGH, Direction.INPUT);
+                //DigitalChannel digitalChannel5 = new DigitalChannel("Ch5", 5, false, true, LogicType.HIGH, Direction.INPUT);
+                //DigitalChannel digitalChannel6 = new DigitalChannel("Ch6", 6, false, true, LogicType.HIGH, Direction.INPUT);
+                //DigitalChannel digitalChannel7 = new DigitalChannel("Ch7", 7, false, true, LogicType.HIGH, Direction.INPUT);
+                //DigitalChannel digitalChannel8 = new DigitalChannel("Ch8", 8, false, true, LogicType.HIGH, Direction.INPUT);
+                //DigitalChannel digitalChannel9 = new DigitalChannel("Ch9", 9, false, true, LogicType.HIGH, Direction.INPUT);
+                //DigitalChannel digitalChannel10 = new DigitalChannel("Ch10", 10, false, true, LogicType.HIGH, Direction.INPUT);
+
+                //cont
+
+                //DigitalChannel digitalChannel11 = new DigitalChannel("", 1, false, true, LogicType.HIGH, Direction.INPUT);
+                //DigitalChannel digitalChannel12 = new DigitalChannel("", 1, false, true, LogicType.HIGH, Direction.INPUT);
+                //DigitalChannel digitalChannel13 = new DigitalChannel("", 1, false, true, LogicType.HIGH, Direction.INPUT);
+                //DigitalChannel digitalChannel14 = new DigitalChannel("", 1, false, true, LogicType.HIGH, Direction.INPUT);
+                //DigitalChannel digitalChannel15 = new DigitalChannel("", 1, false, true, LogicType.HIGH, Direction.INPUT);
+                //DigitalChannel digitalChannel16 = new DigitalChannel("", 1, false, true, LogicType.HIGH, Direction.INPUT);
+                //DigitalChannel digitalChannel17 = new DigitalChannel("", 1, false, true, LogicType.HIGH, Direction.INPUT);
+                //DigitalChannel digitalChannel18 = new DigitalChannel("", 1, false, true, LogicType.HIGH, Direction.INPUT);
+                //DigitalChannel digitalChannel19 = new DigitalChannel("", 1, false, true, LogicType.HIGH, Direction.INPUT);
+                //DigitalChannel digitalChannel20 = new DigitalChannel("", 1, false, true, LogicType.HIGH, Direction.INPUT);
+                //DigitalChannel digitalChannel21 = new DigitalChannel("", 1, false, true, LogicType.HIGH, Direction.INPUT);
+                //DigitalChannel digitalChannel22 = new DigitalChannel("", 1, false, true, LogicType.HIGH, Direction.INPUT);
+                //DigitalChannel digitalChannel23 = new DigitalChannel("", 1, false, true, LogicType.HIGH, Direction.INPUT);
+                //DigitalChannel digitalChannel24 = new DigitalChannel("", 1, false, true, LogicType.HIGH, Direction.INPUT);
+                //DigitalChannel digitalChannel25 = new DigitalChannel("", 1, false, true, LogicType.HIGH, Direction.INPUT);
+                //DigitalChannel digitalChannel26 = new DigitalChannel("", 1, false, true, LogicType.HIGH, Direction.INPUT);
+                //DigitalChannel digitalChannel27 = new DigitalChannel("", 1, false, true, LogicType.HIGH, Direction.INPUT);
+                //DigitalChannel digitalChannel28 = new DigitalChannel("", 1, false, true, LogicType.HIGH, Direction.INPUT);
+                //DigitalChannel digitalChannel29 = new DigitalChannel("", 1, false, true, LogicType.HIGH, Direction.INPUT);
+                //DigitalChannel digitalChannel30 = new DigitalChannel("", 1, false, true, LogicType.HIGH, Direction.INPUT);
+                //DigitalChannel digitalChannel31 = new DigitalChannel("", 1, false, true, LogicType.HIGH, Direction.INPUT);
+                //DigitalChannel digitalChannel32 = new DigitalChannel("", 1, false, true, LogicType.HIGH, Direction.INPUT);
+                //DigitalChannel digitalChannel33 = new DigitalChannel("", 1, false, true, LogicType.HIGH, Direction.INPUT);
+                //DigitalChannel digitalChannel34 = new DigitalChannel("", 1, false, true, LogicType.HIGH, Direction.INPUT);
+                //DigitalChannel digitalChannel35 = new DigitalChannel("", 1, false, true, LogicType.HIGH, Direction.INPUT);
+                //DigitalChannel digitalChannel36 = new DigitalChannel("", 1, false, true, LogicType.HIGH, Direction.INPUT);
+                //DigitalChannel digitalChannel37 = new DigitalChannel("", 1, false, true, LogicType.HIGH, Direction.INPUT);
+                //DigitalChannel digitalChannel38 = new DigitalChannel("", 1, false, true, LogicType.HIGH, Direction.INPUT);
+
+
+
+                context.SaveChanges();
+            }
+            Console.WriteLine("Should be done");
+            Console.Read();
         }
 
         private static void TestingProgram() {
