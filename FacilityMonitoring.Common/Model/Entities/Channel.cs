@@ -6,7 +6,6 @@ namespace FacilityMonitoring.Common.Model {
     //High: High=true
     //Low:  Low=true
     public enum LogicType { HIGH, LOW }
-    public enum Direction { INPUT,OUTPUT}
 
     public abstract class Channel {
         public int Id { get; set; }
@@ -22,15 +21,6 @@ namespace FacilityMonitoring.Common.Model {
     }
 
     public partial class AnalogChannel:Channel  {
-        //public int Id { get; set; }
-        //public string Name { get; set; }
-        //public int ChannelNumber { get; set; }
-        //public bool Connected { get; set; }
-        //public bool Bypass { get; set; }
-
-        //public int GenericMonitorBoxId { get; set; }
-        //public virtual GenericMonitorBox GenericMonitorBox { get; set; }
-
         public int? SensorTypeId { get; set; }
         public virtual SensorType SensorType { get; set; }
 
@@ -56,29 +46,33 @@ namespace FacilityMonitoring.Common.Model {
 
     }
 
-    public partial class DigitalChannel:Channel  {
-        //public int Id { get; set; }
-        //public string Name { get; set; }
-        //public int ChannelNumber { get; set; }
-        //public bool Connected { get; set; }
-        //public bool Bypass { get; set; }
-
-        //public int GenericMonitorBoxId { get; set; }
-        //public virtual GenericMonitorBox GenericMonitorBox { get; set; }
-
+    public partial class DigitalInputChannel:Channel  {
         public LogicType Logic { get; set; }
-        public Direction Direction { get; set; }
 
-        public DigitalChannel(string name, int chnum, bool connected, bool bypass,LogicType ltype,Direction dir) {
+        public DigitalInputChannel(string name, int chnum, bool connected, bool bypass,LogicType ltype) {
             this.Logic = ltype;
-            this.Direction = dir;
             this.Name = name;
             this.ChannelNumber = chnum;
             this.Connected = connected;
             this.Bypass = bypass;
         }
 
-        public DigitalChannel() {
+        public DigitalInputChannel() {
+
+        }
+    }
+
+    public partial class DigitalOutputChannel:Channel {
+        public LogicType Logic { get; set; }
+        public DigitalOutputChannel(string name, int chnum, bool connected, bool bypass, LogicType ltype) {
+            this.Logic = ltype;
+            this.Name = name;
+            this.ChannelNumber = chnum;
+            this.Connected = connected;
+            this.Bypass = bypass;
+        }
+
+        public DigitalOutputChannel() {
 
         }
     }

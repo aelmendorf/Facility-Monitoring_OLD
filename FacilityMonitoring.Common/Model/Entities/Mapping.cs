@@ -21,10 +21,10 @@ namespace FacilityMonitoring.Common.Model {
     }
 
     public partial class DigitalInputMapping : Mapping {
-        public ICollection<DigitalChannel> DigitalChannels { get; set; }
+        public ICollection<DigitalInputChannel> DigitalChannels { get; set; }
 
         public DigitalInputMapping() {
-            this.DigitalChannels = new ObservableHashSet<DigitalChannel>();
+            this.DigitalChannels = new ObservableHashSet<DigitalInputChannel>();
         }
     }
 

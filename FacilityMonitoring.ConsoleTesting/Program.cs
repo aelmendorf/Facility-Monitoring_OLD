@@ -54,7 +54,6 @@ namespace FacilityMonitoring.ConsoleTesting
                             x = (x / 1000);
                             double y = channel.Slope * x + channel.Offset;
                             double current = (channel.Resistance != 0) ? (y / channel.Resistance) * 1000 : 0.00;
-                            reading[channel.PropertyMap] = current;
                         }
                         box.Readings.Add(reading);
                         context.Readings.Add(reading);
@@ -195,7 +194,7 @@ namespace FacilityMonitoring.ConsoleTesting
                 if (device != null) {
                     Console.WriteLine("Device Found: {0}", device.Identifier);
                     for (int i = 0; i < 38; i++) {
-                        DigitalChannel channel = new DigitalChannel("DigitalChannel" + (i + 1), (i + 1), false, true, LogicType.HIGH, Direction.INPUT);
+                        DigitalInputChannel channel = new DigitalInputChannel("DigitalChannel" + (i + 1), (i + 1), false, true, LogicType.HIGH);
                         channel.PropertyMap = "DigitalCh"+(i+1);
                         device.Channels.Add(channel);
                         context.Channels.Add(channel);
@@ -203,7 +202,7 @@ namespace FacilityMonitoring.ConsoleTesting
 
 
                     for (int i = 0; i < 10; i++) {
-                        DigitalChannel channel = new DigitalChannel("OutputChannel" + (i + 1), (i + 1), false, true, LogicType.HIGH, Direction.OUTPUT);
+                        DigitalInputChannel channel = new DigitalInputChannel("OutputChannel" + (i + 1), (i + 1), false, true, LogicType.HIGH);
                         channel.PropertyMap = "OutputCh" + (i + 1);
                         device.Channels.Add(channel);
                         context.Channels.Add(channel);

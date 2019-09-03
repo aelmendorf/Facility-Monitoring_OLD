@@ -33,7 +33,8 @@ namespace FacilityMonitoring.Common.Model {
             builder.Entity<GenericBoxReading>().HasBaseType<Reading>();
 
             builder.Entity<AnalogChannel>().HasBaseType<Channel>();
-            builder.Entity<DigitalChannel>().HasBaseType<Channel>();
+            builder.Entity<DigitalInputChannel>().HasBaseType<Channel>();
+            builder.Entity<DigitalOutputChannel>().HasBaseType<Channel>();
 
             builder.Entity<SensorType>().HasBaseType<Category>();
 
@@ -48,17 +49,6 @@ namespace FacilityMonitoring.Common.Model {
                 .WithMany(e => e.Channels)
                 .HasForeignKey(e => e.GenericMonitorBoxId)
                 .IsRequired(true);
-                
-
-            //builder.Entity<GenericMonitorBox>()
-            //    .HasMany(e => e.AnalogChannels)
-            //    .WithOne(e => e.GenericMonitorBox)
-            //    .HasForeignKey(e => e.GenericMonitorBoxId);
-
-            //builder.Entity<GenericMonitorBox>()
-            //    .HasMany(e => e.DigitalChannels)
-            //    .WithOne(e => e.GenericMonitorBox)
-            //    .HasForeignKey(e => e.GenericMonitorBoxId);
 
             builder.Entity<SensorType>()
                 .HasMany(e => e.AnalogChannels)

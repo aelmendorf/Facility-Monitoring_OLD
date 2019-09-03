@@ -1,13 +1,8 @@
 ﻿
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using System;
 using System.Collections.Generic;
 
 namespace FacilityMonitoring.Common.Model {
-
-    public enum AnalogSensorType {
-        H2,O2,NH3,N,NONE
-    }
 
     public partial class ModbusDevice {
         public int Id { get; set; }
@@ -39,14 +34,9 @@ namespace FacilityMonitoring.Common.Model {
         public int AnalogChannelCount { get; set; }
         public int DigitalInputChannelCount { get; set; }
         public int DigitalOutputChannelCount { get; set; }
-
-        //public ICollection<AnalogChannel> AnalogChannels { get; set; }
-        //public ICollection<DigitalChannel> DigitalChannels { get; set; }
         public ICollection<Channel> Channels { get; set; }
 
         public GenericMonitorBox() {
-            //this.DigitalChannels = new ObservableHashSet<DigitalChannel>();
-            //this.AnalogChannels = new ObservableHashSet<AnalogChannel>();
             this.Channels = new ObservableHashSet<Channel>();
         }
     }
