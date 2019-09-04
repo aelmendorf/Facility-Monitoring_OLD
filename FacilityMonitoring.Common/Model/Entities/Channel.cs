@@ -14,6 +14,7 @@ namespace FacilityMonitoring.Common.Model {
         public bool Connected { get; set; }
         public bool Bypass { get; set; }
         public string PropertyMap { get; set; }
+        public LogicType Logic { get; set; }
 
         public int GenericMonitorBoxId { get; set; }
         public virtual GenericMonitorBox GenericMonitorBox { get; set; }
@@ -32,12 +33,15 @@ namespace FacilityMonitoring.Common.Model {
         public double Alarm2SetPoint { get; set; }
         public double Alarm3SetPoint { get; set; }
 
-        public AnalogChannel(string name, int chnum, bool connected, bool bypass){
+        public double ValueDivisor { get; set; }
+
+        public AnalogChannel(string name, int chnum, bool connected, string pName){
             this.Name = name;
             this.ChannelNumber = chnum;
             this.Connected = connected;
-            this.Bypass = bypass;
-
+            this.PropertyMap = pName;
+            this.Bypass = false;
+            this.Logic = LogicType.HIGH;
         }
 
         public AnalogChannel() {
@@ -47,14 +51,15 @@ namespace FacilityMonitoring.Common.Model {
     }
 
     public partial class DigitalInputChannel:Channel  {
-        public LogicType Logic { get; set; }
+        
 
-        public DigitalInputChannel(string name, int chnum, bool connected, bool bypass,LogicType ltype) {
+        public DigitalInputChannel(string name, int chnum, bool connected, string pname, LogicType ltype) {
             this.Logic = ltype;
             this.Name = name;
             this.ChannelNumber = chnum;
             this.Connected = connected;
-            this.Bypass = bypass;
+            this.PropertyMap = pname;
+            this.Bypass = false;
         }
 
         public DigitalInputChannel() {
@@ -64,12 +69,14 @@ namespace FacilityMonitoring.Common.Model {
 
     public partial class DigitalOutputChannel:Channel {
         public LogicType Logic { get; set; }
-        public DigitalOutputChannel(string name, int chnum, bool connected, bool bypass, LogicType ltype) {
+
+        public DigitalOutputChannel(string name, int chnum, bool connected, string pname, LogicType ltype) {
             this.Logic = ltype;
             this.Name = name;
             this.ChannelNumber = chnum;
             this.Connected = connected;
-            this.Bypass = bypass;
+            this.PropertyMap = pname;
+            this.Bypass = false;
         }
 
         public DigitalOutputChannel() {

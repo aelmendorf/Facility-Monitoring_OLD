@@ -4,14 +4,16 @@ using FacilityMonitoring.Common.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace FacilityMonitoring.Common.Migrations
 {
     [DbContext(typeof(FacilityContext))]
-    partial class FacilityContextModelSnapshot : ModelSnapshot
+    [Migration("20190904135304_Buildv2.4")]
+    partial class Buildv24
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -53,8 +55,6 @@ namespace FacilityMonitoring.Common.Migrations
                         .IsRequired();
 
                     b.Property<int>("GenericMonitorBoxId");
-
-                    b.Property<int>("Logic");
 
                     b.Property<string>("Name");
 
@@ -131,8 +131,6 @@ namespace FacilityMonitoring.Common.Migrations
 
                     b.Property<double>("MaxValue");
 
-                    b.Property<string>("Units");
-
                     b.Property<double>("ZeroCalibration");
 
                     b.Property<double>("ZeroValue");
@@ -158,8 +156,6 @@ namespace FacilityMonitoring.Common.Migrations
 
                     b.Property<double>("Slope");
 
-                    b.Property<double>("ValueDivisor");
-
                     b.HasIndex("SensorTypeId");
 
                     b.HasDiscriminator().HasValue("AnalogChannel");
@@ -169,12 +165,17 @@ namespace FacilityMonitoring.Common.Migrations
                 {
                     b.HasBaseType("FacilityMonitoring.Common.Model.Channel");
 
+                    b.Property<int>("Logic");
+
                     b.HasDiscriminator().HasValue("DigitalInputChannel");
                 });
 
             modelBuilder.Entity("FacilityMonitoring.Common.Model.DigitalOutputChannel", b =>
                 {
                     b.HasBaseType("FacilityMonitoring.Common.Model.Channel");
+
+                    b.Property<int>("Logic")
+                        .HasColumnName("DigitalOutputChannel_Logic");
 
                     b.HasDiscriminator().HasValue("DigitalOutputChannel");
                 });

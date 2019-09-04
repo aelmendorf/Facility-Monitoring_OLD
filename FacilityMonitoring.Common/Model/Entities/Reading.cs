@@ -37,6 +37,7 @@ namespace FacilityMonitoring.Common.Model {
         public double AnalogCh14 { get; set; }
         public double AnalogCh15 { get; set; }
         public double AnalogCh16 { get; set; }
+
         public bool DigitalCh1 { get; set; }
         public bool DigitalCh2 { get; set; }
         public bool DigitalCh3 { get; set; }
@@ -283,6 +284,140 @@ namespace FacilityMonitoring.Common.Model {
                     case "OutputCh10":
                         this.OutputCh10 = Convert.ToBoolean(value);
                         break;
+                }
+            }
+            get {
+                switch (propertyName) {
+                    case "AnalogCh1":
+                        return AnalogCh1;
+                    case "AnalogCh2":
+                        return AnalogCh2;
+                    case "AnalogCh3":
+                        return AnalogCh3;
+                    case "AnalogCh4":
+                        return AnalogCh4;
+                    case "AnalogCh5":
+                        return AnalogCh5;
+                    case "AnalogCh6":
+                        return AnalogCh6;
+                    case "AnalogCh7":
+                        return AnalogCh7;
+                    case "AnalogCh8":
+                        return AnalogCh8;
+                    case "AnalogCh9":
+                        return AnalogCh9;
+                    case "AnalogCh10":
+                        return AnalogCh10;
+                    case "AnalogCh11":
+                        return AnalogCh11;
+                    case "AnalogCh12":
+                        return AnalogCh12;
+                    case "AnalogCh13":
+                        return AnalogCh13;
+                    case "AnalogCh14":
+                        return AnalogCh14;
+                    case "AnalogCh15":
+                        return AnalogCh15;
+                    case "AnalogCh16":
+                        return AnalogCh16;
+                    case "DigitalCh1":
+                        return this.DigitalCh1;
+                    case "DigitalCh2":
+                        return this.DigitalCh2;
+                    case "DigitalCh3":
+                        return this.DigitalCh1;
+                    case "DigitalCh4":
+                        return this.DigitalCh4;
+                    case "DigitalCh5":
+                        return this.DigitalCh5;
+                    case "DigitalCh6":
+                        return this.DigitalCh6;
+                    case "DigitalCh7":
+                        return this.DigitalCh7;
+                    case "DigitalCh8":
+                        return this.DigitalCh8;
+                    case "DigitalCh9":
+                        return this.DigitalCh9;
+                    case "DigitalCh10":
+                        return this.DigitalCh10;
+                    case "DigitalCh11":
+                        return this.DigitalCh11;
+                    case "DigitalCh12":
+                        return this.DigitalCh12;
+                    case "DigitalCh13":
+                        return this.DigitalCh13;
+                    case "DigitalCh14":
+                        return this.DigitalCh14;
+                    case "DigitalCh15":
+                        return this.DigitalCh15;
+                    case "DigitalCh16":
+                        return this.DigitalCh16;
+                    case "DigitalCh17":
+                        return this.DigitalCh17;
+                    case "DigitalCh18":
+                        return this.DigitalCh18;
+                    case "DigitalCh19":
+                        return this.DigitalCh19;
+                    case "DigitalCh20":
+                        return this.DigitalCh20;
+                    case "DigitalCh21":
+                        return this.DigitalCh21;
+                    case "DigitalCh22":
+                        return this.DigitalCh23;
+                    case "DigitalCh23":
+                        return this.DigitalCh23;
+                    case "DigitalCh24":
+                        return this.DigitalCh24;
+                    case "DigitalCh25":
+                        return this.DigitalCh25;
+                    case "DigitalCh26":
+                        return this.DigitalCh26;
+                    case "DigitalCh27":
+                        return this.DigitalCh27;
+                    case "DigitalCh28":
+                        return this.DigitalCh28;
+                    case "DigitalCh29":
+                        return this.DigitalCh29;
+                    case "DigitalCh30":
+                        return this.DigitalCh30;
+                    case "DigitalCh31":
+                        return this.DigitalCh31;
+                    case "DigitalCh32":
+                        return this.DigitalCh32;
+                    case "DigitalCh33":
+                        return this.DigitalCh33;
+                    case "DigitalCh34":
+                        return this.DigitalCh34;
+                    case "DigitalCh35":
+                        return this.DigitalCh35;
+                    case "DigitalCh36":
+                        return this.DigitalCh36;
+                    case "DigitalCh37":
+                        return this.DigitalCh37;
+                    case "DigitalCh38":
+                        return this.DigitalCh38;
+                    case "OutputCh1":
+                        return this.OutputCh1;
+                    case "OutputCh2":
+                        return this.OutputCh2;
+                    case "OutputCh3":
+                        return this.OutputCh3;
+                    case "OutputCh4":
+                        return this.OutputCh4;
+                    case "OutputCh5":
+                        return this.OutputCh5;
+                    case "OutputCh6":
+                        return this.OutputCh6;
+                    case "OutputCh7":
+                        return this.OutputCh7;
+                    case "OutputCh8":
+                        return this.OutputCh8;
+                    case "OutputCh9":
+                        return this.OutputCh9;
+                    case "OutputCh10":
+                        return this.OutputCh10;
+                    default: return null;
+
                 }
             }
         }

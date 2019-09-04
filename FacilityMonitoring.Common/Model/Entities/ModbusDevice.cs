@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.Collections.Generic;
 
 namespace FacilityMonitoring.Common.Model {
+    public enum DeviceState { ALARM,WARNING,OKAY, MAINTENANCE }
 
     public partial class ModbusDevice {
         public int Id { get; set; }
@@ -11,6 +12,7 @@ namespace FacilityMonitoring.Common.Model {
         public string IpAddress { get; set; }
         public int Port { get; set; }
         public int SlaveAddress { get; set; }
+        public DeviceState State { get; set; }
         public string Status { get; set; }
 
         public ICollection<Reading> Readings { get; set; }
@@ -34,6 +36,11 @@ namespace FacilityMonitoring.Common.Model {
         public int AnalogChannelCount { get; set; }
         public int DigitalInputChannelCount { get; set; }
         public int DigitalOutputChannelCount { get; set; }
+        //public int ModbusComAddr { get; set; }
+        //public int SoftwareMaintAddr { get; set; }
+        //public int WarningAddr { get; set; }
+        //public int AlarmAddr { get; set; }
+
         public ICollection<Channel> Channels { get; set; }
 
         public GenericMonitorBox() {

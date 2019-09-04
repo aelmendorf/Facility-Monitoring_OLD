@@ -7,8 +7,9 @@ using System.Timers;
 using FacilityMonitoring.Common.Model;
 using Microsoft.EntityFrameworkCore;
 using Modbus.Device;
+using Console_Table;
 using ModbusDevice = FacilityMonitoring.Common.Model.ModbusDevice;
-
+using System.Collections.Generic;
 
 namespace FacilityMonitoring.ConsoleTesting
 {
@@ -16,7 +17,6 @@ namespace FacilityMonitoring.ConsoleTesting
         static string[] AnalogIdentifiers = {"H2 Detector 1","NH3 Detector","O2 Detector","Bad Channel","N2 Dew Point","H2 Detector",
                                             "Bad Channel" , "Bad Channel","Not Connected","Not Connected","Not Connected","Not Connected" ,"Not Connected","Not Connected" ,
                                             "Not Connected","Not Connected"};
-
         static double[] SlopeValues = {1.00476,1.00577,1.004007,1.00488,1.00448,1.00454,.99849,0.000,1.00448,1.00455,1.00450,1.00451,1.00456,1.00414,1.00456,0};
         static double[] OffsetValues = { 0.00998,0.00920,.008976,0.00919,0.00744,0.00791,-.00462,0.0000,0.00787,0.00763,0.00761,0.00761,0.00761,0.00833,0.00782,0.0000};
         static double[] RValues = {250.81,250.474,246.2776,210.223,250.58,240.204,332.018,0.000,250.902,250.918,250.684,250.808,251.002,250.576,250.821,0.000};
@@ -26,12 +26,63 @@ namespace FacilityMonitoring.ConsoleTesting
             ////ViewModelTesting();
             //TestingCategories();
             //TestingCategories2();
-            //TestingAnalogRead();
+           // TestingAnalogRead();
             //TestingAddChannels();
+            //DisplayMeasurments();
             //TestingProgram();
-
         }
 
+        private static void DisplayMeasurments() {
+            using(FacilityContext context=new FacilityContext()) {
+                Stopwatch timer = new Stopwatch();
+                timer.Start();
+                var box = context.ModbusDevices.OfType<GenericMonitorBox>()
+                    .Include(e => e.Channels)
+                    .Include(e => e.Readings)
+                    .FirstOrDefault(e => e.Identifier == "GasBay");
+
+                if (box != null) {
+                    var analog=context.Channels.OfType<AnalogChannel>().Include(e=>e.SensorType).Where(e => e.Connected).OrderBy(e=>e.ChannelNumber);
+                    var digital= context.Channels.OfType<DigitalInputChannel>().Where(e => e.Connected).OrderBy(e => e.ChannelNumber);
+
+                    ConsoleTable analogTable = new ConsoleTable();
+                    ConsoleTable digitalTable = new ConsoleTable();
+
+                    analogTable.AddColumn(analog.Select(e => e.Name).ToList());
+                    digitalTable.AddColumn(digital.Select(e => e.Name).ToList());
+                    List<object> tempAnalog = new List<object>();
+                    List<object> tempDigital = new List<object>();
+                    foreach (var reading in box.Readings.OfType<GenericBoxReading>()) {
+                        foreach (var channel in analog) {
+                            double value=Convert.ToDouble(reading[channel.PropertyMap]);
+                            var calc = channel.SensorType.GetSlopeOffset();
+                            tempAnalog.Add(value*calc.Item1+calc.Item2);
+                        }
+
+                        foreach(var channel in digital) {
+                            tempDigital.Add(reading[channel.PropertyMap]);
+                        }
+
+                        analogTable.AddRow(tempAnalog.ToArray());
+                        digitalTable.AddRow(tempDigital.ToArray());
+
+                        tempAnalog.Clear();
+                        tempDigital.Clear();
+                    }
+                    Console.WriteLine("Analog Channels");
+                    Console.WriteLine(analogTable.ToMinimalString());
+                    Console.WriteLine();
+                    Console.WriteLine("Digital Channels");
+                    Console.WriteLine(digitalTable.ToMinimalString());
+                    timer.Stop();
+                    Console.WriteLine();
+                    Console.WriteLine("Elapsed Time(ms): {0}",timer.ElapsedMilliseconds);
+                    Console.ReadKey();
+                } else {
+                    Console.WriteLine("Error: device not found");
+                }
+            }
+        }
 
         private static void TestingAnalogRead() {
             using (var context = new FacilityContext()) {
@@ -42,9 +93,11 @@ namespace FacilityMonitoring.ConsoleTesting
                 if (box != null) {
                     if (CheckConnection(box.IpAddress, 100)) {
                         ushort[] regData;
+                        bool[] coilData;
                         using (TcpClient client = new TcpClient(box.IpAddress, 502)) {
                             ModbusIpMaster master = ModbusIpMaster.CreateIp(client);
                             regData = master.ReadHoldingRegisters(0, (ushort)box.AnalogChannelCount);
+                            coilData = master.ReadCoils(0, (ushort)box.DigitalInputChannelCount);
                             client.Close();
                         }
 
@@ -54,7 +107,13 @@ namespace FacilityMonitoring.ConsoleTesting
                             x = (x / 1000);
                             double y = channel.Slope * x + channel.Offset;
                             double current = (channel.Resistance != 0) ? (y / channel.Resistance) * 1000 : 0.00;
+                            reading[channel.PropertyMap] = current;
                         }
+
+                        foreach(var channel in box.Channels.OfType<DigitalInputChannel>().OrderBy(e => e.ChannelNumber)) {
+                            reading[channel.PropertyMap] = coilData[channel.ChannelNumber-1];
+                        }
+
                         box.Readings.Add(reading);
                         context.Readings.Add(reading);
                         context.SaveChanges();
@@ -129,18 +188,18 @@ namespace FacilityMonitoring.ConsoleTesting
                     Console.WriteLine("Could not Find H2 Detector 1");
                 }
 
-                //var h2_2 = context.Channels.OfType<AnalogChannel>().Include(e => e.SensorType).FirstOrDefault(e => e.Name == "H2 Detector");
-                //if (h2_2 != null) {
-                //    h2_2.Alarm1SetPoint = 50;
-                //    h2_2.Alarm2SetPoint = 500;
-                //    h2_2.Alarm3SetPoint = 1000;
-                //    h2_2.SensorType = h2Detect;
-                //    h2Detect.AnalogChannels.Add(h2_2);
-                //    context.SaveChanges();
-                //    Console.WriteLine("H2-2 Done");
-                //} else {
-                //    Console.WriteLine("Could not Find H2 Detector 1");
-                //}
+                var h2_2 = context.Channels.OfType<AnalogChannel>().Include(e => e.SensorType).FirstOrDefault(e => e.Name == "H2 Detector");
+                if (h2_2 != null) {
+                    h2_2.Alarm1SetPoint = 50;
+                    h2_2.Alarm2SetPoint = 500;
+                    h2_2.Alarm3SetPoint = 1000;
+                    h2_2.SensorType = h2Detect;
+                    h2Detect.AnalogChannels.Add(h2_2);
+                    context.SaveChanges();
+                    Console.WriteLine("H2-2 Done");
+                } else {
+                    Console.WriteLine("Could not Find H2 Detector 1");
+                }
             }
         }
 
@@ -184,38 +243,6 @@ namespace FacilityMonitoring.ConsoleTesting
             Console.ReadKey();
         }
 
-        private static void TestingAddChannels() {
-            using (var context = new FacilityContext()) {
-                var device = context.ModbusDevices.OfType<GenericMonitorBox>()
-                    .Include(e => e.Readings)
-                    .Include(e => e.Channels)
-                    .FirstOrDefault(e => e.Identifier == "GasBay");
-
-                if (device != null) {
-                    Console.WriteLine("Device Found: {0}", device.Identifier);
-                    for (int i = 0; i < 38; i++) {
-                        DigitalInputChannel channel = new DigitalInputChannel("DigitalChannel" + (i + 1), (i + 1), false, true, LogicType.HIGH);
-                        channel.PropertyMap = "DigitalCh"+(i+1);
-                        device.Channels.Add(channel);
-                        context.Channels.Add(channel);
-                    }
-
-
-                    for (int i = 0; i < 10; i++) {
-                        DigitalInputChannel channel = new DigitalInputChannel("OutputChannel" + (i + 1), (i + 1), false, true, LogicType.HIGH);
-                        channel.PropertyMap = "OutputCh" + (i + 1);
-                        device.Channels.Add(channel);
-                        context.Channels.Add(channel);
-                    }
-                    context.SaveChanges();
-                    Console.WriteLine("Should be Done");
-                } else {
-                    Console.WriteLine("Error: Device Not Found");
-                }
-            }
-            Console.ReadKey();
-        }
-
         private static void ViewModelTesting() {
             using (var context = new FacilityContext()) {
                 var device = context.ModbusDevices.OfType<GenericMonitorBox>().Include(e => e.Readings).Include(e => e.Channels).FirstOrDefault(e => e.Identifier == "GasBay");
@@ -247,60 +274,102 @@ namespace FacilityMonitoring.ConsoleTesting
                 context.ModbusDevices.Add(monitorBox);
 
                 for (int i = 0; i < SlopeValues.Length; i++) {
-                    AnalogChannel channel = new AnalogChannel(AnalogIdentifiers[i], i + 1, false, false);
+                    bool connected;
+                    if(i<3 || i==4 || i==5) {
+                        connected = true;
+                    } else {
+                        connected = false;
+                    }
+                    AnalogChannel channel = new AnalogChannel(AnalogIdentifiers[i], i + 1, connected , "AnalogCh" + (i + 1));
                     channel.Slope = SlopeValues[i];
                     channel.Offset = OffsetValues[i];
                     channel.Resistance = RValues[i];
                     channel.GenericMonitorBox = monitorBox;
-                    channel.PropertyMap = "AnalogCh" + (i + 1);
                     monitorBox.Channels.Add(channel);
                     context.Channels.Add(channel);
                 }
 
-                //DigitalChannel digitalChannel1 = new DigitalChannel("Channel 1", 1, false, true, LogicType.HIGH, Direction.INPUT);
-                //DigitalChannel digitalChannel2 = new DigitalChannel("Ch2", 2, false, true, LogicType.HIGH, Direction.INPUT);
-                //DigitalChannel digitalChannel3 = new DigitalChannel("Ch3", 3, false, true, LogicType.HIGH, Direction.INPUT);
-                //DigitalChannel digitalChannel4 = new DigitalChannel("Ch4", 4, false, true, LogicType.HIGH, Direction.INPUT);
-                //DigitalChannel digitalChannel5 = new DigitalChannel("Ch5", 5, false, true, LogicType.HIGH, Direction.INPUT);
-                //DigitalChannel digitalChannel6 = new DigitalChannel("Ch6", 6, false, true, LogicType.HIGH, Direction.INPUT);
-                //DigitalChannel digitalChannel7 = new DigitalChannel("Ch7", 7, false, true, LogicType.HIGH, Direction.INPUT);
-                //DigitalChannel digitalChannel8 = new DigitalChannel("Ch8", 8, false, true, LogicType.HIGH, Direction.INPUT);
-                //DigitalChannel digitalChannel9 = new DigitalChannel("Ch9", 9, false, true, LogicType.HIGH, Direction.INPUT);
-                //DigitalChannel digitalChannel10 = new DigitalChannel("Ch10", 10, false, true, LogicType.HIGH, Direction.INPUT);
+                for(int i = 1; i < 39; i++) {
+                    LogicType type = (i <= 22) ? LogicType.LOW : LogicType.HIGH;
+                    DigitalInputChannel channel;
+                    switch (i) {
+                        case 7: {
+                            channel = new DigitalInputChannel("DI Water Gauge", i, true, "DigitalCh"+i, type);
+                            break;
+                        }
+                        case 8: {
+                            channel = new DigitalInputChannel("Ammonia Gauge 2", i, true, "DigitalCh" + i, type);
+                            break;
+                        }
+                        case 9: {
+                            channel = new DigitalInputChannel("Ammonia Gauge 1", i, true, "DigitalCh" + i, type);
+                            break;
+                        }
+                        case 10: {
+                            channel = new DigitalInputChannel("Hydrogen Gauge", i, true, "DigitalCh" + i, type);
+                            break;
+                        }
+                        case 22: {
+                            channel = new DigitalInputChannel("Maint. Key Switch", i, true, "DigitalCh" + i, type);
+                            break;
+                        }
+                        case 23: {
+                            channel = new DigitalInputChannel("Power Supply 1", i, true, "DigitalCh" + i, type);
+                            break;
+                        }
+                        case 24: {
+                            channel = new DigitalInputChannel("Power Supply 2", i, true, "DigitalCh" + i, type);
+                            break;
+                        }
+                        case 25: {
+                            channel = new DigitalInputChannel("Nitrogen Gauge", i, true, "DigitalCh" + i, type);
+                            break;
+                        }
+                        default: {
+                            channel = new DigitalInputChannel("None", i, false, "DigitalCh" + i, type);
+                            break;
+                        }
+                    }
+                    monitorBox.Channels.Add(channel);
+                    context.Channels.Add(channel);
+                }
 
-                //cont
-
-                //DigitalChannel digitalChannel11 = new DigitalChannel("", 1, false, true, LogicType.HIGH, Direction.INPUT);
-                //DigitalChannel digitalChannel12 = new DigitalChannel("", 1, false, true, LogicType.HIGH, Direction.INPUT);
-                //DigitalChannel digitalChannel13 = new DigitalChannel("", 1, false, true, LogicType.HIGH, Direction.INPUT);
-                //DigitalChannel digitalChannel14 = new DigitalChannel("", 1, false, true, LogicType.HIGH, Direction.INPUT);
-                //DigitalChannel digitalChannel15 = new DigitalChannel("", 1, false, true, LogicType.HIGH, Direction.INPUT);
-                //DigitalChannel digitalChannel16 = new DigitalChannel("", 1, false, true, LogicType.HIGH, Direction.INPUT);
-                //DigitalChannel digitalChannel17 = new DigitalChannel("", 1, false, true, LogicType.HIGH, Direction.INPUT);
-                //DigitalChannel digitalChannel18 = new DigitalChannel("", 1, false, true, LogicType.HIGH, Direction.INPUT);
-                //DigitalChannel digitalChannel19 = new DigitalChannel("", 1, false, true, LogicType.HIGH, Direction.INPUT);
-                //DigitalChannel digitalChannel20 = new DigitalChannel("", 1, false, true, LogicType.HIGH, Direction.INPUT);
-                //DigitalChannel digitalChannel21 = new DigitalChannel("", 1, false, true, LogicType.HIGH, Direction.INPUT);
-                //DigitalChannel digitalChannel22 = new DigitalChannel("", 1, false, true, LogicType.HIGH, Direction.INPUT);
-                //DigitalChannel digitalChannel23 = new DigitalChannel("", 1, false, true, LogicType.HIGH, Direction.INPUT);
-                //DigitalChannel digitalChannel24 = new DigitalChannel("", 1, false, true, LogicType.HIGH, Direction.INPUT);
-                //DigitalChannel digitalChannel25 = new DigitalChannel("", 1, false, true, LogicType.HIGH, Direction.INPUT);
-                //DigitalChannel digitalChannel26 = new DigitalChannel("", 1, false, true, LogicType.HIGH, Direction.INPUT);
-                //DigitalChannel digitalChannel27 = new DigitalChannel("", 1, false, true, LogicType.HIGH, Direction.INPUT);
-                //DigitalChannel digitalChannel28 = new DigitalChannel("", 1, false, true, LogicType.HIGH, Direction.INPUT);
-                //DigitalChannel digitalChannel29 = new DigitalChannel("", 1, false, true, LogicType.HIGH, Direction.INPUT);
-                //DigitalChannel digitalChannel30 = new DigitalChannel("", 1, false, true, LogicType.HIGH, Direction.INPUT);
-                //DigitalChannel digitalChannel31 = new DigitalChannel("", 1, false, true, LogicType.HIGH, Direction.INPUT);
-                //DigitalChannel digitalChannel32 = new DigitalChannel("", 1, false, true, LogicType.HIGH, Direction.INPUT);
-                //DigitalChannel digitalChannel33 = new DigitalChannel("", 1, false, true, LogicType.HIGH, Direction.INPUT);
-                //DigitalChannel digitalChannel34 = new DigitalChannel("", 1, false, true, LogicType.HIGH, Direction.INPUT);
-                //DigitalChannel digitalChannel35 = new DigitalChannel("", 1, false, true, LogicType.HIGH, Direction.INPUT);
-                //DigitalChannel digitalChannel36 = new DigitalChannel("", 1, false, true, LogicType.HIGH, Direction.INPUT);
-                //DigitalChannel digitalChannel37 = new DigitalChannel("", 1, false, true, LogicType.HIGH, Direction.INPUT);
-                //DigitalChannel digitalChannel38 = new DigitalChannel("", 1, false, true, LogicType.HIGH, Direction.INPUT);
-
-
-
+                for (int i = 1; i < 11; i++) {
+                    DigitalOutputChannel channel;
+                    LogicType type = (i >= 7) ? LogicType.LOW : LogicType.HIGH;
+                    switch (i) {
+                        case 1: {
+                            channel = new DigitalOutputChannel("Bad Channel", i, true, "OutputCh" + i, type);
+                            break;
+                        }
+                        case 2: {
+                            channel = new DigitalOutputChannel("Bad Channel", i, true, "OutputCh" + i, type);
+                            break;
+                        }
+                        case 7: {
+                            channel = new DigitalOutputChannel("Pump Emg. On/Off", i, true, "OutputCh" + i, type);
+                            break;
+                        }
+                        case 8: {
+                            channel = new DigitalOutputChannel("Green/Okay", i, true, "OutputCh" + i, type);
+                            break;
+                        }
+                        case 9: {
+                            channel = new DigitalOutputChannel("Yellow/Warning", i, true, "OutputCh" + i, type);
+                            break;
+                        }
+                        case 10: {
+                            channel = new DigitalOutputChannel("Red/Alarm", i, true, "OutputCh" + i, type);
+                            break;
+                        }
+                        default: {
+                            channel = new DigitalOutputChannel("None", i, false, "OutputCh" + i, type);
+                            break;
+                        }
+                    }
+                    monitorBox.Channels.Add(channel);
+                    context.Channels.Add(channel);
+                }
                 context.SaveChanges();
             }
             Console.WriteLine("Should be done");

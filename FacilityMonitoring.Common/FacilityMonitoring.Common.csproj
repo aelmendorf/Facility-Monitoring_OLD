@@ -14,4 +14,14 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="ModbusDriver\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="NModbus4">
+      <HintPath>..\..\..\Libraries\NModbus4-portable-3.0\NModbus4\bin\Release\netstandard2.0\NModbus4.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

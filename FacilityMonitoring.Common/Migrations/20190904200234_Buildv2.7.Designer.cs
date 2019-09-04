@@ -4,14 +4,16 @@ using FacilityMonitoring.Common.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace FacilityMonitoring.Common.Migrations
 {
     [DbContext(typeof(FacilityContext))]
-    partial class FacilityContextModelSnapshot : ModelSnapshot
+    [Migration("20190904200234_Buildv2.7")]
+    partial class Buildv27
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -183,11 +185,19 @@ namespace FacilityMonitoring.Common.Migrations
                 {
                     b.HasBaseType("FacilityMonitoring.Common.Model.ModbusDevice");
 
+                    b.Property<int>("AlarmAddr");
+
                     b.Property<int>("AnalogChannelCount");
 
                     b.Property<int>("DigitalInputChannelCount");
 
                     b.Property<int>("DigitalOutputChannelCount");
+
+                    b.Property<int>("ModbusComAddr");
+
+                    b.Property<int>("SoftwareMaintAddr");
+
+                    b.Property<int>("WarningAddr");
 
                     b.HasDiscriminator().HasValue("GenericMonitorBox");
                 });
