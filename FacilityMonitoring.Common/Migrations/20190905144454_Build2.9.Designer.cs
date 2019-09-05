@@ -4,14 +4,16 @@ using FacilityMonitoring.Common.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace FacilityMonitoring.Common.Migrations
 {
     [DbContext(typeof(FacilityContext))]
-    partial class FacilityContextModelSnapshot : ModelSnapshot
+    [Migration("20190905144454_Build2.9")]
+    partial class Build29
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -127,11 +129,15 @@ namespace FacilityMonitoring.Common.Migrations
                 {
                     b.HasBaseType("FacilityMonitoring.Common.Model.Category");
 
-                    b.Property<double>("MaxPoint");
+                    b.Property<double>("MaxCalibration");
+
+                    b.Property<double>("MaxValue");
 
                     b.Property<string>("Units");
 
-                    b.Property<double>("ZeroPoint");
+                    b.Property<double>("ZeroCalibration");
+
+                    b.Property<double>("ZeroValue");
 
                     b.HasDiscriminator().HasValue("SensorType");
                 });
@@ -183,19 +189,11 @@ namespace FacilityMonitoring.Common.Migrations
                 {
                     b.HasBaseType("FacilityMonitoring.Common.Model.ModbusDevice");
 
-                    b.Property<int>("AlarmAddr");
-
                     b.Property<int>("AnalogChannelCount");
 
                     b.Property<int>("DigitalInputChannelCount");
 
                     b.Property<int>("DigitalOutputChannelCount");
-
-                    b.Property<int>("ModbusComAddr");
-
-                    b.Property<int>("SoftwareMaintAddr");
-
-                    b.Property<int>("WarningAddr");
 
                     b.HasDiscriminator().HasValue("GenericMonitorBox");
                 });

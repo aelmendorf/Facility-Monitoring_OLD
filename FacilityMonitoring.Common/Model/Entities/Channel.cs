@@ -1,13 +1,23 @@
 ﻿using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace FacilityMonitoring.Common.Model {
-    //High: High=true
-    //Low:  Low=true
+
+    //Inputs
+    //High: Logic High=Tripped
+    //Low:  Logic Low=Tripped
+
+    //Outputs
+    // High: Logic High=Turn on
+    // Low:  Logic Low=Turn on
+
     public enum LogicType { HIGH, LOW }
+    public enum AlarmAction { ALARM,WARN,NOTHING }
 
     public abstract class Channel {
+
         public int Id { get; set; }
         public string Name { get; set; }
         public int ChannelNumber { get; set; }
@@ -21,7 +31,7 @@ namespace FacilityMonitoring.Common.Model {
 
     }
 
-    public partial class AnalogChannel:Channel  {
+    public partial class AnalogChannel:Channel{
         public int? SensorTypeId { get; set; }
         public virtual SensorType SensorType { get; set; }
 
@@ -29,9 +39,20 @@ namespace FacilityMonitoring.Common.Model {
         public double Offset { get; set; }
         public double Resistance { get; set; }
 
+        public double ZeroValue { get; set; }
+        public double MaxValue { get; set; }
+
         public double Alarm1SetPoint { get; set; }
+        public AlarmAction Alarm1Action { get; set; }
+        public bool Alarm1Enabled { get; set; }
+
         public double Alarm2SetPoint { get; set; }
+        public AlarmAction Alarm2Action { get; set; }
+        public bool Alarm2Enabled { get; set; }
+
         public double Alarm3SetPoint { get; set; }
+        public AlarmAction Alarm3Action { get; set; }
+        public bool Alarm3Enabled { get; set; }
 
         public double ValueDivisor { get; set; }
 
@@ -48,10 +69,20 @@ namespace FacilityMonitoring.Common.Model {
 
         }
 
+        public Tuple<double,double> GetEquationParameters() {
+            if (this.SensorType != null) {
+                double slope = (this.SensorType.MaxPoint - this.SensorType.ZeroPoint) / (this.MaxValue - this.ZeroValue);
+                double offset = (slope * (-1 * this.ZeroValue)) + this.SensorType.ZeroPoint;
+                return new Tuple<double, double>(slope, offset);
+            } else {
+                return null;
+            }
+        }
     }
 
     public partial class DigitalInputChannel:Channel  {
-        
+
+        public AlarmAction AlarmAction { get; set; }
 
         public DigitalInputChannel(string name, int chnum, bool connected, string pname, LogicType ltype) {
             this.Logic = ltype;
@@ -68,7 +99,6 @@ namespace FacilityMonitoring.Common.Model {
     }
 
     public partial class DigitalOutputChannel:Channel {
-        public LogicType Logic { get; set; }
 
         public DigitalOutputChannel(string name, int chnum, bool connected, string pname, LogicType ltype) {
             this.Logic = ltype;

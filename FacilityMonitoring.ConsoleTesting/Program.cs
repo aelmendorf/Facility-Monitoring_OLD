@@ -10,6 +10,7 @@ using Modbus.Device;
 using Console_Table;
 using ModbusDevice = FacilityMonitoring.Common.Model.ModbusDevice;
 using System.Collections.Generic;
+using System.Text;
 
 namespace FacilityMonitoring.ConsoleTesting
 {
@@ -20,16 +21,145 @@ namespace FacilityMonitoring.ConsoleTesting
         static double[] SlopeValues = {1.00476,1.00577,1.004007,1.00488,1.00448,1.00454,.99849,0.000,1.00448,1.00455,1.00450,1.00451,1.00456,1.00414,1.00456,0};
         static double[] OffsetValues = { 0.00998,0.00920,.008976,0.00919,0.00744,0.00791,-.00462,0.0000,0.00787,0.00763,0.00761,0.00761,0.00761,0.00833,0.00782,0.0000};
         static double[] RValues = {250.81,250.474,246.2776,210.223,250.58,240.204,332.018,0.000,250.902,250.918,250.684,250.808,251.002,250.576,250.821,0.000};
+        static double[] MinValues = {4,4,4,0,4,4.152,0,0,0,0,0,0,0,0,0,0 };
+        static double[] MaxValues = { 20, 20, 20, 0, 20, 20.868, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+        static double[] Alarm1SetPoints = { 300, 10, 0, 0,  0, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+        static double[] Alarm2SetPoints = { 500, 25, 23,0, -118, 500, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+        static double[] Alarm3SetPoints = { 1000, 50, 25, 0, -118, 1000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
         static void Main(string[] args) {
             //TestingFacilityModel();
             ////ViewModelTesting();
             //TestingCategories();
             //TestingCategories2();
-           // TestingAnalogRead();
+            //TestingAnalogRead();
             //TestingAddChannels();
             //DisplayMeasurments();
             //TestingProgram();
+            ReadAndDisplay2();
+            //SendMaintNew();
+        }
+
+        private static void SendMaintNew() {
+            if (CheckConnection("172.21.100.30", 500)) {
+                using (var context = new FacilityContext()) {
+                    var box = context.ModbusDevices.OfType<GenericMonitorBox>()
+                        .Include(e => e.Channels)
+                        .Include(e => e.Readings)
+                        .FirstOrDefault(e => e.Identifier == "GasBay");
+                    if (box != null) {
+                        ushort[] regData = { 0, 0, 0, 0, 0, 0, 1, 1, 1, 1 };
+                        using (TcpClient client = new TcpClient("172.21.100.30", 502)) {
+                            bool[] com = { true,true,false,false};
+                            ModbusIpMaster master = ModbusIpMaster.CreateIp(client);
+                            master.WriteMultipleCoils((ushort)box.ModbusComAddr, com);
+                            while (true) {
+                                var check = master.ReadCoils((ushort)box.ModbusComAddr, 1);
+                                if (!check[0]) {
+                                    break;
+                                }
+                            }
+                            client.Close();
+                        }
+                        Console.WriteLine("Press any key to continue");
+                    } else {
+                        Console.WriteLine("Error: Box not found");
+                    }
+
+                }
+            } else {
+                Console.WriteLine("Connection Failed");
+            }
+            Console.ReadKey();
+        }
+
+        private static void ReadAndDisplay2() {
+            using (var context = new FacilityContext()) {
+                var box = context.ModbusDevices.OfType<GenericMonitorBox>()
+                    .Include(e => e.Channels)
+                    .Include(e => e.Readings)
+                    .FirstOrDefault(e => e.Identifier == "GasBay");
+                if (box != null) {
+                    while (true) { 
+                        if (CheckConnection(box.IpAddress, 100)) {
+                            ushort[] regData;
+                            bool[] coilData;
+                            using (TcpClient client = new TcpClient(box.IpAddress, 502)) {
+                                ModbusIpMaster master = ModbusIpMaster.CreateIp(client);
+                                regData = master.ReadHoldingRegisters(0, (ushort)box.AnalogChannelCount);
+                                coilData = master.ReadCoils(0, (ushort)box.DigitalInputChannelCount);
+                                client.Close();
+                            }
+
+                            GenericBoxReading reading = new GenericBoxReading(DateTime.Now, "", box);
+                            foreach (var channel in box.Channels.OfType<AnalogChannel>().OrderBy(e => e.ChannelNumber)) {
+                                double x = regData[channel.ChannelNumber - 1];
+                                x = (x / 1000);
+                                double y = channel.Slope * x + channel.Offset;
+                                double current = (channel.Resistance != 0) ? (y / channel.Resistance) * 1000 : 0.00;
+                                reading[channel.PropertyMap] = current;
+                            }
+
+                            foreach (var channel in box.Channels.OfType<DigitalInputChannel>().OrderBy(e => e.ChannelNumber)) {
+                                reading[channel.PropertyMap] = coilData[channel.ChannelNumber - 1];
+                            }
+
+                            box.Readings.Add(reading);
+                            context.Readings.Add(reading);
+                            context.SaveChanges();
+
+                            var analog = context.Channels.OfType<AnalogChannel>().Include(e => e.SensorType).Where(e => e.Connected).OrderBy(e => e.ChannelNumber);
+                            var digital = context.Channels.OfType<DigitalInputChannel>().Where(e => e.Connected).OrderBy(e => e.ChannelNumber);
+
+                            ConsoleTable analogTable = new ConsoleTable();
+                            ConsoleTable digitalTable = new ConsoleTable();
+
+                            analogTable.AddColumn(analog.Select(e => e.Name).ToList());
+                            digitalTable.AddColumn(digital.Select(e => e.Name).ToList());
+                            List<object> tempAnalog = new List<object>();
+                            List<object> tempDigital = new List<object>();
+                            foreach (var read in box.Readings.OfType<GenericBoxReading>()) {
+                                foreach (var channel in analog) {
+                                    double value = Convert.ToDouble(read[channel.PropertyMap]);
+                                    var calc = channel.GetEquationParameters();
+                                    StringBuilder builder = new StringBuilder();
+                                    builder.AppendFormat("({0},{1})", Math.Round(value, 3), Math.Round((value * calc.Item1 + calc.Item2), 3));
+                                    tempAnalog.Add(builder.ToString());
+                                }
+
+                                foreach (var channel in digital) {
+                                    tempDigital.Add(reading[channel.PropertyMap]);
+                                }
+
+                                analogTable.AddRow(tempAnalog.ToArray());
+                                digitalTable.AddRow(tempDigital.ToArray());
+
+                                tempAnalog.Clear();
+                                tempDigital.Clear();
+                            }
+                            Console.WriteLine("Analog Channels");
+                            Console.WriteLine(analogTable.ToMinimalString());
+                            Console.WriteLine();
+                            Console.WriteLine("Digital Channels");
+                            Console.WriteLine(digitalTable.ToMinimalString());
+                            Console.WriteLine();
+                            Console.WriteLine("Press A to continue or E to Exit");
+                            var key = Console.ReadKey().Key;
+                            if (key == ConsoleKey.E) {
+                                break;
+                            } else {
+                                Console.Clear();
+                            }
+
+                        } else {
+                            Console.WriteLine("Connection Failed");
+                        }
+                    }
+                } else {
+                    Console.WriteLine("Error: Could not find device");
+                    Console.ReadKey();
+                }
+            }
         }
 
         private static void DisplayMeasurments() {
@@ -55,8 +185,10 @@ namespace FacilityMonitoring.ConsoleTesting
                     foreach (var reading in box.Readings.OfType<GenericBoxReading>()) {
                         foreach (var channel in analog) {
                             double value=Convert.ToDouble(reading[channel.PropertyMap]);
-                            var calc = channel.SensorType.GetSlopeOffset();
-                            tempAnalog.Add(value*calc.Item1+calc.Item2);
+                            var calc = channel.GetEquationParameters();
+                            StringBuilder builder = new StringBuilder();
+                            builder.AppendFormat("({0},{1})", Math.Round(value,3), Math.Round((value * calc.Item1 + calc.Item2),3));
+                            tempAnalog.Add(builder.ToString());
                         }
 
                         foreach(var channel in digital) {
@@ -80,6 +212,26 @@ namespace FacilityMonitoring.ConsoleTesting
                     Console.ReadKey();
                 } else {
                     Console.WriteLine("Error: device not found");
+                }
+            }
+        }
+
+        private static void CalibrateAnalog() {
+            using (var context = new FacilityContext()) {
+                var box = context.ModbusDevices.OfType<GenericMonitorBox>()
+                    .Include(e => e.Channels)
+                    .Include(e => e.Readings)
+                    .FirstOrDefault(e => e.Identifier == "GasBay");
+                if (box != null) {
+                    var analog = context.Channels.OfType<AnalogChannel>()
+                        .Include(e => e.SensorType)
+                        .Where(e => e.Connected && e.GenericMonitorBoxId==box.Id)
+                        .OrderBy(e => e.ChannelNumber).FirstOrDefault(e=>e.Name== "H2 Detector");
+
+
+
+                } else {
+                    Console.WriteLine("Error: Box Not Found");
                 }
             }
         }
@@ -206,31 +358,23 @@ namespace FacilityMonitoring.ConsoleTesting
         private static void TestingCategories() {
             using (var context = new FacilityContext()) {
                 SensorType h2 = new SensorType();
-                h2.ZeroCalibration = 0;
-                h2.MaxCalibration = 1066;
-                h2.ZeroValue = 4;
-                h2.MaxValue = 20;
+                h2.ZeroPoint = 0;
+                h2.MaxPoint = 1000;
                 h2.Name = "H2 Detector";
 
                 SensorType o2 = new SensorType();
-                o2.ZeroCalibration = 0;
-                o2.MaxCalibration = 26.66;
-                o2.ZeroValue = 4;
-                o2.MaxValue = 20;
+                o2.ZeroPoint = 0;
+                o2.MaxPoint = 26.66;
                 o2.Name = "O2 Detector";
 
                 SensorType NH3 = new SensorType();
-                NH3.ZeroCalibration = 0;
-                NH3.MaxCalibration = 80.06;
-                NH3.ZeroValue = 4;
-                NH3.MaxValue = 20;
+                NH3.ZeroPoint = 0;
+                NH3.MaxPoint = 80.06;
                 NH3.Name = "NH3 Detector";
 
                 SensorType N2 = new SensorType();
-                N2.ZeroCalibration = -120;
-                N2.MaxCalibration = -40;
-                N2.ZeroValue = 4;
-                N2.MaxValue = 20;
+                N2.ZeroPoint = -120;
+                N2.MaxPoint = -40;
                 N2.Name = "N2 Dewpoint Detector";
 
                 context.Categories.Add(N2);
@@ -271,6 +415,10 @@ namespace FacilityMonitoring.ConsoleTesting
                 monitorBox.AnalogChannelCount = 16;
                 monitorBox.DigitalInputChannelCount = 38;
                 monitorBox.DigitalOutputChannelCount = 10;
+                monitorBox.ModbusComAddr = 39;
+                monitorBox.SoftwareMaintAddr = 40;
+                monitorBox.WarningAddr = 41;
+                monitorBox.AlarmAddr = 42;
                 context.ModbusDevices.Add(monitorBox);
 
                 for (int i = 0; i < SlopeValues.Length; i++) {
@@ -285,6 +433,11 @@ namespace FacilityMonitoring.ConsoleTesting
                     channel.Offset = OffsetValues[i];
                     channel.Resistance = RValues[i];
                     channel.GenericMonitorBox = monitorBox;
+                    channel.ZeroValue = MinValues[i];
+                    channel.MaxValue = MaxValues[i];
+                    channel.Alarm1SetPoint = Alarm1SetPoints[i];
+                    channel.Alarm2SetPoint = Alarm2SetPoints[i];
+                    channel.Alarm3SetPoint = Alarm3SetPoints[i];
                     monitorBox.Channels.Add(channel);
                     context.Channels.Add(channel);
                 }
