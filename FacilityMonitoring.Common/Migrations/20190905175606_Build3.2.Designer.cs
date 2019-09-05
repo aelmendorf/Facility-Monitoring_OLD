@@ -4,14 +4,16 @@ using FacilityMonitoring.Common.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace FacilityMonitoring.Common.Migrations
 {
     [DbContext(typeof(FacilityContext))]
-    partial class FacilityContextModelSnapshot : ModelSnapshot
+    [Migration("20190905175606_Build3.2")]
+    partial class Build32
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -189,8 +191,6 @@ namespace FacilityMonitoring.Common.Migrations
             modelBuilder.Entity("FacilityMonitoring.Common.Model.DigitalOutputChannel", b =>
                 {
                     b.HasBaseType("FacilityMonitoring.Common.Model.Channel");
-
-                    b.Property<int>("OutputControl");
 
                     b.HasDiscriminator().HasValue("DigitalOutputChannel");
                 });

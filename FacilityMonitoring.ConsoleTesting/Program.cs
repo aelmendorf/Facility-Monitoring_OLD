@@ -11,6 +11,7 @@ using Console_Table;
 using ModbusDevice = FacilityMonitoring.Common.Model.ModbusDevice;
 using System.Collections.Generic;
 using System.Text;
+using FacilityMonitoring.Common.ModbusDriver;
 
 namespace FacilityMonitoring.ConsoleTesting
 {
@@ -28,6 +29,7 @@ namespace FacilityMonitoring.ConsoleTesting
         static double[] Alarm3SetPoints = { 1000, 50, 25, 0, -118, 1000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
         static void Main(string[] args) {
+            //ImportModbusSettings();
             //TestingFacilityModel();
             ////ViewModelTesting();
             //TestingCategories();
@@ -404,6 +406,53 @@ namespace FacilityMonitoring.ConsoleTesting
             Console.ReadKey();
         }
 
+        private static void ImportModbusSettings() {
+            using (FacilityContext context = new FacilityContext()) {
+                ImportModbusSettings import = new ImportModbusSettings(); 
+                GenericMonitorBox monitorBox = new GenericMonitorBox();
+                monitorBox.IpAddress = "172.21.100.30";
+                monitorBox.Port = 0;
+                monitorBox.Identifier = "GasBay";
+                monitorBox.SlaveAddress = 0;
+                monitorBox.Status = "Okay";
+                monitorBox.AnalogChannelCount = 16;
+                monitorBox.DigitalInputChannelCount = 38;
+                monitorBox.DigitalOutputChannelCount = 10;
+                monitorBox.ModbusComAddr = 39;
+                monitorBox.SoftwareMaintAddr = 40;
+                monitorBox.WarningAddr = 41;
+                monitorBox.AlarmAddr = 42;
+                context.ModbusDevices.Add(monitorBox);
+                context.SaveChanges();
+                if (import.ImportSensorType(monitorBox, context)) {
+                    Console.WriteLine("Success: Sensor Types Imported");
+                } else {
+                    Console.WriteLine("Error: Sensor Import Failed");
+                }
+
+                if (import.ImportAnalog(monitorBox, context)) {
+                    Console.WriteLine("Success: Analog Channels Imported");
+                } else {
+                    Console.WriteLine("Error: Analog Import Failed");
+                }
+
+                if (import.ImportDigital(monitorBox, context)) {
+                    Console.WriteLine("Success: Digital Channels Imported");
+                } else {
+                    Console.WriteLine("Error: Digital Import Failed");
+                }
+
+                if (import.ImportOutput(monitorBox, context)) {
+                    Console.WriteLine("Success: Output Channels Imported");
+                } else {
+                    Console.WriteLine("Error: Output Import Failed");
+                }
+                Console.WriteLine();
+                Console.WriteLine("Done, Press any key to exit");
+                Console.ReadKey();
+            }
+        }
+
         private static void TestingFacilityModel() {
             using (FacilityContext context = new FacilityContext()) {
                 GenericMonitorBox monitorBox = new GenericMonitorBox();
@@ -422,9 +471,14 @@ namespace FacilityMonitoring.ConsoleTesting
                 context.ModbusDevices.Add(monitorBox);
 
                 for (int i = 0; i < SlopeValues.Length; i++) {
-                    bool connected;
+                    bool connected,enabled;
+                    AlertAction a1_action, a2_action, a3_action;
                     if(i<3 || i==4 || i==5) {
                         connected = true;
+                        enabled = true;
+                        a1_action = AlertAction.SOFTWARN;
+                        a2_action = AlertAction.WARN;
+                        a3_action = AlertAction.ALARM;
                     } else {
                         connected = false;
                     }

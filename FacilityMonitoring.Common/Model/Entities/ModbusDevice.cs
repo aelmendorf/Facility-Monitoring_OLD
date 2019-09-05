@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.Collections.Generic;
 
 namespace FacilityMonitoring.Common.Model {
-    public enum DeviceState { ALARM,WARNING,OKAY,MAINTENANCE }
+    public enum DeviceState { ALARM,WARNING,OKAY, MAINTENANCE}
 
     public partial class ModbusDevice {
         public int Id { get; set; }

@@ -14,7 +14,8 @@ namespace FacilityMonitoring.Common.Model {
     // Low:  Logic Low=Turn on
 
     public enum LogicType { HIGH, LOW }
-    public enum AlarmAction { ALARM,WARN,NOTHING }
+    public enum AlertAction { ALARM,WARN,SOFTWARN,MAINTENANCE,NOTHING }
+    public enum OutputControl { HARDWARE,SOFTWARE}
 
     public abstract class Channel {
 
@@ -43,15 +44,15 @@ namespace FacilityMonitoring.Common.Model {
         public double MaxValue { get; set; }
 
         public double Alarm1SetPoint { get; set; }
-        public AlarmAction Alarm1Action { get; set; }
+        public AlertAction Alarm1Action { get; set; }
         public bool Alarm1Enabled { get; set; }
 
         public double Alarm2SetPoint { get; set; }
-        public AlarmAction Alarm2Action { get; set; }
+        public AlertAction Alarm2Action { get; set; }
         public bool Alarm2Enabled { get; set; }
 
         public double Alarm3SetPoint { get; set; }
-        public AlarmAction Alarm3Action { get; set; }
+        public AlertAction Alarm3Action { get; set; }
         public bool Alarm3Enabled { get; set; }
 
         public double ValueDivisor { get; set; }
@@ -82,7 +83,7 @@ namespace FacilityMonitoring.Common.Model {
 
     public partial class DigitalInputChannel:Channel  {
 
-        public AlarmAction AlarmAction { get; set; }
+        public AlertAction AlarmAction { get; set; }
 
         public DigitalInputChannel(string name, int chnum, bool connected, string pname, LogicType ltype) {
             this.Logic = ltype;
@@ -91,6 +92,7 @@ namespace FacilityMonitoring.Common.Model {
             this.Connected = connected;
             this.PropertyMap = pname;
             this.Bypass = false;
+            this.AlarmAction = AlertAction.NOTHING;
         }
 
         public DigitalInputChannel() {
@@ -99,6 +101,7 @@ namespace FacilityMonitoring.Common.Model {
     }
 
     public partial class DigitalOutputChannel:Channel {
+        public OutputControl OutputControl { get; set; }
 
         public DigitalOutputChannel(string name, int chnum, bool connected, string pname, LogicType ltype) {
             this.Logic = ltype;
@@ -107,6 +110,7 @@ namespace FacilityMonitoring.Common.Model {
             this.Connected = connected;
             this.PropertyMap = pname;
             this.Bypass = false;
+            this.OutputControl = OutputControl.SOFTWARE;
         }
 
         public DigitalOutputChannel() {
