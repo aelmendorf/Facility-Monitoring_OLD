@@ -7,13 +7,13 @@ using System.Linq;
 using System.Text;
 
 namespace FacilityMonitoring.Common.ModbusDriver {
-    public class ImportModbusSettings {
+    public static class ImportModbusSettings {
         private static readonly string analogFile = @"D:\Software Development\Monitoring\ImportFiles\AnalogChannels.txt";
         private static readonly string digitalFile = @"D:\Software Development\Monitoring\ImportFiles\DigitalChannels.txt";
         private static readonly string outputFile = @"D:\Software Development\Monitoring\ImportFiles\OutputChannels.txt";
         private static readonly string sensorFile = @"D:\Software Development\Monitoring\ImportFiles\SensorTypes.txt";     
 
-        public bool ImportAnalog(GenericMonitorBox box,FacilityContext context) {
+        public static bool ImportAnalog(GenericMonitorBox box,FacilityContext context) {
             if (File.Exists(analogFile)) {
                 try {
                     List<AnalogChannel> channels = new List<AnalogChannel>();
@@ -59,7 +59,7 @@ namespace FacilityMonitoring.Common.ModbusDriver {
             }
         }
 
-        public bool ImportDigital(GenericMonitorBox box, FacilityContext context) {
+        public static bool ImportDigital(GenericMonitorBox box, FacilityContext context) {
             if (File.Exists(digitalFile)) {
                 try {
                     List<DigitalInputChannel> channels = new List<DigitalInputChannel>();
@@ -85,7 +85,7 @@ namespace FacilityMonitoring.Common.ModbusDriver {
             }
         }
 
-        public bool ImportOutput(GenericMonitorBox box, FacilityContext context) {
+        public static bool ImportOutput(GenericMonitorBox box, FacilityContext context) {
             if (File.Exists(outputFile)) {
                 try {
                     List<DigitalOutputChannel> channels = new List<DigitalOutputChannel>();
@@ -111,7 +111,7 @@ namespace FacilityMonitoring.Common.ModbusDriver {
             }
         }
 
-        public bool ImportSensorType(GenericMonitorBox box, FacilityContext context) {
+        public static bool ImportSensorType(GenericMonitorBox box, FacilityContext context) {
             if (File.Exists(sensorFile)) {
                 try {
                     var lines = File.ReadAllLines(sensorFile);
@@ -135,7 +135,7 @@ namespace FacilityMonitoring.Common.ModbusDriver {
             }
         }
 
-        public AlertAction GetAction(string str) {
+        public static AlertAction GetAction(string str) {
             switch (str) {
                 case "ALARM": {
                     return AlertAction.ALARM;
