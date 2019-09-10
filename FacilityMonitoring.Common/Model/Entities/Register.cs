@@ -17,6 +17,11 @@ namespace FacilityMonitoring.Common.Model {
     public enum AlertAction { ALARM,WARN,SOFTWARN,MAINTENANCE,NOTHING }
     public enum OutputControl { HARDWARE,SOFTWARE}
 
+    public partial class RegisterGroup {
+        public int Id { get; set; }
+
+    }
+
     public abstract class Register {
 
         public int Id { get; set; }
