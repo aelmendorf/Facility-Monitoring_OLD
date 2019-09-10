@@ -41,6 +41,7 @@ namespace FacilityMonitoring.Common.ModbusDriver {
                         channel.Alarm1Enabled = (row[16] == "TRUE") ? true : false;
                         channel.Alarm1Action = GetAction(row[17]);
                         string sname = row[18];
+                        channel.ValueDivisor = Convert.ToDouble(row[19]);
                         var sensor = context.Categories.OfType<SensorType>().Include(e => e.AnalogChannels).FirstOrDefault(e=>e.Name==sname);
                         if (sensor != null) {
                             channel.SensorType = sensor;

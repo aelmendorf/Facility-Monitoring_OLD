@@ -8,7 +8,7 @@ namespace FacilityMonitoring.Common.Model {
 
         public DbSet<ModbusDevice> ModbusDevices { get; set; }
         public DbSet<Reading> Readings { get; set; }
-        public DbSet<Channel> Channels { get; set; }
+        public DbSet<Register> Channels { get; set; }
         public DbSet<Category> Categories { get; set; }
 
 
@@ -32,9 +32,9 @@ namespace FacilityMonitoring.Common.Model {
             builder.Entity<H2GenReading>().HasBaseType<Reading>();
             builder.Entity<GenericBoxReading>().HasBaseType<Reading>();
 
-            builder.Entity<AnalogChannel>().HasBaseType<Channel>();
-            builder.Entity<DigitalInputChannel>().HasBaseType<Channel>();
-            builder.Entity<DigitalOutputChannel>().HasBaseType<Channel>();
+            builder.Entity<AnalogChannel>().HasBaseType<Register>();
+            builder.Entity<DigitalInputChannel>().HasBaseType<Register>();
+            builder.Entity<DigitalOutputChannel>().HasBaseType<Register>();
 
             builder.Entity<SensorType>().HasBaseType<Category>();
 
@@ -44,7 +44,7 @@ namespace FacilityMonitoring.Common.Model {
                 .WithOne(e => e.ModbusDevice)
                 .HasForeignKey(e => e.ModbusDeviceId);
 
-            builder.Entity<Channel>()
+            builder.Entity<Register>()
                 .HasOne(e => e.GenericMonitorBox)
                 .WithMany(e => e.Channels)
                 .HasForeignKey(e => e.GenericMonitorBoxId)

@@ -17,7 +17,7 @@ namespace FacilityMonitoring.Common.Model {
     public enum AlertAction { ALARM,WARN,SOFTWARN,MAINTENANCE,NOTHING }
     public enum OutputControl { HARDWARE,SOFTWARE}
 
-    public abstract class Channel {
+    public abstract class Register {
 
         public int Id { get; set; }
         public string Name { get; set; }
@@ -32,7 +32,7 @@ namespace FacilityMonitoring.Common.Model {
 
     }
 
-    public partial class AnalogChannel:Channel{
+    public partial class AnalogChannel:Register{
         public int? SensorTypeId { get; set; }
         public virtual SensorType SensorType { get; set; }
 
@@ -81,7 +81,7 @@ namespace FacilityMonitoring.Common.Model {
         }
     }
 
-    public partial class DigitalInputChannel:Channel  {
+    public partial class DigitalInputChannel:Register  {
 
         public AlertAction AlarmAction { get; set; }
 
@@ -100,7 +100,7 @@ namespace FacilityMonitoring.Common.Model {
         }
     }
 
-    public partial class DigitalOutputChannel:Channel {
+    public partial class DigitalOutputChannel:Register {
         public OutputControl OutputControl { get; set; }
 
         public DigitalOutputChannel(string name, int chnum, bool connected, string pname, LogicType ltype) {
