@@ -92,6 +92,8 @@ namespace FacilityMonitoring.Common.Model {
         public bool Alarm2 { get; set; }
         public bool Alarm3 { get; set; }
 
+
+
         [NotMapped]
         public object this[string propertyName] {
             set {

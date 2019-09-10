@@ -4,14 +4,16 @@ using FacilityMonitoring.Common.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace FacilityMonitoring.Common.Migrations
 {
     [DbContext(typeof(FacilityContext))]
-    partial class FacilityContextModelSnapshot : ModelSnapshot
+    [Migration("20190910145938_Buildv3.7")]
+    partial class Buildv37
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -122,7 +124,7 @@ namespace FacilityMonitoring.Common.Migrations
 
                     b.HasIndex("GenericMonitorBoxId");
 
-                    b.ToTable("Registers");
+                    b.ToTable("Channels");
 
                     b.HasDiscriminator<string>("Discriminator").HasValue("Register");
                 });
@@ -568,7 +570,7 @@ namespace FacilityMonitoring.Common.Migrations
                     b.Property<int>("AlarmAction");
 
                     b.HasIndex("SensorTypeId")
-                        .HasName("IX_Registers_SensorTypeId1");
+                        .HasName("IX_Channels_SensorTypeId1");
 
                     b.HasDiscriminator().HasValue("DigitalInputChannel");
                 });
@@ -580,7 +582,7 @@ namespace FacilityMonitoring.Common.Migrations
                     b.Property<int>("OutputControl");
 
                     b.HasIndex("SensorTypeId")
-                        .HasName("IX_Registers_SensorTypeId2");
+                        .HasName("IX_Channels_SensorTypeId2");
 
                     b.HasDiscriminator().HasValue("DigitalOutputChannel");
                 });
@@ -613,7 +615,7 @@ namespace FacilityMonitoring.Common.Migrations
                     b.HasOne("FacilityMonitoring.Common.Model.SensorType", "SensorType")
                         .WithMany()
                         .HasForeignKey("SensorTypeId")
-                        .HasConstraintName("FK_Registers_Categories_SensorTypeId1");
+                        .HasConstraintName("FK_Channels_Categories_SensorTypeId1");
                 });
 
             modelBuilder.Entity("FacilityMonitoring.Common.Model.DigitalOutputChannel", b =>
@@ -621,7 +623,7 @@ namespace FacilityMonitoring.Common.Migrations
                     b.HasOne("FacilityMonitoring.Common.Model.SensorType", "SensorType")
                         .WithMany()
                         .HasForeignKey("SensorTypeId")
-                        .HasConstraintName("FK_Registers_Categories_SensorTypeId2");
+                        .HasConstraintName("FK_Channels_Categories_SensorTypeId2");
                 });
 #pragma warning restore 612, 618
         }

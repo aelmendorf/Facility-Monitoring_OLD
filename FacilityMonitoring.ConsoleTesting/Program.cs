@@ -11,7 +11,7 @@ using Console_Table;
 using ModbusDevice = FacilityMonitoring.Common.Model.ModbusDevice;
 using System.Collections.Generic;
 using System.Text;
-using FacilityMonitoring.Common.ModbusDriver;
+using FacilityMonitoring.Common.HarwareLayer;
 
 namespace FacilityMonitoring.ConsoleTesting
 {
@@ -29,7 +29,7 @@ namespace FacilityMonitoring.ConsoleTesting
         static double[] Alarm3SetPoints = { 1000, 50, 25, 0, -118, 1000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
         static void Main(string[] args) {
-            //ImportModbusSettings();
+            //ImportModbus();
             //TestingFacilityModel();
             ////ViewModelTesting();
             //TestingCategories();
@@ -46,7 +46,7 @@ namespace FacilityMonitoring.ConsoleTesting
             if (CheckConnection("172.21.100.30", 500)) {
                 using (var context = new FacilityContext()) {
                     var box = context.ModbusDevices.OfType<GenericMonitorBox>()
-                        .Include(e => e.Channels)
+                        .Include(e => e.Registers)
                         .Include(e => e.Readings)
                         .FirstOrDefault(e => e.Identifier == "GasBay");
                     if (box != null) {
@@ -78,7 +78,8 @@ namespace FacilityMonitoring.ConsoleTesting
         private static void ReadAndDisplay2() {
             using (var context = new FacilityContext()) {
                 var box = context.ModbusDevices.OfType<GenericMonitorBox>()
-                    .Include(e => e.Channels)
+                    .Include(e => e.Registers)
+                        .ThenInclude(e=>e.SensorType)
                     .Include(e => e.Readings)
                     .FirstOrDefault(e => e.Identifier == "GasBay");
                 if (box != null) {
@@ -88,62 +89,83 @@ namespace FacilityMonitoring.ConsoleTesting
                             bool[] coilData;
                             using (TcpClient client = new TcpClient(box.IpAddress, 502)) {
                                 ModbusIpMaster master = ModbusIpMaster.CreateIp(client);
-                                regData = master.ReadHoldingRegisters(0, (ushort)box.AnalogChannelCount);
+                                int regCount = box.AnalogChannelCount + box.DigitalOutputChannelCount;
+                                regData = master.ReadHoldingRegisters(0, (ushort)regCount);
                                 coilData = master.ReadCoils(0, (ushort)box.DigitalInputChannelCount);
                                 client.Close();
                             }
 
                             GenericBoxReading reading = new GenericBoxReading(DateTime.Now, "", box);
-                            foreach (var channel in box.Channels.OfType<AnalogChannel>().OrderBy(e => e.ChannelNumber)) {
-                                double x = regData[channel.ChannelNumber - 1];
-                                x = (x / 1000);
+                            foreach (var channel in box.Registers.OfType<AnalogChannel>().OrderBy(e => e.RegisterIndex)) {
+                                double x = regData[channel.RegisterIndex];
+                                x =(channel.ValueDivisor!=0) ? (x / channel.ValueDivisor):x;
                                 double y = channel.Slope * x + channel.Offset;
                                 double current = (channel.Resistance != 0) ? (y / channel.Resistance) * 1000 : 0.00;
-                                reading[channel.PropertyMap] = current;
+
+                                var equation= channel.GetEquationParameters();
+                                if (equation != null) {
+                                    reading[channel.PropertyMap] = Math.Round((current * equation.Item1 + equation.Item2), 3);
+                                } else {
+                                    reading[channel.PropertyMap] = Math.Round(current, 3);
+                                }
                             }
 
-                            foreach (var channel in box.Channels.OfType<DigitalInputChannel>().OrderBy(e => e.ChannelNumber)) {
-                                reading[channel.PropertyMap] = coilData[channel.ChannelNumber - 1];
+                            foreach (var channel in box.Registers.OfType<DigitalInputChannel>().OrderBy(e => e.RegisterIndex)) {
+                                reading[channel.PropertyMap] = coilData[channel.RegisterIndex];
+                            }
+
+                            foreach(var channel in box.Registers.OfType<DigitalOutputChannel>().OrderBy(e => e.RegisterIndex)) {
+                                reading[channel.PropertyMap] = regData[channel.RegisterIndex]==1 ? true:false;
                             }
 
                             box.Readings.Add(reading);
                             context.Readings.Add(reading);
                             context.SaveChanges();
 
-                            var analog = context.Channels.OfType<AnalogChannel>().Include(e => e.SensorType).Where(e => e.Connected).OrderBy(e => e.ChannelNumber);
-                            var digital = context.Channels.OfType<DigitalInputChannel>().Where(e => e.Connected).OrderBy(e => e.ChannelNumber);
-
+                            var analog = context.Registers.OfType<AnalogChannel>().Include(e => e.SensorType).Where(e => e.Connected && e.GenericMonitorBoxId == box.Id).OrderBy(e => e.RegisterIndex);
+                            var digital = context.Registers.OfType<DigitalInputChannel>().Where(e => e.Connected && e.GenericMonitorBoxId == box.Id).OrderBy(e => e.RegisterIndex);
+                            var output = context.Registers.OfType<DigitalOutputChannel>().Where(e => e.Connected && e.GenericMonitorBoxId==box.Id).OrderBy(e => e.RegisterIndex);
                             ConsoleTable analogTable = new ConsoleTable();
                             ConsoleTable digitalTable = new ConsoleTable();
+                            ConsoleTable outputTable = new ConsoleTable();
 
                             analogTable.AddColumn(analog.Select(e => e.Name).ToList());
                             digitalTable.AddColumn(digital.Select(e => e.Name).ToList());
+                            outputTable.AddColumn(output.Select(e => e.Name).ToList());
                             List<object> tempAnalog = new List<object>();
                             List<object> tempDigital = new List<object>();
+                            List<object> tempOutput = new List<object>();
+
                             foreach (var read in box.Readings.OfType<GenericBoxReading>()) {
                                 foreach (var channel in analog) {
                                     double value = Convert.ToDouble(read[channel.PropertyMap]);
-                                    var calc = channel.GetEquationParameters();
-                                    StringBuilder builder = new StringBuilder();
-                                    builder.AppendFormat("({0},{1})", Math.Round(value, 3), Math.Round((value * calc.Item1 + calc.Item2), 3));
-                                    tempAnalog.Add(builder.ToString());
+                                    tempAnalog.Add(value.ToString());
                                 }
 
                                 foreach (var channel in digital) {
                                     tempDigital.Add(reading[channel.PropertyMap]);
                                 }
 
+                                foreach(var channel in output) {
+                                    tempOutput.Add(reading[channel.PropertyMap]);
+                                }
+
                                 analogTable.AddRow(tempAnalog.ToArray());
                                 digitalTable.AddRow(tempDigital.ToArray());
+                                outputTable.AddRow(tempOutput.ToArray());
 
                                 tempAnalog.Clear();
                                 tempDigital.Clear();
+                                tempOutput.Clear();
                             }
                             Console.WriteLine("Analog Channels");
                             Console.WriteLine(analogTable.ToMinimalString());
                             Console.WriteLine();
                             Console.WriteLine("Digital Channels");
                             Console.WriteLine(digitalTable.ToMinimalString());
+                            Console.WriteLine();
+                            Console.WriteLine("Output Channels");
+                            Console.WriteLine(outputTable.ToMinimalString());
                             Console.WriteLine();
                             Console.WriteLine("Press A to continue or E to Exit");
                             var key = Console.ReadKey().Key;
@@ -169,13 +191,13 @@ namespace FacilityMonitoring.ConsoleTesting
                 Stopwatch timer = new Stopwatch();
                 timer.Start();
                 var box = context.ModbusDevices.OfType<GenericMonitorBox>()
-                    .Include(e => e.Channels)
+                    .Include(e => e.Registers)
                     .Include(e => e.Readings)
                     .FirstOrDefault(e => e.Identifier == "GasBay");
 
                 if (box != null) {
-                    var analog=context.Channels.OfType<AnalogChannel>().Include(e=>e.SensorType).Where(e => e.Connected).OrderBy(e=>e.ChannelNumber);
-                    var digital= context.Channels.OfType<DigitalInputChannel>().Where(e => e.Connected).OrderBy(e => e.ChannelNumber);
+                    var analog=context.Registers.OfType<AnalogChannel>().Include(e=>e.SensorType).Where(e => e.Connected).OrderBy(e=>e.RegisterIndex);
+                    var digital= context.Registers.OfType<DigitalInputChannel>().Where(e => e.Connected).OrderBy(e => e.RegisterIndex);
 
                     ConsoleTable analogTable = new ConsoleTable();
                     ConsoleTable digitalTable = new ConsoleTable();
@@ -221,14 +243,14 @@ namespace FacilityMonitoring.ConsoleTesting
         private static void CalibrateAnalog() {
             using (var context = new FacilityContext()) {
                 var box = context.ModbusDevices.OfType<GenericMonitorBox>()
-                    .Include(e => e.Channels)
+                    .Include(e => e.Registers)
                     .Include(e => e.Readings)
                     .FirstOrDefault(e => e.Identifier == "GasBay");
                 if (box != null) {
-                    var analog = context.Channels.OfType<AnalogChannel>()
+                    var analog = context.Registers.OfType<AnalogChannel>()
                         .Include(e => e.SensorType)
                         .Where(e => e.Connected && e.GenericMonitorBoxId==box.Id)
-                        .OrderBy(e => e.ChannelNumber).FirstOrDefault(e=>e.Name== "H2 Detector");
+                        .OrderBy(e => e.RegisterIndex).FirstOrDefault(e=>e.Name== "H2 Detector");
 
 
 
@@ -241,7 +263,7 @@ namespace FacilityMonitoring.ConsoleTesting
         private static void TestingAnalogRead() {
             using (var context = new FacilityContext()) {
                 var box = context.ModbusDevices.OfType<GenericMonitorBox>()
-                    .Include(e => e.Channels)
+                    .Include(e => e.Registers)
                     .Include(e => e.Readings)
                     .FirstOrDefault(e => e.Identifier == "GasBay");
                 if (box != null) {
@@ -253,19 +275,20 @@ namespace FacilityMonitoring.ConsoleTesting
                             regData = master.ReadHoldingRegisters(0, (ushort)box.AnalogChannelCount);
                             coilData = master.ReadCoils(0, (ushort)box.DigitalInputChannelCount);
                             client.Close();
+                            master.Dispose();
                         }
 
                         GenericBoxReading reading = new GenericBoxReading(DateTime.Now, "", box);
-                        foreach (var channel in box.Channels.OfType<AnalogChannel>().OrderBy(e=>e.ChannelNumber)) {
-                            double x = regData[channel.ChannelNumber-1];
+                        foreach (var channel in box.Registers.OfType<AnalogChannel>().OrderBy(e=>e.RegisterIndex)) {
+                            double x = regData[channel.RegisterIndex-1];
                             x = (x / 1000);
                             double y = channel.Slope * x + channel.Offset;
                             double current = (channel.Resistance != 0) ? (y / channel.Resistance) * 1000 : 0.00;
                             reading[channel.PropertyMap] = current;
                         }
 
-                        foreach(var channel in box.Channels.OfType<DigitalInputChannel>().OrderBy(e => e.ChannelNumber)) {
-                            reading[channel.PropertyMap] = coilData[channel.ChannelNumber-1];
+                        foreach(var channel in box.Registers.OfType<DigitalInputChannel>().OrderBy(e => e.RegisterIndex)) {
+                            reading[channel.PropertyMap] = coilData[channel.RegisterIndex-1];
                         }
 
                         box.Readings.Add(reading);
@@ -290,7 +313,7 @@ namespace FacilityMonitoring.ConsoleTesting
                 var O2Detect= context.Categories.OfType<SensorType>().FirstOrDefault(e => e.Name == "O2 Detector");
                 var N2Detect= context.Categories.OfType<SensorType>().FirstOrDefault(e => e.Name == "N2 Dewpoint Detector");
 
-                var h2_1 = context.Channels.OfType<AnalogChannel>().Include(e => e.SensorType).FirstOrDefault(e => e.Name == "H2 Detector 1");
+                var h2_1 = context.Registers.OfType<AnalogChannel>().Include(e => e.SensorType).FirstOrDefault(e => e.Name == "H2 Detector 1");
                 if (h2_1 != null) {
                     h2_1.Alarm1SetPoint = 50;
                     h2_1.Alarm2SetPoint = 500;
@@ -303,7 +326,7 @@ namespace FacilityMonitoring.ConsoleTesting
                     Console.WriteLine("Could not Find H2 Detector 1");
                 }
 
-                var Nh3 = context.Channels.OfType<AnalogChannel>().Include(e => e.SensorType).FirstOrDefault(e => e.Name == "NH3 Detector");
+                var Nh3 = context.Registers.OfType<AnalogChannel>().Include(e => e.SensorType).FirstOrDefault(e => e.Name == "NH3 Detector");
                 if (Nh3 != null) {
                     Nh3.Alarm1SetPoint = 50;
                     Nh3.Alarm2SetPoint = 500;
@@ -316,7 +339,7 @@ namespace FacilityMonitoring.ConsoleTesting
                     Console.WriteLine("Could not Find H2 Detector 1");
                 }
 
-                var o2 = context.Channels.OfType<AnalogChannel>().Include(e => e.SensorType).FirstOrDefault(e => e.Name == "O2 Detector");
+                var o2 = context.Registers.OfType<AnalogChannel>().Include(e => e.SensorType).FirstOrDefault(e => e.Name == "O2 Detector");
                 if (o2 != null) {
                     o2.Alarm1SetPoint = 50;
                     o2.Alarm2SetPoint = 500;
@@ -329,7 +352,7 @@ namespace FacilityMonitoring.ConsoleTesting
                     Console.WriteLine("Could not Find H2 Detector 1");
                 }
 
-                var n2 = context.Channels.OfType<AnalogChannel>().Include(e => e.SensorType).FirstOrDefault(e => e.Name == "N2 Dew Point");
+                var n2 = context.Registers.OfType<AnalogChannel>().Include(e => e.SensorType).FirstOrDefault(e => e.Name == "N2 Dew Point");
                 if (n2 != null) {
                     n2.Alarm1SetPoint = 50;
                     n2.Alarm2SetPoint = 500;
@@ -342,7 +365,7 @@ namespace FacilityMonitoring.ConsoleTesting
                     Console.WriteLine("Could not Find H2 Detector 1");
                 }
 
-                var h2_2 = context.Channels.OfType<AnalogChannel>().Include(e => e.SensorType).FirstOrDefault(e => e.Name == "H2 Detector");
+                var h2_2 = context.Registers.OfType<AnalogChannel>().Include(e => e.SensorType).FirstOrDefault(e => e.Name == "H2 Detector");
                 if (h2_2 != null) {
                     h2_2.Alarm1SetPoint = 50;
                     h2_2.Alarm2SetPoint = 500;
@@ -391,11 +414,11 @@ namespace FacilityMonitoring.ConsoleTesting
 
         private static void ViewModelTesting() {
             using (var context = new FacilityContext()) {
-                var device = context.ModbusDevices.OfType<GenericMonitorBox>().Include(e => e.Readings).Include(e => e.Channels).FirstOrDefault(e => e.Identifier == "GasBay");
+                var device = context.ModbusDevices.OfType<GenericMonitorBox>().Include(e => e.Readings).Include(e => e.Registers).FirstOrDefault(e => e.Identifier == "GasBay");
                 if (device != null) {
                     Console.WriteLine("Device Found: {0}", device.Identifier);
                     Console.WriteLine("Displaying Analog Channels");
-                    device.Channels.OfType<AnalogChannel>().ToList().ForEach(x => {
+                    device.Registers.OfType<AnalogChannel>().ToList().ForEach(x => {
                         Console.WriteLine("Name: {0}", x.Name);
                     });
                     Console.WriteLine("Should be done");
@@ -406,9 +429,8 @@ namespace FacilityMonitoring.ConsoleTesting
             Console.ReadKey();
         }
 
-        private static void ImportModbusSettings() {
+        private static void ImportModbus() {
             using (FacilityContext context = new FacilityContext()) {
-                ImportModbusSettings import = new ImportModbusSettings(); 
                 GenericMonitorBox monitorBox = new GenericMonitorBox();
                 monitorBox.IpAddress = "172.21.100.30";
                 monitorBox.Port = 0;
@@ -424,25 +446,25 @@ namespace FacilityMonitoring.ConsoleTesting
                 monitorBox.AlarmAddr = 42;
                 context.ModbusDevices.Add(monitorBox);
                 context.SaveChanges();
-                if (import.ImportSensorType(monitorBox, context)) {
+                if (ImportModbusSettings.ImportSensorType(monitorBox, context)) {
                     Console.WriteLine("Success: Sensor Types Imported");
                 } else {
                     Console.WriteLine("Error: Sensor Import Failed");
                 }
 
-                if (import.ImportAnalog(monitorBox, context)) {
+                if (ImportModbusSettings.ImportAnalog(monitorBox, context)) {
                     Console.WriteLine("Success: Analog Channels Imported");
                 } else {
                     Console.WriteLine("Error: Analog Import Failed");
                 }
 
-                if (import.ImportDigital(monitorBox, context)) {
+                if (ImportModbusSettings.ImportDigital(monitorBox, context)) {
                     Console.WriteLine("Success: Digital Channels Imported");
                 } else {
                     Console.WriteLine("Error: Digital Import Failed");
                 }
 
-                if (import.ImportOutput(monitorBox, context)) {
+                if (ImportModbusSettings.ImportOutput(monitorBox, context)) {
                     Console.WriteLine("Success: Output Channels Imported");
                 } else {
                     Console.WriteLine("Error: Output Import Failed");
@@ -453,135 +475,135 @@ namespace FacilityMonitoring.ConsoleTesting
             }
         }
 
-        private static void TestingFacilityModel() {
-            using (FacilityContext context = new FacilityContext()) {
-                GenericMonitorBox monitorBox = new GenericMonitorBox();
-                monitorBox.IpAddress = "172.21.100.30";
-                monitorBox.Port = 0;
-                monitorBox.Identifier = "GasBay";
-                monitorBox.SlaveAddress = 0;
-                monitorBox.Status = "Okay";
-                monitorBox.AnalogChannelCount = 16;
-                monitorBox.DigitalInputChannelCount = 38;
-                monitorBox.DigitalOutputChannelCount = 10;
-                monitorBox.ModbusComAddr = 39;
-                monitorBox.SoftwareMaintAddr = 40;
-                monitorBox.WarningAddr = 41;
-                monitorBox.AlarmAddr = 42;
-                context.ModbusDevices.Add(monitorBox);
+        //private static void TestingFacilityModel() {
+        //    using (FacilityContext context = new FacilityContext()) {
+        //        GenericMonitorBox monitorBox = new GenericMonitorBox();
+        //        monitorBox.IpAddress = "172.21.100.30";
+        //        monitorBox.Port = 0;
+        //        monitorBox.Identifier = "GasBay";
+        //        monitorBox.SlaveAddress = 0;
+        //        monitorBox.Status = "Okay";
+        //        monitorBox.AnalogChannelCount = 16;
+        //        monitorBox.DigitalInputChannelCount = 38;
+        //        monitorBox.DigitalOutputChannelCount = 10;
+        //        monitorBox.ModbusComAddr = 39;
+        //        monitorBox.SoftwareMaintAddr = 40;
+        //        monitorBox.WarningAddr = 41;
+        //        monitorBox.AlarmAddr = 42;
+        //        context.ModbusDevices.Add(monitorBox);
 
-                for (int i = 0; i < SlopeValues.Length; i++) {
-                    bool connected,enabled;
-                    AlertAction a1_action, a2_action, a3_action;
-                    if(i<3 || i==4 || i==5) {
-                        connected = true;
-                        enabled = true;
-                        a1_action = AlertAction.SOFTWARN;
-                        a2_action = AlertAction.WARN;
-                        a3_action = AlertAction.ALARM;
-                    } else {
-                        connected = false;
-                    }
-                    AnalogChannel channel = new AnalogChannel(AnalogIdentifiers[i], i + 1, connected , "AnalogCh" + (i + 1));
-                    channel.Slope = SlopeValues[i];
-                    channel.Offset = OffsetValues[i];
-                    channel.Resistance = RValues[i];
-                    channel.GenericMonitorBox = monitorBox;
-                    channel.ZeroValue = MinValues[i];
-                    channel.MaxValue = MaxValues[i];
-                    channel.Alarm1SetPoint = Alarm1SetPoints[i];
-                    channel.Alarm2SetPoint = Alarm2SetPoints[i];
-                    channel.Alarm3SetPoint = Alarm3SetPoints[i];
-                    monitorBox.Channels.Add(channel);
-                    context.Channels.Add(channel);
-                }
+        //        for (int i = 0; i < SlopeValues.Length; i++) {
+        //            bool connected,enabled;
+        //            AlertAction a1_action, a2_action, a3_action;
+        //            if(i<3 || i==4 || i==5) {
+        //                connected = true;
+        //                enabled = true;
+        //                a1_action = AlertAction.SOFTWARN;
+        //                a2_action = AlertAction.WARN;
+        //                a3_action = AlertAction.ALARM;
+        //            } else {
+        //                connected = false;
+        //            }
+        //            AnalogChannel channel = new AnalogChannel(AnalogIdentifiers[i], i + 1, connected , "AnalogCh" + (i + 1));
+        //            channel.Slope = SlopeValues[i];
+        //            channel.Offset = OffsetValues[i];
+        //            channel.Resistance = RValues[i];
+        //            channel.GenericMonitorBox = monitorBox;
+        //            channel.ZeroValue = MinValues[i];
+        //            channel.MaxValue = MaxValues[i];
+        //            channel.Alarm1SetPoint = Alarm1SetPoints[i];
+        //            channel.Alarm2SetPoint = Alarm2SetPoints[i];
+        //            channel.Alarm3SetPoint = Alarm3SetPoints[i];
+        //            monitorBox.Registers.Add(channel);
+        //            context.Channels.Add(channel);
+        //        }
 
-                for(int i = 1; i < 39; i++) {
-                    LogicType type = (i <= 22) ? LogicType.LOW : LogicType.HIGH;
-                    DigitalInputChannel channel;
-                    switch (i) {
-                        case 7: {
-                            channel = new DigitalInputChannel("DI Water Gauge", i, true, "DigitalCh"+i, type);
-                            break;
-                        }
-                        case 8: {
-                            channel = new DigitalInputChannel("Ammonia Gauge 2", i, true, "DigitalCh" + i, type);
-                            break;
-                        }
-                        case 9: {
-                            channel = new DigitalInputChannel("Ammonia Gauge 1", i, true, "DigitalCh" + i, type);
-                            break;
-                        }
-                        case 10: {
-                            channel = new DigitalInputChannel("Hydrogen Gauge", i, true, "DigitalCh" + i, type);
-                            break;
-                        }
-                        case 22: {
-                            channel = new DigitalInputChannel("Maint. Key Switch", i, true, "DigitalCh" + i, type);
-                            break;
-                        }
-                        case 23: {
-                            channel = new DigitalInputChannel("Power Supply 1", i, true, "DigitalCh" + i, type);
-                            break;
-                        }
-                        case 24: {
-                            channel = new DigitalInputChannel("Power Supply 2", i, true, "DigitalCh" + i, type);
-                            break;
-                        }
-                        case 25: {
-                            channel = new DigitalInputChannel("Nitrogen Gauge", i, true, "DigitalCh" + i, type);
-                            break;
-                        }
-                        default: {
-                            channel = new DigitalInputChannel("None", i, false, "DigitalCh" + i, type);
-                            break;
-                        }
-                    }
-                    monitorBox.Channels.Add(channel);
-                    context.Channels.Add(channel);
-                }
+        //        for(int i = 1; i < 39; i++) {
+        //            LogicType type = (i <= 22) ? LogicType.LOW : LogicType.HIGH;
+        //            DigitalInputChannel channel;
+        //            switch (i) {
+        //                case 7: {
+        //                    channel = new DigitalInputChannel("DI Water Gauge", i, true, "DigitalCh"+i, type);
+        //                    break;
+        //                }
+        //                case 8: {
+        //                    channel = new DigitalInputChannel("Ammonia Gauge 2", i, true, "DigitalCh" + i, type);
+        //                    break;
+        //                }
+        //                case 9: {
+        //                    channel = new DigitalInputChannel("Ammonia Gauge 1", i, true, "DigitalCh" + i, type);
+        //                    break;
+        //                }
+        //                case 10: {
+        //                    channel = new DigitalInputChannel("Hydrogen Gauge", i, true, "DigitalCh" + i, type);
+        //                    break;
+        //                }
+        //                case 22: {
+        //                    channel = new DigitalInputChannel("Maint. Key Switch", i, true, "DigitalCh" + i, type);
+        //                    break;
+        //                }
+        //                case 23: {
+        //                    channel = new DigitalInputChannel("Power Supply 1", i, true, "DigitalCh" + i, type);
+        //                    break;
+        //                }
+        //                case 24: {
+        //                    channel = new DigitalInputChannel("Power Supply 2", i, true, "DigitalCh" + i, type);
+        //                    break;
+        //                }
+        //                case 25: {
+        //                    channel = new DigitalInputChannel("Nitrogen Gauge", i, true, "DigitalCh" + i, type);
+        //                    break;
+        //                }
+        //                default: {
+        //                    channel = new DigitalInputChannel("None", i, false, "DigitalCh" + i, type);
+        //                    break;
+        //                }
+        //            }
+        //            monitorBox.Registers.Add(channel);
+        //            context.Channels.Add(channel);
+        //        }
 
-                for (int i = 1; i < 11; i++) {
-                    DigitalOutputChannel channel;
-                    LogicType type = (i >= 7) ? LogicType.LOW : LogicType.HIGH;
-                    switch (i) {
-                        case 1: {
-                            channel = new DigitalOutputChannel("Bad Channel", i, true, "OutputCh" + i, type);
-                            break;
-                        }
-                        case 2: {
-                            channel = new DigitalOutputChannel("Bad Channel", i, true, "OutputCh" + i, type);
-                            break;
-                        }
-                        case 7: {
-                            channel = new DigitalOutputChannel("Pump Emg. On/Off", i, true, "OutputCh" + i, type);
-                            break;
-                        }
-                        case 8: {
-                            channel = new DigitalOutputChannel("Green/Okay", i, true, "OutputCh" + i, type);
-                            break;
-                        }
-                        case 9: {
-                            channel = new DigitalOutputChannel("Yellow/Warning", i, true, "OutputCh" + i, type);
-                            break;
-                        }
-                        case 10: {
-                            channel = new DigitalOutputChannel("Red/Alarm", i, true, "OutputCh" + i, type);
-                            break;
-                        }
-                        default: {
-                            channel = new DigitalOutputChannel("None", i, false, "OutputCh" + i, type);
-                            break;
-                        }
-                    }
-                    monitorBox.Channels.Add(channel);
-                    context.Channels.Add(channel);
-                }
-                context.SaveChanges();
-            }
-            Console.WriteLine("Should be done");
-            Console.Read();
-        }
+        //        for (int i = 1; i < 11; i++) {
+        //            DigitalOutputChannel channel;
+        //            LogicType type = (i >= 7) ? LogicType.LOW : LogicType.HIGH;
+        //            switch (i) {
+        //                case 1: {
+        //                    channel = new DigitalOutputChannel("Bad Channel", i, true, "OutputCh" + i, type);
+        //                    break;
+        //                }
+        //                case 2: {
+        //                    channel = new DigitalOutputChannel("Bad Channel", i, true, "OutputCh" + i, type);
+        //                    break;
+        //                }
+        //                case 7: {
+        //                    channel = new DigitalOutputChannel("Pump Emg. On/Off", i, true, "OutputCh" + i, type);
+        //                    break;
+        //                }
+        //                case 8: {
+        //                    channel = new DigitalOutputChannel("Green/Okay", i, true, "OutputCh" + i, type);
+        //                    break;
+        //                }
+        //                case 9: {
+        //                    channel = new DigitalOutputChannel("Yellow/Warning", i, true, "OutputCh" + i, type);
+        //                    break;
+        //                }
+        //                case 10: {
+        //                    channel = new DigitalOutputChannel("Red/Alarm", i, true, "OutputCh" + i, type);
+        //                    break;
+        //                }
+        //                default: {
+        //                    channel = new DigitalOutputChannel("None", i, false, "OutputCh" + i, type);
+        //                    break;
+        //                }
+        //            }
+        //            monitorBox.Registers.Add(channel);
+        //            context.Channels.Add(channel);
+        //        }
+        //        context.SaveChanges();
+        //    }
+        //    Console.WriteLine("Should be done");
+        //    Console.Read();
+        //}
 
         private static void TestingProgram() {
             if (CheckConnection("172.21.100.30", 500)) {
@@ -868,6 +890,7 @@ namespace FacilityMonitoring.ConsoleTesting
                         regData = master.ReadHoldingRegisters(0, 16);
                         coilData = master.ReadCoils(0, 48);
                         client.Close();
+                        master.Dispose();
                     }
                     Console.WriteLine("Analog");
                     for (int i = 0; i < regData.Length; i++) {
@@ -884,15 +907,6 @@ namespace FacilityMonitoring.ConsoleTesting
                         Console.WriteLine(" D{0}: {1}", i, coilData[i]);
                     }
 
-                    //Console.WriteLine("Digitals 24Volt");
-                    //for (int i = 22; i < 38; i++) {
-                    //    Console.WriteLine(" D{0}: {1}", i, coilData[i]);
-                    //}
-
-                    //Console.WriteLine("Output States: ");
-                    //for (int i = 38; i < coilData.Length; i++) {
-                    //    Console.WriteLine(" O{0}: {1}", i, coilData[i]);
-                    //}
                     Console.WriteLine();
                     Console.WriteLine("Press C to continue");
                     var key = Console.ReadKey();
