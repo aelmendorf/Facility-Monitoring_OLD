@@ -13,6 +13,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Server", "Server", "{DD41F2
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Clients", "Clients", "{9BFA9E61-CC25-465E-BFAF-4B3A7E1A0616}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Assemblies", "Assemblies", "{BB24FE97-76C9-4464-9D98-CE86CCFE012B}"
+	ProjectSection(SolutionItems) = preProject
+		Assembiles\NModbus4.deps.json = Assembiles\NModbus4.deps.json
+		Assembiles\NModbus4.dll = Assembiles\NModbus4.dll
+		Assembiles\NModbus4.pdb = Assembiles\NModbus4.pdb
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
