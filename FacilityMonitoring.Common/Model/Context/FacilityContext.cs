@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -8,7 +9,7 @@ namespace FacilityMonitoring.Common.Model {
 
         public DbSet<ModbusDevice> ModbusDevices { get; set; }
         public DbSet<Reading> Readings { get; set; }
-        public DbSet<Register> Channels { get; set; }
+        public DbSet<Register> Registers { get; set; }
         public DbSet<Category> Categories { get; set; }
 
 
@@ -38,7 +39,6 @@ namespace FacilityMonitoring.Common.Model {
 
             builder.Entity<SensorType>().HasBaseType<Category>();
 
-
             builder.Entity<ModbusDevice>()
                 .HasMany(e => e.Readings)
                 .WithOne(e => e.ModbusDevice)
@@ -46,7 +46,7 @@ namespace FacilityMonitoring.Common.Model {
 
             builder.Entity<Register>()
                 .HasOne(e => e.GenericMonitorBox)
-                .WithMany(e => e.Channels)
+                .WithMany(e => e.Registers)
                 .HasForeignKey(e => e.GenericMonitorBoxId)
                 .IsRequired(true);
 

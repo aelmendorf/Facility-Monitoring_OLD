@@ -21,7 +21,8 @@ namespace FacilityMonitoring.Common.Model {
 
         public int Id { get; set; }
         public string Name { get; set; }
-        public int ChannelNumber { get; set; }
+        public int RegisterIndex { get; set; }
+        public int RegisterLength { get; set; } //Added
         public bool Connected { get; set; }
         public bool Bypass { get; set; }
         public string PropertyMap { get; set; }
@@ -30,11 +31,12 @@ namespace FacilityMonitoring.Common.Model {
         public int GenericMonitorBoxId { get; set; }
         public virtual GenericMonitorBox GenericMonitorBox { get; set; }
 
+        public int? SensorTypeId { get; set; }
+        public virtual SensorType SensorType { get; set; }
+
     }
 
     public partial class AnalogChannel:Register{
-        public int? SensorTypeId { get; set; }
-        public virtual SensorType SensorType { get; set; }
 
         public double Slope { get; set; }
         public double Offset { get; set; }
@@ -57,9 +59,10 @@ namespace FacilityMonitoring.Common.Model {
 
         public double ValueDivisor { get; set; }
 
-        public AnalogChannel(string name, int chnum, bool connected, string pName){
+        public AnalogChannel(string name, int chnum,int regLength, bool connected, string pName){
             this.Name = name;
-            this.ChannelNumber = chnum;
+            this.RegisterIndex = chnum;
+            this.RegisterLength = regLength;
             this.Connected = connected;
             this.PropertyMap = pName;
             this.Bypass = false;
@@ -85,10 +88,11 @@ namespace FacilityMonitoring.Common.Model {
 
         public AlertAction AlarmAction { get; set; }
 
-        public DigitalInputChannel(string name, int chnum, bool connected, string pname, LogicType ltype) {
+        public DigitalInputChannel(string name, int regNum,int regLength, bool connected, string pname, LogicType ltype) {
             this.Logic = ltype;
             this.Name = name;
-            this.ChannelNumber = chnum;
+            this.RegisterIndex = regNum;
+            this.RegisterLength = regLength;
             this.Connected = connected;
             this.PropertyMap = pname;
             this.Bypass = false;
@@ -103,10 +107,11 @@ namespace FacilityMonitoring.Common.Model {
     public partial class DigitalOutputChannel:Register {
         public OutputControl OutputControl { get; set; }
 
-        public DigitalOutputChannel(string name, int chnum, bool connected, string pname, LogicType ltype) {
+        public DigitalOutputChannel(string name, int regIndex,int regLength, bool connected, string pname, LogicType ltype) {
             this.Logic = ltype;
             this.Name = name;
-            this.ChannelNumber = chnum;
+            this.RegisterIndex = regIndex;
+            this.RegisterLength = regLength;
             this.Connected = connected;
             this.PropertyMap = pname;
             this.Bypass = false;

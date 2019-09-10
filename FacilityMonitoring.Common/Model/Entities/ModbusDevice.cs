@@ -42,10 +42,10 @@ namespace FacilityMonitoring.Common.Model {
         public int WarningAddr { get; set; }
         public int AlarmAddr { get; set; }
 
-        public ICollection<Register> Channels { get; set; }
+        public ICollection<Register> Registers { get; set; }
 
         public GenericMonitorBox() {
-            this.Channels = new ObservableHashSet<Register>();
+            this.Registers = new ObservableHashSet<Register>();
         }
     }
 
