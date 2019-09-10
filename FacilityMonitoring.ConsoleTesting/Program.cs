@@ -40,6 +40,7 @@ namespace FacilityMonitoring.ConsoleTesting
             //TestingProgram();
             ReadAndDisplay2();
             //SendMaintNew();
+            //SendAlarmNew(false);
         }
 
         private static void SendMaintNew() {
@@ -53,6 +54,39 @@ namespace FacilityMonitoring.ConsoleTesting
                         ushort[] regData = { 0, 0, 0, 0, 0, 0, 1, 1, 1, 1 };
                         using (TcpClient client = new TcpClient("172.21.100.30", 502)) {
                             bool[] com = { true,true,false,false};
+                            ModbusIpMaster master = ModbusIpMaster.CreateIp(client);
+                            master.WriteMultipleCoils((ushort)box.ModbusComAddr, com);
+                            while (true) {
+                                var check = master.ReadCoils((ushort)box.ModbusComAddr, 1);
+                                if (!check[0]) {
+                                    break;
+                                }
+                            }
+                            client.Close();
+                        }
+                        Console.WriteLine("Press any key to continue");
+                    } else {
+                        Console.WriteLine("Error: Box not found");
+                    }
+
+                }
+            } else {
+                Console.WriteLine("Connection Failed");
+            }
+            Console.ReadKey();
+        }
+
+        private static void SendAlarmNew(bool on_off) {
+            if (CheckConnection("172.21.100.30", 500)) {
+                using (var context = new FacilityContext()) {
+                    var box = context.ModbusDevices.OfType<GenericMonitorBox>()
+                        .Include(e => e.Registers)
+                        .Include(e => e.Readings)
+                        .FirstOrDefault(e => e.Identifier == "GasBay");
+                    if (box != null) {
+                        ushort[] regData = { 0, 0, 0, 0, 0, 0, 1, 1, 1, 1 };
+                        using (TcpClient client = new TcpClient("172.21.100.30", 502)) {
+                            bool[] com = { true, false, false, on_off };
                             ModbusIpMaster master = ModbusIpMaster.CreateIp(client);
                             master.WriteMultipleCoils((ushort)box.ModbusComAddr, com);
                             while (true) {
