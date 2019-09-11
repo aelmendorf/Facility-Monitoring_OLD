@@ -109,6 +109,32 @@ namespace FacilityMonitoring.ConsoleTesting
             Console.ReadKey();
         }
 
+        private static ConsoleTable CheckAnalogAlarms(List<GenericBoxReading> readings, List<AnalogChannel> registers)
+        {
+            ConsoleTable analogAlarmTable = new ConsoleTable();
+            analogAlarmTable.AddColumn(registers.OfType<AnalogChannel>().Where(e => e.Connected).Select(e => e.Name));
+
+            foreach(var reading in readings) {
+                List<string> tempRow = new List<string>();
+                foreach (var register in registers) {
+                    LogicType logic = register.Logic;
+                    var value = Convert.ToDouble(reading[register.PropertyMap]);
+
+                    if (value >= register.Alarm3SetPoint) {
+                        tempRow.Add("Alarm 3");
+                    } else if (value >= register.Alarm2SetPoint) {
+                        tempRow.Add("Alarm 2");
+                    } else if (value >= register.Alarm1SetPoint) {
+                        tempRow.Add("Alarm 1");
+                    } else {
+                        tempRow.Add("No Alarm");
+                    }
+                    analogAlarmTable.Rows.Add(tempRow.ToArray());
+                }
+            }
+            return analogAlarmTable;
+        }
+
         private static void ReadAndDisplay2() {
             using (var context = new FacilityContext()) {
                 var box = context.ModbusDevices.OfType<GenericMonitorBox>()
@@ -145,6 +171,7 @@ namespace FacilityMonitoring.ConsoleTesting
                                 }
                             }
 
+
                             foreach (var channel in box.Registers.OfType<DigitalInputChannel>().OrderBy(e => e.RegisterIndex)) {
                                 reading[channel.PropertyMap] = coilData[channel.RegisterIndex];
                             }
@@ -163,6 +190,7 @@ namespace FacilityMonitoring.ConsoleTesting
                             ConsoleTable analogTable = new ConsoleTable();
                             ConsoleTable digitalTable = new ConsoleTable();
                             ConsoleTable outputTable = new ConsoleTable();
+                            ConsoleTable analogAlarmTable;
 
                             analogTable.AddColumn(analog.Select(e => e.Name).ToList());
                             digitalTable.AddColumn(digital.Select(e => e.Name).ToList());
@@ -176,6 +204,7 @@ namespace FacilityMonitoring.ConsoleTesting
                                     double value = Convert.ToDouble(read[channel.PropertyMap]);
                                     tempAnalog.Add(value.ToString());
                                 }
+
 
                                 foreach (var channel in digital) {
                                     tempDigital.Add(reading[channel.PropertyMap]);
