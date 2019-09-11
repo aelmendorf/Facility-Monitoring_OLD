@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Text;
 
-namespace FacilityMonitoring.Common.Data_Layer {
+namespace FacilityMonitoring.Common.Data {
     public interface ITableBuilder {
         DataTable BuildTable(ModbusDevice device);
     }

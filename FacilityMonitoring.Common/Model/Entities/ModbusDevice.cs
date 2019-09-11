@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.Collections.Generic;
 
 namespace FacilityMonitoring.Common.Model {
-    public enum DeviceState { ALARM,WARNING,OKAY, MAINTENANCE}
+    public enum DeviceState { OKAY, WARNING, ALARM, MAINTENCE }
 
     public partial class ModbusDevice {
         public int Id { get; set; }
@@ -14,6 +14,7 @@ namespace FacilityMonitoring.Common.Model {
         public int SlaveAddress { get; set; }
         public DeviceState State { get; set; }
         public string Status { get; set; }
+        public bool BypassAll { get; set; }
 
         public ICollection<Reading> Readings { get; set; }
 
@@ -29,6 +30,8 @@ namespace FacilityMonitoring.Common.Model {
             this.Port = port;
             this.SlaveAddress = slaveAddress;
             this.Status = status;
+            this.BypassAll = false;
+            this.State = DeviceState.OKAY;
         }
     }
 
@@ -41,6 +44,8 @@ namespace FacilityMonitoring.Common.Model {
         public int SoftwareMaintAddr { get; set; }
         public int WarningAddr { get; set; }
         public int AlarmAddr { get; set; }
+
+        public int StateAddr { get; set; }
 
         public ICollection<Register> Registers { get; set; }
 

@@ -38,7 +38,7 @@ namespace FacilityMonitoring.ConsoleTesting
             //TestingAddChannels();
             //DisplayMeasurments();
             //TestingProgram();
-            ReadAndDisplay2();
+            //ReadAndDisplay2();
             //SendMaintNew();
             //SendAlarmNew(false);
         }
@@ -127,6 +127,7 @@ namespace FacilityMonitoring.ConsoleTesting
                                 regData = master.ReadHoldingRegisters(0, (ushort)regCount);
                                 coilData = master.ReadCoils(0, (ushort)box.DigitalInputChannelCount);
                                 client.Close();
+                                master.Dispose();
                             }
 
                             GenericBoxReading reading = new GenericBoxReading(DateTime.Now, "", box);

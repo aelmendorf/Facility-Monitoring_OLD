@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace FacilityMonitoring.Common.Data_Layer {
+namespace FacilityMonitoring.Common.Data {
     public class AmmoniaDataView {
 
     }
