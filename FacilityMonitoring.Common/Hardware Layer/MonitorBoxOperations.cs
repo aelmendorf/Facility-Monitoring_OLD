@@ -8,6 +8,8 @@ using FacilityMonitoring.Common.Model;
 using Modbus.Device;
 
 namespace FacilityMonitoring.Common.Hardware {
+    //TODO:  Add Function codes and switch between input/read/etc etc
+
     public class MonitorBoxOperations : IMonitorBoxHardwareOperations {
         public GenericMonitorBox Device { get; set; }
         private IModbusOperations _modbus;
