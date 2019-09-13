@@ -8,6 +8,17 @@ using Modbus.Device;
 
 namespace FacilityMonitoring.Common.Hardware {
 
+    public enum FunctionCode {
+        ReadCoil = 1,
+        ReadDiscreteInput,
+        ReadHoldingRegisters,
+        ReadInputRegisters,
+        WriteSingleCoil,
+        WriteSingleHoldingRegister,
+        WriteMultipleCoils,
+        WriteMultipleHoldingRegisters
+    }
+
     public class ModbusOperations : IModbusOperations {
 
         public string IpAddress { get; set; }
@@ -20,7 +31,38 @@ namespace FacilityMonitoring.Common.Hardware {
             this.SlaveAddress = (byte)slaveAddr;
         }
 
+        public ushort[] ReadRegisters(FunctionCode fc, int baseAddress, int length) {
+            ushort[] regData;
+            if (this.CheckConnection())
+                try {
+                    using TcpClient client = new TcpClient(this.IpAddress, this.Port);
+                    ModbusIpMaster master = ModbusIpMaster.CreateIp(client);
+                    switch (fc) {
+                        case FunctionCode.ReadInputRegisters: {
+                            regData = master.ReadInputRegisters(this.SlaveAddress, (ushort)baseAddress, (ushort)length);
+                            client.Close();
+                            master.Dispose();
+                            return regData;
+                        }
 
+                        case FunctionCode.ReadHoldingRegisters: {
+                            regData = master.ReadHoldingRegisters(this.SlaveAddress, (ushort)baseAddress, (ushort)length);
+                            client.Close();
+                            master.Dispose();
+                            return regData;
+                        }
+
+                        default: {
+                            client.Close();
+                            master.Dispose();
+                            return null;
+                        }
+                    }
+                } catch {
+                    return null;
+                }
+            return null;
+        }
 
         public ushort[] ReadRegisters(int address, int length) {
             ushort[] regData;
@@ -61,7 +103,6 @@ namespace FacilityMonitoring.Common.Hardware {
                 }
             return null;
         }
-
 
         public bool[] ReadCoils(int address, int length) {
             bool[] regData;
@@ -301,7 +342,6 @@ namespace FacilityMonitoring.Common.Hardware {
                 }
             return false;
         }
-
 
         private bool CheckConnection() {
             try {

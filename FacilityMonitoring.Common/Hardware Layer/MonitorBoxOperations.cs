@@ -19,7 +19,7 @@ namespace FacilityMonitoring.Common.Hardware {
             this._modbus = new ModbusOperations(this.Device.IpAddress,this.Device.Port,this.Device.SlaveAddress);
         }
 
-        public Reading ReadAll() {
+        public GenericBoxReading ReadAll() {
             int regCount = Device.AnalogChannelCount + Device.DigitalOutputChannelCount;
             var data = this._modbus.ReadRegistersAndCoils(0, regCount, 0, this.Device.DigitalInputChannelCount);
             if (data != null) {
@@ -54,7 +54,7 @@ namespace FacilityMonitoring.Common.Hardware {
             }
         }
 
-        public async Task<Reading> ReadAllAsync() {
+        public async Task<GenericBoxReading> ReadAllAsync() {
             int regCount = Device.AnalogChannelCount + Device.DigitalOutputChannelCount;
             var data = await this._modbus.ReadRegistersAndCoilsAsync(0, regCount, 0, this.Device.DigitalInputChannelCount);
             if (data != null) {

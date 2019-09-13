@@ -8,7 +8,9 @@ namespace FacilityMonitoring.Common.Model {
     public class FacilityContext:DbContext {
 
         public DbSet<ModbusDevice> ModbusDevices { get; set; }
-        public DbSet<Reading> Readings { get; set; }
+        public DbSet<GenericBoxReading> GenericBoxReadings { get; set; }
+        public DbSet<H2GenReading> H2GenReadings { get; set; }
+        public DbSet<AmmoniaControllerReading> AmmoniaControllerReadings { get; set; }
         public DbSet<Register> Registers { get; set; }
         public DbSet<Category> Categories { get; set; }
 
@@ -28,10 +30,8 @@ namespace FacilityMonitoring.Common.Model {
         protected override void OnModelCreating(ModelBuilder builder) {
 
             builder.Entity<GenericMonitorBox>().HasBaseType<ModbusDevice>();
-
-            builder.Entity<AmmoniaBoxReading>().HasBaseType<Reading>();
-            builder.Entity<H2GenReading>().HasBaseType<Reading>();
-            builder.Entity<GenericBoxReading>().HasBaseType<Reading>();
+            builder.Entity<H2Generator>().HasBaseType<ModbusDevice>();
+            builder.Entity<AmmoniaController>().HasBaseType<ModbusDevice>();
 
             builder.Entity<AnalogChannel>().HasBaseType<Register>();
             builder.Entity<DigitalInputChannel>().HasBaseType<Register>();
@@ -39,10 +39,29 @@ namespace FacilityMonitoring.Common.Model {
 
             builder.Entity<SensorType>().HasBaseType<Category>();
 
-            builder.Entity<ModbusDevice>()
+            builder.Entity<GenericMonitorBox>()
                 .HasMany(e => e.Readings)
-                .WithOne(e => e.ModbusDevice)
-                .HasForeignKey(e => e.ModbusDeviceId);
+                .WithOne(e => e.GenericMonitorBox)
+                .HasForeignKey(e => e.GenericMonitorBoxId)
+                .IsRequired(true);
+
+            builder.Entity<H2Generator>()
+                .HasMany(e => e.Readings)
+                .WithOne(e => e.H2Generator)
+                .HasForeignKey(e => e.GeneratorId)
+                .IsRequired(true);
+
+            builder.Entity<AmmoniaController>()
+                .HasMany(e => e.Readings)
+                .WithOne(e => e.AmmoniaController)
+                .HasForeignKey(e => e.AmmoniaControllerId)
+                .IsRequired(true);
+
+            builder.Entity<AmmoniaControllerReading>()
+                .HasOne(e => e.AmmoniaController)
+                .WithMany(e => e.Readings)
+                .HasForeignKey(e => e.AmmoniaControllerId)
+                .IsRequired(true);
 
             builder.Entity<Register>()
                 .HasOne(e => e.GenericMonitorBox)

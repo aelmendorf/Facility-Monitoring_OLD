@@ -2,23 +2,24 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using FacilityMonitoring.Common.Converters;
+using FacilityMonitoring.Common.Data;
 
 namespace FacilityMonitoring.Common.Model {
-    public abstract class Reading {
+
+    public partial class GenericBoxReading  {
         public int Id { get; set; }
         public DateTime TimeStamp { get; set; }
         public string Identifier { get; set; }
-        public int ModbusDeviceId { get; set; }
-        public ModbusDevice ModbusDevice { get; set; }
-    }
+        public int GenericMonitorBoxId { get; set; }
+        public GenericMonitorBox GenericMonitorBox { get; set; }
 
-    public partial class GenericBoxReading : Reading {
         public GenericBoxReading() { }
 
-        public GenericBoxReading(DateTime timestamp, string identifier, ModbusDevice device) {
+        public GenericBoxReading(DateTime timestamp, string identifier, GenericMonitorBox device) {
             this.TimeStamp = timestamp;
             this.Identifier = identifier;
-            this.ModbusDevice = device;
+            this.GenericMonitorBox = device;
         }
 
         public double AnalogCh1 { get; set; }
@@ -429,114 +430,151 @@ namespace FacilityMonitoring.Common.Model {
         }
     }
 
-    public partial class H2GenReading : Reading {
+    public partial class H2GenReading  {
+        public int Id { get; set; }
+        public DateTime TimeStamp { get; set; }
+        public string Identifier { get; set; }
+
+        public int GeneratorId { get; set; }
+        public H2Generator H2Generator { get; set; }
 
         public H2GenReading() { }
 
-        public H2GenReading(DateTime timestamp, string identifier, ModbusDevice device) {
+        public H2GenReading(DateTime timestamp, string identifier, H2Generator generator) {
             this.TimeStamp = timestamp;
             this.Identifier = identifier;
-            this.ModbusDevice = device;
+            this.H2Generator = generator;
         }
 
-        public bool A200_Level_Flooded { get; set; }    //1
-        public bool A200_Level_High { get; set; }       //2
-        public bool A200_Level_Low { get; set; }        //3
-        public bool A300_Level_Flooded { get; set; }    //4
-        public bool A300_Level_High { get; set; }       //5
-        public bool A300_Level_Low { get; set; }        //6
-        public bool A200_Level_Empty { get; set; }      //7
-        public bool A300_Level_Empty { get; set; }      //8
-        public bool Stack_A_Water_Flow { get; set; }    //9
-        public bool Stack_B_Water_Flow { get; set; }    //10
-        public bool Stack_C_Water_Flow { get; set; }    //11
-        public bool Vent_Valve { get; set; }            //12
-        public bool A200_Drain_Valve { get; set; }      //13
-        public bool A200_Inlet_Valve { get; set; }      //14
-        public bool Dryer_Valve1 { get; set; }          //15
-        public bool Dryer_Valve2 { get; set; }          //16
-        public bool Dryer_Valve3 { get; set; }          //17
-        public bool Dryer_Valve4 { get; set; }          //18
-        public bool A300_Drain_Valve { get; set; }      //19
-        public bool Stack_A_valve { get; set; }         //20
-        public bool Stack_B_valve { get; set; }         //21
-        public bool Stack_C_valve { get; set; }         //22
-        public bool Pump_control { get; set; }          //23
+        public WaterLevel A200LevelFlooded { get; set; }    //1
+        public WaterLevel A200LevelHigh { get; set; }       //2
+        public WaterLevel A200LevelLow { get; set; }        //3
+        public WaterLevel A300LevelFlooded { get; set; }    //4
+        public WaterLevel A300LevelHigh { get; set; }       //5
+        public WaterLevel A300LevelLow { get; set; }        //6
+        public WaterLevel A200LevelEmpty { get; set; }      //7
+        public WaterLevel A300LevelEmpty { get; set; }      //8
+        public WaterFlow StackAWaterFlow { get; set; }    //9
+        public WaterFlow StackBWaterFlow { get; set; }    //10
+        public WaterFlow StackCWaterFlow { get; set; }    //11
+        public ONOFF VentValve { get; set; }            //12
+        public ONOFF A200DrainValve { get; set; }      //13
+        public ONOFF A200InletValve { get; set; }      //14
+        public ONOFF DryerValve1 { get; set; }          //15
+        public ONOFF DryerValve2 { get; set; }          //16
+        public ONOFF DryerValve3 { get; set; }          //17
+        public ONOFF DryerValve4 { get; set; }          //18
+        public ONOFF A300DrainValve { get; set; }      //19
+        public ONOFF StackAValve { get; set; }         //20
+        public ONOFF StackBValve { get; set; }         //21
+        public ONOFF StackCValve { get; set; }         //22
+        public ONOFF PumpControl { get; set; }          //23
 
         public int PSV_A1 { get; set; }                 //24
-        public int PSV_A1_A2 { get; set; }              //25
+        public int PSV_A1A2 { get; set; }              //25
         public int PSV_B1 { get; set; }                 //26
         public int PSV_B2 { get; set; }                 //27
         public int PSV_C1 { get; set; }                 //28
         public int PSV_C2 { get; set; }                 //29
-        public int Stack_A_monitor_Current { get; set; }//30
-        public int Stack_B_monitor_Current { get; set; }//31
-        public int Stack_C_monitor_Current { get; set; }//32
-        public int PS_Fault_A1 { get; set; }            //33
-        public int PS_Fault_A2 { get; set; }            //34
-        public int PS_Fault_B1 { get; set; }            //35
-        public int PS_Fault_B2 { get; set; }            //36
-        public int PS_Fault_C1 { get; set; }            //37
-        public int PS_Fault_C2 { get; set; }            //38
-        public int ps_unit_status { get; set; }         //39
-        public int Ps_card_enable_A1 { get; set; }      //40
-        public int Ps_card_enable_A2 { get; set; }      //41
-        public int Ps_card_enable_B1 { get; set; }      //42
-        public int Ps_card_enable_B2 { get; set; }      //43
-        public int Ps_card_enable_C1 { get; set; }      //44       
-        public int Ps_card_enable_C2 { get; set; }      //45
+        public int StackAMonitorCurrent { get; set; }//30
+        public int StackBMonitorCurrent { get; set; }//31
+        public int StackCMonitorCurrent { get; set; }//32
+        public FaultState PSFaultA1 { get; set; }            //33
+        public FaultState PSFaultA2 { get; set; }            //34
+        public FaultState PSFaultB1 { get; set; }            //35
+        public FaultState PSFaultB2 { get; set; }            //36
+        public FaultState PSFaultC1 { get; set; }            //37
+        public FaultState PSFaultC2 { get; set; }            //38
+        public FaultState PSUnitStatus { get; set; }         //39
+        public EnableState PsCardEnableA1 { get; set; }      //40
+        public EnableState PsCardEnableA2 { get; set; }      //41
+        public EnableState PsCardEnableB1 { get; set; }      //42
+        public EnableState PsCardEnableB2 { get; set; }      //43
+        public EnableState PsCardEnableC1 { get; set; }      //44       
+        public EnableState PsCardEnableC2 { get; set; }      //45
         public int PSV_A3 { get; set; }                 //46
         public int PSV_B3 { get; set; }                 //47
         public int PSV_C3 { get; set; }                 //48
-        public int PS_Fault_A3 { get; set; }            //49
-        public int PS_Fault_B3 { get; set; }            //50
-        public int PS_Fault_C3 { get; set; }            //51
-        public int Ps_card_enable_A3 { get; set; }      //52
-        public int Ps_card_enable_B3 { get; set; }      //53
-        public int Ps_card_enable_C3 { get; set; }      //54
-        public int System_mode { get; set; }            //55
-        public int Operation_Mode { get; set; }         //56
-        public int System_State { get; set; }           //57
+        public FaultState PSFault_A3 { get; set; }            //49
+        public FaultState PSFault_B3 { get; set; }            //50
+        public FaultState PSFault_C3 { get; set; }            //51
+        public EnableState PsCardEnable_A3 { get; set; }      //52
+        public EnableState PsCardEnable_B3 { get; set; }      //53
+        public EnableState PsCardEnable_C3 { get; set; }      //54
+        public SystemMode SystemMode { get; set; }            //55
+        public OperationMode OperationMode { get; set; }         //56
+        public SystemState SystemState { get; set; }           //57
 
-        public double Water_Quality { get; set; }       //58
-        public double Water_Temperature { get; set; }   //59
-        public double System_Pressure { get; set; }     //60
-        public double Product_pressure { get; set; }    //61
-        public double CG220_level { get; set; }         //62
-        public double Heat_Exchanger_Water_Temp { get; set; }//63
-        public double System_24V_power { get; set; }        //64
-        public double System_5V_power { get; set; }         //65
-        public double System_3V_power { get; set; }         //66
-        public double Heat_sink_Temperature { get; set; }   //67
-        public double Ambient_Temperature { get; set; }     //68
-        public double DI_water_quality { get; set; }        //69
-        public double Hydrogen_flow { get; set; }           //70
-        public double Ext_Water_Quality { get; set; }       //71
-        public string All_System_Warnings { get; set; }     //72
-        public string All_System_Errors { get; set; }       //73
-        public double Thermal_Control_Valve { get; set; }   //74
+        public double WaterQuality { get; set; }       //58
+        public double WaterTemperature { get; set; }   //59
+        public double SystemPressure { get; set; }     //60
+        public double ProductPressure { get; set; }    //61
+        public double CG220Level { get; set; }         //62
+        public double HeatExchangerWaterTemp { get; set; }//63
+        public double System24VPower { get; set; }        //64
+        public double System5VPower { get; set; }         //65
+        public double System3VPower { get; set; }         //66
+        public double HeatSinkTemperature { get; set; }   //67
+        public double AmbientTemperature { get; set; }    //68
+        public double DIWaterQuality { get; set; }        //69
+        public double HydrogenFlow { get; set; }          //70
+        public double ExtWaterQuality { get; set; }       //71
+        public int GeneratorSystemWarningId { get; set; }
+        public GeneratorSystemWarning AllSystemWarnings { get; set; }     //72
+
+        public int GeneratorSystemErrorId { get; set; }
+        public GeneratorSystemError AllSystemErrors { get; set; }       //73
+
+        public double ThermalControlValve { get; set; }   //74
     }
 
-    public partial class AmmoniaBoxReading : Reading {
+    public partial class AmmoniaControllerReading {
+        public int Id { get; set; }
+        public DateTime TimeStamp { get; set; }
 
-        public AmmoniaBoxReading() { }
+        public int AmmoniaControllerId { get; set; }
+        public AmmoniaController AmmoniaController { get; set; }
 
-        public AmmoniaBoxReading(DateTime timestamp, string identifier, ModbusDevice device) {
+
+        public AmmoniaControllerReading() { }
+
+        public AmmoniaControllerReading(DateTime timestamp,AmmoniaController device) {
             this.TimeStamp = timestamp;
-            this.Identifier = identifier;
-            this.ModbusDevice = device;
+            this.AmmoniaController = device;
         }
-
-        public string Scale1Status { get; set; }
-        public string Scale2Status { get; set; }
-        public string Scale3Status { get; set; }
-        public string Scale4Status { get; set; }
-        public string ActiveTank { get; set; }
 
         public int Tank1Weight { get; set; }
         public int Tank2Weight { get; set; }
         public int Tank3Weight { get; set; }
         public int Tank4Weight { get; set; }
+
+        public int Tank1ZeroCal { get; set; }
+        public int Tank1NonZeroCal { get; set; }
+        public int Tank1Zero { get; set; }
+        public int Tank1NonZero { get; set; }
+        public int Tank1Total { get; set; }
+        public int Tank1Gas { get; set; }
+
+        public int Tank2ZeroCal { get; set; }
+        public int Tank2NonZeroCal { get; set; }
+        public int Tank2Zero { get; set; }
+        public int Tank2NonZero { get; set; }
+        public int Tank2Total { get; set; }
+        public int Tank2Gas { get; set; }
+
+        public int Tank3ZeroCal { get; set; }
+        public int Tank3NonZeroCal { get; set; }
+        public int Tank3Zero { get; set; }
+        public int Tank3NonZero { get; set; }
+        public int Tank3Total { get; set; }
+        public int Tank3Gas { get; set; }
+
+        public int Tank4ZeroCal { get; set; }
+        public int Tank4NonZeroCal { get; set; }
+        public int Tank4Zero { get; set; }
+        public int Tank4NonZero { get; set; }
+        public int Tank4Total { get; set; }
+        public int Tank4Gas { get; set; }
 
         public int Tank1Tare { get; set; }
         public int Tank2Tare { get; set; }
@@ -557,9 +595,130 @@ namespace FacilityMonitoring.Common.Model {
         public bool Tank2Warning { get; set; }
         public bool Tank3Warning { get; set; }
         public bool Tank4Warning { get; set; }
+
         public bool Tank1Alarm { get; set; }
         public bool Tank2Alarm { get; set; }
         public bool Tank3Alarm { get; set; }
         public bool Tank4Alarm { get; set; }
+
+        public void Set(List<int> regData,bool[] coilData){
+            for(int i = 0; i < 4; i++) {
+                switch (i) {
+                    case 0:
+                        this.Tank1Weight = regData[i];
+                        var tankData = regData.GetRange(4, 6).ToArray();
+                        this.Tank1ZeroCal= tankData[0];
+                        this.Tank1NonZeroCal = tankData[1];
+                        this.Tank1Zero = tankData[2];
+                        this.Tank1NonZero = tankData[3];
+                        this.Tank1Total = tankData[4];
+                        this.Tank1Gas = tankData[5];
+                        this.Tank1Tare = regData[28];
+                        this.Tank1Temperature = regData[32];
+                        this.Heater1DutyCycle = regData[38];
+                        this.Tank1Warning = coilData[2];
+                        this.Tank1Alarm = coilData[6];
+                        break;
+
+                    case 1: 
+                        this.Tank2Weight = regData[i];
+                        var tank2Data = regData.GetRange(10, 6).ToArray();
+                        this.Tank2ZeroCal = tank2Data[0];
+                        this.Tank2NonZeroCal = tank2Data[1];
+                        this.Tank2Zero = tank2Data[2];
+                        this.Tank2NonZero = tank2Data[3];
+                        this.Tank2Total = tank2Data[4];
+                        this.Tank2Gas = tank2Data[5];
+                        this.Tank2Tare = regData[29];
+                        this.Tank2Temperature = regData[33];
+                        this.Heater2DutyCycle = regData[39];
+                        this.Tank2Warning = coilData[3];
+                        this.Tank2Alarm = coilData[7];
+                        break;
+
+                    case 2:
+                        this.Tank3Weight = regData[i];
+                        var tank3Data = regData.GetRange(16, 6).ToArray();
+                        this.Tank3ZeroCal = tank3Data[0];
+                        this.Tank3NonZeroCal = tank3Data[1];
+                        this.Tank3Zero = tank3Data[2];
+                        this.Tank3NonZero = tank3Data[3];
+                        this.Tank3Total = tank3Data[4];
+                        this.Tank3Gas = tank3Data[5];
+                        this.Tank3Tare = regData[30];
+                        this.Tank3Temperature = regData[34];
+                        this.Heater3DutyCycle = regData[40];
+                        this.Tank3Warning = coilData[4];
+                        this.Tank3Alarm = coilData[8];
+                        break;
+
+                    case 3:
+                        this.Tank4Weight = regData[i];
+                        var tank4Data = regData.GetRange(22, 6).ToArray();
+                        this.Tank4ZeroCal = tank4Data[0];
+                        this.Tank4NonZeroCal = tank4Data[1];
+                        this.Tank4Zero = tank4Data[2];
+                        this.Tank4NonZero = tank4Data[3];
+                        this.Tank4Total = tank4Data[4];
+                        this.Tank4Gas = tank4Data[5];
+                        this.Tank4Tare = regData[31];
+                        this.Tank4Temperature = regData[35];
+                        this.Heater4DutyCycle = regData[41];
+                        this.Tank4Warning = coilData[5];
+                        this.Tank4Alarm = coilData[9];
+                        break;
+                }
+            }
+        }
+
+        public AmmoniaCalibrationData GetTankCalibration(int tank) {
+            switch (tank) {
+                case 1: {
+                    AmmoniaCalibrationData cal = new AmmoniaCalibrationData();
+                    cal.CalZero = this.Tank1ZeroCal;
+                    cal.CalNonZero = this.Tank1NonZeroCal;
+                    cal.ActualZero = this.Tank1Zero;
+                    cal.ActualNonZero = this.Tank1NonZero;
+                    cal.GasWeight = this.Tank1Gas;
+                    cal.TotalWeight = this.Tank1Total;
+                    cal.Tank = (ushort)tank;
+                    return cal;
+                }
+                case 2: {
+                    AmmoniaCalibrationData cal = new AmmoniaCalibrationData();
+                    cal.CalZero = this.Tank2ZeroCal;
+                    cal.CalNonZero = this.Tank2NonZeroCal;
+                    cal.ActualZero = this.Tank2Zero;
+                    cal.ActualNonZero = this.Tank2NonZero;
+                    cal.GasWeight = this.Tank2Gas;
+                    cal.TotalWeight = this.Tank2Total;
+                    cal.Tank = (ushort)tank;
+                    return cal;
+                }
+                case 3: {
+                    AmmoniaCalibrationData cal = new AmmoniaCalibrationData();
+                    cal.CalZero = this.Tank3ZeroCal;
+                    cal.CalNonZero = this.Tank3NonZeroCal;
+                    cal.ActualZero = this.Tank3Zero;
+                    cal.ActualNonZero = this.Tank3NonZero;
+                    cal.GasWeight = this.Tank3Gas;
+                    cal.TotalWeight = this.Tank3Total;
+                    cal.Tank = (ushort)tank;
+                    return cal;
+                }
+                case 4: {
+                    AmmoniaCalibrationData cal = new AmmoniaCalibrationData();
+                    cal.CalZero = this.Tank4ZeroCal;
+                    cal.CalNonZero = this.Tank4NonZeroCal;
+                    cal.ActualZero = this.Tank4Zero;
+                    cal.ActualNonZero = this.Tank4NonZero;
+                    cal.GasWeight = this.Tank4Gas;
+                    cal.TotalWeight = this.Tank4Total;
+                    cal.Tank = (ushort)tank;
+                    return cal;
+                }
+                default: return null;
+            }
+        }
     }
 }

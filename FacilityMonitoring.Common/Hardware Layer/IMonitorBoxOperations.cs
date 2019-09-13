@@ -15,8 +15,8 @@ namespace FacilityMonitoring.Common.Hardware {
         bool SetMaintenance(bool on_off);
         Task<bool> SetMaintenanceAsync(bool on_off);
 
-        Reading ReadAll();
-        Task<Reading> ReadAllAsync();
+        GenericBoxReading ReadAll();
+        Task<GenericBoxReading> ReadAllAsync();
     }
 
     public interface IMonitorBoxData {
