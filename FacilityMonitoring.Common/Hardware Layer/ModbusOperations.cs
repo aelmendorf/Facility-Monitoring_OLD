@@ -4,20 +4,10 @@ using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using FacilityMonitoring.Common.Model;
 using Modbus.Device;
 
 namespace FacilityMonitoring.Common.Hardware {
-
-    public enum FunctionCode {
-        ReadCoil = 1,
-        ReadDiscreteInput,
-        ReadHoldingRegisters,
-        ReadInputRegisters,
-        WriteSingleCoil,
-        WriteSingleHoldingRegister,
-        WriteMultipleCoils,
-        WriteMultipleHoldingRegisters
-    }
 
     public class ModbusOperations : IModbusOperations {
 

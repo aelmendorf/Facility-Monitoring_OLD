@@ -11,6 +11,8 @@ namespace FacilityMonitoring.Common.Model {
         public DbSet<GenericBoxReading> GenericBoxReadings { get; set; }
         public DbSet<H2GenReading> H2GenReadings { get; set; }
         public DbSet<AmmoniaControllerReading> AmmoniaControllerReadings { get; set; }
+        public DbSet<GeneratorSystemError> GeneratorSystemErrors { get; set; }
+        public DbSet<GeneratorSystemWarning> GeneratorSystemWarnings { get; set; }
         public DbSet<Register> Registers { get; set; }
         public DbSet<Category> Categories { get; set; }
 
@@ -36,20 +38,31 @@ namespace FacilityMonitoring.Common.Model {
             builder.Entity<AnalogChannel>().HasBaseType<Register>();
             builder.Entity<DigitalInputChannel>().HasBaseType<Register>();
             builder.Entity<DigitalOutputChannel>().HasBaseType<Register>();
+            builder.Entity<GeneratorRegister>().HasBaseType<Register>();
 
             builder.Entity<SensorType>().HasBaseType<Category>();
 
             builder.Entity<GenericMonitorBox>()
-                .HasMany(e => e.Readings)
+                .HasMany(e => e.BoxReadings)
                 .WithOne(e => e.GenericMonitorBox)
                 .HasForeignKey(e => e.GenericMonitorBoxId)
                 .IsRequired(true);
 
             builder.Entity<H2Generator>()
-                .HasMany(e => e.Readings)
+                .HasMany(e => e.H2Readings)
                 .WithOne(e => e.H2Generator)
                 .HasForeignKey(e => e.GeneratorId)
                 .IsRequired(true);
+
+            builder.Entity<H2GenReading>()
+                .HasOne(e => e.AllSystemWarnings)
+                .WithOne(e => e.H2GenReading)
+                .HasForeignKey<GeneratorSystemWarning>(e => e.H2GenReadingId);
+
+            builder.Entity<H2GenReading>()
+                .HasOne(e => e.AllSystemErrors)
+                .WithOne(e => e.H2GenReading)
+                .HasForeignKey<GeneratorSystemError>(e => e.H2GenReadingId);
 
             builder.Entity<AmmoniaController>()
                 .HasMany(e => e.Readings)
@@ -64,9 +77,9 @@ namespace FacilityMonitoring.Common.Model {
                 .IsRequired(true);
 
             builder.Entity<Register>()
-                .HasOne(e => e.GenericMonitorBox)
+                .HasOne(e => e.Device)
                 .WithMany(e => e.Registers)
-                .HasForeignKey(e => e.GenericMonitorBoxId)
+                .HasForeignKey(e => e.DeviceId)
                 .IsRequired(true);
 
             builder.Entity<SensorType>()

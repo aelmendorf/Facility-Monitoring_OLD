@@ -1,4 +1,5 @@
-﻿using FacilityMonitoring.Common.Model;
+﻿using FacilityMonitoring.Common.Converters;
+using FacilityMonitoring.Common.Model;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,8 @@ namespace FacilityMonitoring.Common.Harware {
         private static readonly string analogFile = @"D:\Software Development\Monitoring\ImportFiles\AnalogChannels.txt";
         private static readonly string digitalFile = @"D:\Software Development\Monitoring\ImportFiles\DigitalChannels.txt";
         private static readonly string outputFile = @"D:\Software Development\Monitoring\ImportFiles\OutputChannels.txt";
-        private static readonly string sensorFile = @"D:\Software Development\Monitoring\ImportFiles\SensorTypes.txt";     
+        private static readonly string sensorFile = @"D:\Software Development\Monitoring\ImportFiles\SensorTypes.txt";
+        private static readonly string h2File = @"D:\Software Development\Monitoring\ImportFiles\H2GenParam.txt";
 
         public static bool ImportAnalog(GenericMonitorBox box,FacilityContext context) {
             if (File.Exists(analogFile)) {
@@ -31,22 +33,23 @@ namespace FacilityMonitoring.Common.Harware {
 
                         channel.Alarm1SetPoint = Convert.ToDouble(row[10]);
                         channel.Alarm1Enabled = (row[11] == "TRUE") ? true : false;
-                        channel.Alarm1Action = GetAction(row[12]);
+                        channel.Alarm1Action = RegisterConverters.GetAction(row[12]);
 
                         channel.Alarm2SetPoint = Convert.ToDouble(row[13]);
                         channel.Alarm2Enabled = (row[14] == "TRUE") ? true : false;
-                        channel.Alarm2Action = GetAction(row[15]);
+                        channel.Alarm2Action = RegisterConverters.GetAction(row[15]);
 
                         channel.Alarm1SetPoint = Convert.ToDouble(row[16]);
                         channel.Alarm1Enabled = (row[17] == "TRUE") ? true : false;
-                        channel.Alarm1Action = GetAction(row[18]);
+                        channel.Alarm1Action = RegisterConverters.GetAction(row[18]);
+
                         string sname = row[19];
                         channel.ValueDivisor = Convert.ToDouble(row[20]);
                         var sensor = context.Categories.OfType<SensorType>().Include(e => e.AnalogChannels).FirstOrDefault(e=>e.Name==sname);
                         if (sensor != null) {
                             channel.SensorType = sensor;
                         }
-                        channel.GenericMonitorBox = box;
+                        channel.Device = box;
                         box.Registers.Add(channel);
                         context.Registers.Add(channel);
                     }
@@ -70,9 +73,9 @@ namespace FacilityMonitoring.Common.Harware {
                         bool connected = (row[4] == "TRUE") ? true : false;
                         LogicType type = (row[3] == "HIGH") ? LogicType.HIGH : LogicType.LOW;
                         DigitalInputChannel channel = new DigitalInputChannel(row[0], Convert.ToInt32(row[1]), Convert.ToInt32(row[2]), connected, row[5],type);
-                        channel.AlarmAction = GetAction(row[7]);
+                        channel.AlarmAction = RegisterConverters.GetAction(row[7]);
                         channel.Bypass = (row[6] == "TRUE") ? false : true;              
-                        channel.GenericMonitorBox = box;
+                        channel.Device = box;
                         box.Registers.Add(channel);
                         context.Registers.Add(channel);
                     }
@@ -98,7 +101,7 @@ namespace FacilityMonitoring.Common.Harware {
                         DigitalOutputChannel channel = new DigitalOutputChannel(row[0], Convert.ToInt32(row[1]),Convert.ToInt32(row[2]), connected, row[5], type);
                         channel.OutputControl = (row[7] == "SOFTWARE") ? OutputControl.SOFTWARE : OutputControl.HARDWARE;
                         channel.Bypass = (connected) ? false : true;
-                        channel.GenericMonitorBox = box;
+                        channel.Device = box;
                         box.Registers.Add(channel);
                         context.Registers.Add(channel);
                     }
@@ -136,29 +139,35 @@ namespace FacilityMonitoring.Common.Harware {
             }
         }
 
-        public static AlertAction GetAction(string str) {
-            switch (str) {
-                case "ALARM": {
-                    return AlertAction.ALARM;
+        public static bool ImportGeneratorRegisters(H2Generator generator,FacilityContext context) {
+            if (File.Exists(h2File)) {
+                try {
+                    var lines = File.ReadAllLines(h2File);
+                    foreach (var line in lines) {
+                        var row = line.Split('\t');
+                        GeneratorRegister register = new GeneratorRegister();
+                        register.Name = row[0];
+                        register.FunctionCode = RegisterConverters.GetFunctionCode(Convert.ToInt32(row[1]));
+                        register.RegisterIndex = Convert.ToInt32(row[2]);
+                        register.RegisterLength = Convert.ToInt32(row[3]);
+                        register.DataType = RegisterConverters.GetH2Type(row[4]);
+                        register.Connected = true;
+                        register.Bypass = false;
+                        register.PropertyMap = register.Name;
+                        generator.Registers.Add(register);
+                        generator.Registers.Add(register);
+                    }
+                    context.SaveChanges();
+                    return true;
+                } catch {
+                    return false;
                 }
-                case "WARN": {
-                    return AlertAction.WARN;
-                }
-                case "SOFTWARN": {
-                    return AlertAction.SOFTWARN;
-                }
-                case "NOTHING": {
-                    return AlertAction.NOTHING;
-                }
-                case "MAINTENANCE": {
-                    return AlertAction.MAINTENANCE;
-                }
-                default: {
-                    return AlertAction.NOTHING;
-                }
-
+            } else {
+                return false;
             }
         }
+
+
     }
 
 }

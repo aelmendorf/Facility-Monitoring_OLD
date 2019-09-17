@@ -49,7 +49,6 @@ namespace FacilityMonitoring.Common.Model {
         OFF=0
     }
 
-
     public enum SystemMode {
         Normal=0,
         Service,
@@ -209,22 +208,24 @@ namespace FacilityMonitoring.Common.Model {
         NO_STATE_YET=30
     }
 
+    public enum H2Type {
+        WATERLEVEL,
+        WATERFLOW,
+        ONOFF,
+        INT32,
+        FAULTSTATE,
+        ENABLESTATE,
+        SYSTEMMODE,
+        OPERATIONMODE,
+        SYSTEMSTATE,
+        DOUBLE,
+        GENERATORSYSTEMWARNING,
+        GENERATORSYSTEMERROR
+    }
+
     public enum LogicType { HIGH, LOW }
     public enum AlertAction { ALARM,WARN,SOFTWARN,MAINTENANCE,NOTHING }
     public enum OutputControl { HARDWARE,SOFTWARE}
-
-    public partial class RegisterGroup {
-        public int Id { get; set; }
-
-        public int ModbusDeviceId { get; set; }
-        public ModbusDevice ModbusDevice { get; set; }
-
-        public ICollection<Register> Registers { get; set; }
-
-        public RegisterGroup() {
-            this.Registers = new ObservableHashSet<Register>();
-        }
-    }
 
     public abstract class Register {
 
@@ -237,8 +238,8 @@ namespace FacilityMonitoring.Common.Model {
         public string PropertyMap { get; set; }
         public LogicType Logic { get; set; }
 
-        public int GenericMonitorBoxId { get; set; }
-        public virtual GenericMonitorBox GenericMonitorBox { get; set; }
+        public int DeviceId { get; set; }
+        public virtual ModbusDevice Device { get; set; }
 
         public int? SensorTypeId { get; set; }
         public virtual SensorType SensorType { get; set; }
@@ -333,7 +334,7 @@ namespace FacilityMonitoring.Common.Model {
     }
 
     public partial class GeneratorRegister:Register {
-
-        FunctionCode FunctionCode { get; set; }
+        public FunctionCode FunctionCode { get; set; }
+        public H2Type DataType { get; set; }
     }
 }

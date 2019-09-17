@@ -13,6 +13,7 @@ using FacilityMonitoring.Common.Hardware;
 using FacilityMonitoring.Common.Harware;
 using System.Reflection;
 using FacilityMonitoring.Common.Data;
+using System.IO;
 
 namespace FacilityMonitoring.ConsoleTesting
 {
@@ -33,6 +34,24 @@ namespace FacilityMonitoring.ConsoleTesting
             //TestSetCal(true);
             //TestGetCal();
             //TestSendCal();
+
+            //ExportH2ReadingParam();
+            //ImportModbusH2("Generator 1", "172.21.100.25", 1);
+            //ImportModbusH2("Generator 2", "172.21.100.26", 1);
+            //ImportModbusH2("Generator 3", "172.21.100.27", 1);
+
+            TestGeneratorRead("Generator 1");
+            TestGeneratorRead("Generator 2");
+            TestGeneratorRead("Generator 3");
+        }
+
+        public static void ExportH2ReadingParam() {
+            PropertyInfo[] properties = typeof(H2GenReading).GetProperties();
+            StringBuilder builder = new StringBuilder();
+            foreach(var property in properties) {
+                builder.AppendFormat("{0}\t{1}", property.Name, property.PropertyType.Name).AppendLine();
+            }
+            File.WriteAllText(@"D:\Software Development\Monitoring\ImportFiles\H2GenParam.txt", builder.ToString());
         }
 
         public static void CreateAmmoniaController() {
@@ -118,6 +137,31 @@ namespace FacilityMonitoring.ConsoleTesting
             Console.ReadKey();
         }
 
+        public static void TestGeneratorRead(string generator) {
+            using var context = new FacilityContext();
+            var controller = context.ModbusDevices.OfType<H2Generator>().Include(e => e.H2Readings).Include(e=>e.Registers).FirstOrDefault(e => e.Identifier == generator);
+            if (controller != null) {
+                Stopwatch stopwatch = new Stopwatch();
+                stopwatch.Start();
+                GeneratorOperations operations = new GeneratorOperations(controller);
+                var reading = operations.ReadAll();
+                if (reading != null) {
+                    context.GeneratorSystemErrors.Add(reading.AllSystemErrors);
+                    context.GeneratorSystemWarnings.Add(reading.AllSystemWarnings);
+                    controller.H2Readings.Add(reading);
+                    context.H2GenReadings.Add(reading);
+                    context.SaveChanges();
+                    stopwatch.Stop();
+                    Console.WriteLine("{0} done! Elapsed Time: {1}",generator,stopwatch.ElapsedMilliseconds);
+                } else {
+                    Console.WriteLine("Error: Read Failed");
+                }
+            } else {
+                Console.WriteLine("Error: Controller not found!");
+            }
+            Console.ReadKey();
+        }
+
         public static void TestAmmoniaRead() {
             using var context = new FacilityContext();
             var controller = context.ModbusDevices.OfType<AmmoniaController>().Include(e=>e.Readings).FirstOrDefault(e=>e.Identifier== "AmmoniaController");
@@ -153,7 +197,7 @@ namespace FacilityMonitoring.ConsoleTesting
                     .AsNoTracking()
                     .Include(e => e.Registers)
                         .ThenInclude(e => e.SensorType)
-                    .Include(e => e.Readings)
+                    .Include(e => e.BoxReadings)
                     .FirstOrDefault(e => e.Identifier == "GasBay");
                 if (device != null) {
                     MonitorBoxOperations operations = new MonitorBoxOperations(device);
@@ -176,7 +220,7 @@ namespace FacilityMonitoring.ConsoleTesting
                     .AsNoTracking()
                     .Include(e => e.Registers)
                         .ThenInclude(e => e.SensorType)
-                    .Include(e => e.Readings)
+                    .Include(e => e.BoxReadings)
                     .FirstOrDefault(e => e.Identifier == "GasBay");
                 if (device != null) {
                     MonitorBoxOperations operations = new MonitorBoxOperations(device);
@@ -199,7 +243,7 @@ namespace FacilityMonitoring.ConsoleTesting
                     .AsNoTracking()
                     .Include(e => e.Registers)
                         .ThenInclude(e => e.SensorType)
-                    .Include(e => e.Readings)
+                    .Include(e => e.BoxReadings)
                     .FirstOrDefault(e => e.Identifier == "GasBay");
                 if (device != null) {
                     MonitorBoxOperations operations = new MonitorBoxOperations(device);
@@ -222,7 +266,7 @@ namespace FacilityMonitoring.ConsoleTesting
                     .AsNoTracking()
                     .Include(e => e.Registers)
                         .ThenInclude(e => e.SensorType)
-                    .Include(e => e.Readings)
+                    .Include(e => e.BoxReadings)
                     .FirstOrDefault(e => e.Identifier == "GasBay");
                 if (device != null) {
                     MonitorBoxOperations operations = new MonitorBoxOperations(device);
@@ -231,7 +275,7 @@ namespace FacilityMonitoring.ConsoleTesting
                         foreach (var register in device.Registers.OfType<AnalogChannel>().OrderBy(e => e.RegisterIndex)) {
                             Console.WriteLine("{0}: {1}", register.Name, Convert.ToDouble(reading[register.PropertyMap]));
                         }
-                        device.Readings.Add(reading);
+                        device.BoxReadings.Add(reading);
                         context.Entry<ModbusDevice>(device).State = EntityState.Modified;
                         context.GenericBoxReadings.Add(reading);
                         context.SaveChanges();
@@ -246,7 +290,7 @@ namespace FacilityMonitoring.ConsoleTesting
             Console.ReadKey();
         }
 
-        private static void ImportModbus() {
+        private static void ImportModbusGeneric() {
             using (FacilityContext context = new FacilityContext()) {
                 GenericMonitorBox monitorBox = new GenericMonitorBox();
                 monitorBox.IpAddress = "172.21.100.30";
@@ -286,6 +330,28 @@ namespace FacilityMonitoring.ConsoleTesting
                 } else {
                     Console.WriteLine("Error: Output Import Failed");
                 }
+                Console.WriteLine();
+                Console.WriteLine("Done, Press any key to exit");
+                Console.ReadKey();
+            }
+        }
+
+        private static void ImportModbusH2(string name,string IpAddress,int slave) {
+            using (FacilityContext context = new FacilityContext()) {
+                H2Generator monitorBox = new H2Generator();
+                monitorBox.Identifier = name;
+                monitorBox.IpAddress =IpAddress;
+                monitorBox.Port = 502;
+                monitorBox.SlaveAddress = slave;
+                monitorBox.Status = "Okay";
+                context.ModbusDevices.Add(monitorBox);
+                context.SaveChanges();
+                if (ImportModbusSettings.ImportGeneratorRegisters(monitorBox, context)) {
+                    Console.WriteLine("Success: H2 Registers Imported");
+                } else {
+                    Console.WriteLine("Error: Import Failed");
+                }
+
                 Console.WriteLine();
                 Console.WriteLine("Done, Press any key to exit");
                 Console.ReadKey();

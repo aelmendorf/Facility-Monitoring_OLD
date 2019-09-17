@@ -18,8 +18,4 @@ namespace FacilityMonitoring.Common.Hardware {
         GenericBoxReading ReadAll();
         Task<GenericBoxReading> ReadAllAsync();
     }
-
-    public interface IMonitorBoxData {
-
-    }
 }

@@ -6,6 +6,89 @@ namespace FacilityMonitoring.Common.Model {
 
 
     public partial class GeneratorSystemError {
+        public GeneratorSystemError() {
+            this.E01_A1 = WarningErrorKey.NOT_OCCURED;
+            this.E01_A2 = WarningErrorKey.NOT_OCCURED;
+            this.E01_A3 = WarningErrorKey.NOT_OCCURED;
+            this.E01_B1 = WarningErrorKey.NOT_OCCURED;
+            this.E01_B2 = WarningErrorKey.NOT_OCCURED;
+            this.E01_B3 = WarningErrorKey.NOT_OCCURED;
+            this.E01_C1 = WarningErrorKey.NOT_OCCURED;
+            this.E01_C2 = WarningErrorKey.NOT_OCCURED;
+            this.E01_C3 = WarningErrorKey.NOT_OCCURED;
+            this.E02_A1 = WarningErrorKey.NOT_OCCURED;
+            this.E02_A2 = WarningErrorKey.NOT_OCCURED;
+            this.E02_A3 = WarningErrorKey.NOT_OCCURED;
+            this.E02_B1 = WarningErrorKey.NOT_OCCURED;
+            this.E02_B2 = WarningErrorKey.NOT_OCCURED;
+            this.E02_B3 = WarningErrorKey.NOT_OCCURED;
+            this.E02_C1 = WarningErrorKey.NOT_OCCURED;
+            this.E02_C2 = WarningErrorKey.NOT_OCCURED;
+            this.E02_C3 = WarningErrorKey.NOT_OCCURED;
+            this.E03_A = WarningErrorKey.NOT_OCCURED;
+            this.E03_B = WarningErrorKey.NOT_OCCURED;
+            this.E03_C = WarningErrorKey.NOT_OCCURED;
+            this.E04_A = WarningErrorKey.NOT_OCCURED;
+            this.E04_B = WarningErrorKey.NOT_OCCURED;
+            this.E04_C = WarningErrorKey.NOT_OCCURED;
+            this.E05_A1 = WarningErrorKey.NOT_OCCURED;
+            this.E05_A2 = WarningErrorKey.NOT_OCCURED;
+            this.E05_A3 = WarningErrorKey.NOT_OCCURED;
+            this.E05_B1 = WarningErrorKey.NOT_OCCURED;
+            this.E05_B2 = WarningErrorKey.NOT_OCCURED;
+            this.E05_B3 = WarningErrorKey.NOT_OCCURED;
+            this.E05_C1 = WarningErrorKey.NOT_OCCURED;
+            this.E05_C2 = WarningErrorKey.NOT_OCCURED;
+            this.E05_C3 = WarningErrorKey.NOT_OCCURED;
+            this.E06 = WarningErrorKey.NOT_OCCURED;
+            this.E07 = WarningErrorKey.NOT_OCCURED;
+            this.E08 = WarningErrorKey.NOT_OCCURED;
+            this.E09 = WarningErrorKey.NOT_OCCURED;
+            this.E10 = WarningErrorKey.NOT_OCCURED;
+            this.E11 = WarningErrorKey.NOT_OCCURED;
+            this.E12 = WarningErrorKey.NOT_OCCURED;
+            this.E13 = WarningErrorKey.NOT_OCCURED;
+            this.E14 = WarningErrorKey.NOT_OCCURED;
+            this.E15 = WarningErrorKey.NOT_OCCURED;
+            this.E16_A = WarningErrorKey.NOT_OCCURED;
+            this.E16_B = WarningErrorKey.NOT_OCCURED;
+            this.E17 = WarningErrorKey.NOT_OCCURED;
+            this.E18 = WarningErrorKey.NOT_OCCURED;
+            this.E19 = WarningErrorKey.NOT_OCCURED;
+            this.E20_A = WarningErrorKey.NOT_OCCURED;
+            this.E20_B = WarningErrorKey.NOT_OCCURED;
+            this.E21 = WarningErrorKey.NOT_OCCURED;
+            this.E22 = WarningErrorKey.NOT_OCCURED;
+            this.E23 = WarningErrorKey.NOT_OCCURED;
+            this.E24 = WarningErrorKey.NOT_OCCURED;
+            this.E25 = WarningErrorKey.NOT_OCCURED;
+            this.E26 = WarningErrorKey.NOT_OCCURED;
+            this.E27 = WarningErrorKey.NOT_OCCURED;
+            this.E28 = WarningErrorKey.NOT_OCCURED;
+            this.E29 = WarningErrorKey.NOT_OCCURED;
+            this.E30 = WarningErrorKey.NOT_OCCURED;
+            this.E31 = WarningErrorKey.NOT_OCCURED;
+            this.E32 = WarningErrorKey.NOT_OCCURED;
+            this.E33 = WarningErrorKey.NOT_OCCURED;
+            this.E34 = WarningErrorKey.NOT_OCCURED;
+            this.E35 = WarningErrorKey.NOT_OCCURED;
+            this.E36_A = WarningErrorKey.NOT_OCCURED;
+            this.E36_B = WarningErrorKey.NOT_OCCURED;
+            this.E36_C = WarningErrorKey.NOT_OCCURED;
+            this.E37 = WarningErrorKey.NOT_OCCURED;
+            this.E38 = WarningErrorKey.NOT_OCCURED;
+            this.E39 = WarningErrorKey.NOT_OCCURED;
+            this.E40 = WarningErrorKey.NOT_OCCURED;
+            this.E41 = WarningErrorKey.NOT_OCCURED;
+            this.E42 = WarningErrorKey.NOT_OCCURED;
+            this.E43 = WarningErrorKey.NOT_OCCURED;
+            this.E44 = WarningErrorKey.NOT_OCCURED;
+            this.E45 = WarningErrorKey.NOT_OCCURED;
+            this.E46 = WarningErrorKey.NOT_OCCURED;
+            this.E47 = WarningErrorKey.NOT_OCCURED;
+            this.E48 = WarningErrorKey.NOT_OCCURED;
+        }
+
         public int Id { get; set; }
 
         public int H2GenReadingId { get; set; }
@@ -16,6 +99,7 @@ namespace FacilityMonitoring.Common.Model {
                 switch (error) {
                     case SystemError.E01_A1:
                         return this.E01_A1;
+
                     case SystemError.E01_A2:
                         return this.E01_A2;
 
@@ -589,6 +673,31 @@ namespace FacilityMonitoring.Common.Model {
 
         public int H2GenReadingId { get; set; }
         public H2GenReading H2GenReading { get; set; }
+
+        public GeneratorSystemWarning() {
+            this.W01 = WarningErrorKey.NOT_OCCURED;
+            this.W02 = WarningErrorKey.NOT_OCCURED;
+            this.W03 = WarningErrorKey.NOT_OCCURED;
+            this.W04 = WarningErrorKey.NOT_OCCURED;
+            this.W05 = WarningErrorKey.NOT_OCCURED;
+            this.W06 = WarningErrorKey.NOT_OCCURED;
+            this.W07 = WarningErrorKey.NOT_OCCURED;
+            this.W08 = WarningErrorKey.NOT_OCCURED;
+            this.W09 = WarningErrorKey.NOT_OCCURED;
+            this.W10 = WarningErrorKey.NOT_OCCURED;
+            this.W11 = WarningErrorKey.NOT_OCCURED;
+            this.W12 = WarningErrorKey.NOT_OCCURED;
+            this.W13 = WarningErrorKey.NOT_OCCURED;
+            this.W14 = WarningErrorKey.NOT_OCCURED;
+            this.W15 = WarningErrorKey.NOT_OCCURED;
+            this.W16 = WarningErrorKey.NOT_OCCURED;
+            this.W17 = WarningErrorKey.NOT_OCCURED;
+            this.W18 = WarningErrorKey.NOT_OCCURED;
+            this.W19 = WarningErrorKey.NOT_OCCURED;
+            this.W20 = WarningErrorKey.NOT_OCCURED;
+            this.W21 = WarningErrorKey.NOT_OCCURED;
+            this.W22 = WarningErrorKey.NOT_OCCURED;
+        }
 
         public WarningErrorKey this[SystemWarning warning] {
             set {

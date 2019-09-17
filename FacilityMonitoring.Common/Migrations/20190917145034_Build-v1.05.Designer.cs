@@ -4,14 +4,16 @@ using FacilityMonitoring.Common.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace FacilityMonitoring.Common.Migrations
 {
     [DbContext(typeof(FacilityContext))]
-    partial class FacilityContextModelSnapshot : ModelSnapshot
+    [Migration("20190917145034_Build-v1.05")]
+    partial class Buildv105
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -323,7 +325,7 @@ namespace FacilityMonitoring.Common.Migrations
                     b.HasIndex("H2GenReadingId")
                         .IsUnique();
 
-                    b.ToTable("GeneratorSystemErrors");
+                    b.ToTable("GeneratorSystemError");
                 });
 
             modelBuilder.Entity("FacilityMonitoring.Common.Model.GeneratorSystemWarning", b =>
@@ -383,7 +385,7 @@ namespace FacilityMonitoring.Common.Migrations
                     b.HasIndex("H2GenReadingId")
                         .IsUnique();
 
-                    b.ToTable("GeneratorSystemWarnings");
+                    b.ToTable("GeneratorSystemWarning");
                 });
 
             modelBuilder.Entity("FacilityMonitoring.Common.Model.GenericBoxReading", b =>

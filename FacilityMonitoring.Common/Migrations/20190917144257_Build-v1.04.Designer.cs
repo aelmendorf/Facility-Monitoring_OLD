@@ -4,14 +4,16 @@ using FacilityMonitoring.Common.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace FacilityMonitoring.Common.Migrations
 {
     [DbContext(typeof(FacilityContext))]
-    partial class FacilityContextModelSnapshot : ModelSnapshot
+    [Migration("20190917144257_Build-v1.04")]
+    partial class Buildv104
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -323,7 +325,7 @@ namespace FacilityMonitoring.Common.Migrations
                     b.HasIndex("H2GenReadingId")
                         .IsUnique();
 
-                    b.ToTable("GeneratorSystemErrors");
+                    b.ToTable("GeneratorSystemError");
                 });
 
             modelBuilder.Entity("FacilityMonitoring.Common.Model.GeneratorSystemWarning", b =>
@@ -383,7 +385,7 @@ namespace FacilityMonitoring.Common.Migrations
                     b.HasIndex("H2GenReadingId")
                         .IsUnique();
 
-                    b.ToTable("GeneratorSystemWarnings");
+                    b.ToTable("GeneratorSystemWarning");
                 });
 
             modelBuilder.Entity("FacilityMonitoring.Common.Model.GenericBoxReading", b =>
@@ -905,20 +907,6 @@ namespace FacilityMonitoring.Common.Migrations
                     b.HasDiscriminator().HasValue("DigitalOutputChannel");
                 });
 
-            modelBuilder.Entity("FacilityMonitoring.Common.Model.GeneratorRegister", b =>
-                {
-                    b.HasBaseType("FacilityMonitoring.Common.Model.Register");
-
-                    b.Property<int>("DataType");
-
-                    b.Property<int>("FunctionCode");
-
-                    b.HasIndex("SensorTypeId")
-                        .HasName("IX_Registers_SensorTypeId3");
-
-                    b.HasDiscriminator().HasValue("GeneratorRegister");
-                });
-
             modelBuilder.Entity("FacilityMonitoring.Common.Model.AmmoniaControllerReading", b =>
                 {
                     b.HasOne("FacilityMonitoring.Common.Model.AmmoniaController", "AmmoniaController")
@@ -988,14 +976,6 @@ namespace FacilityMonitoring.Common.Migrations
                         .WithMany()
                         .HasForeignKey("SensorTypeId")
                         .HasConstraintName("FK_Registers_Categories_SensorTypeId2");
-                });
-
-            modelBuilder.Entity("FacilityMonitoring.Common.Model.GeneratorRegister", b =>
-                {
-                    b.HasOne("FacilityMonitoring.Common.Model.SensorType", "SensorType")
-                        .WithMany()
-                        .HasForeignKey("SensorTypeId")
-                        .HasConstraintName("FK_Registers_Categories_SensorTypeId3");
                 });
 #pragma warning restore 612, 618
         }

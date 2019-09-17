@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using FacilityMonitoring.Common.Data;
+using FacilityMonitoring.Common.Model;
 
 namespace FacilityMonitoring.Common.Converters {
     public static class RegisterConverters {
@@ -11,8 +12,8 @@ namespace FacilityMonitoring.Common.Converters {
             return BitConverter.ToInt32(BitConverter.GetBytes(second).Concat(BitConverter.GetBytes(first)).ToArray(),0);
         }
 
-        public static float ToFloat(ushort first,ushort second) {
-            return BitConverter.ToSingle(BitConverter.GetBytes(first).Concat(BitConverter.GetBytes(second)).ToArray(), 0);
+        public static double ToDouble(ushort first,ushort second) {
+            return (double)BitConverter.ToSingle(BitConverter.GetBytes(first).Concat(BitConverter.GetBytes(second)).ToArray(), 0);
         }
 
         public static ushort[] ToUshortArray(int value) {
@@ -53,8 +54,175 @@ namespace FacilityMonitoring.Common.Converters {
             return reg.ToArray();
         }
 
-        public static byte[] GetBytes(Int16[] arr) {
+        public static byte[] GetBytes(ushort[] arr) {
             return arr.Select(x => (byte)x).ToArray();
         }
+
+        public static H2Type GetH2Type(string str) {
+            switch (str) {
+                case "WATERLEVEL": {
+                    return H2Type.WATERLEVEL;
+                }
+
+                case "WATERFLOW": {
+                    return H2Type.WATERFLOW;
+                }
+
+                case "ONOFF": {
+                    return H2Type.ONOFF;
+                }
+
+                case "INT32": {
+                    return H2Type.INT32;
+                }
+
+                case "FAULTSTATE": {
+                    return H2Type.FAULTSTATE;
+                }
+
+                case "ENABLESTATE": {
+                    return H2Type.ENABLESTATE;
+                }
+
+                case "SYSTEMMODE": {
+                    return H2Type.SYSTEMMODE;
+                }
+
+                case "OPERATIONMODE": {
+                    return H2Type.OPERATIONMODE;
+                }
+
+                case "SYSTEMSTATE": {
+                    return H2Type.SYSTEMSTATE;
+                }
+
+                case "DOUBLE": {
+                    return H2Type.DOUBLE;
+                }
+
+                case "GENERATORSYSTEMWARNING": {
+                    return H2Type.GENERATORSYSTEMWARNING;
+                }
+
+                case "GENERATORSYSTEMERROR": {
+                    return H2Type.GENERATORSYSTEMERROR;
+                }
+
+                default: return H2Type.DOUBLE;
+            }
+        }
+
+        public static FunctionCode GetFunctionCode(int num) {
+            switch (num) {
+                case 1: {
+                    return FunctionCode.ReadCoil;
+                }
+                case 3: {
+                    return FunctionCode.ReadHoldingRegisters;
+                }
+                case 4: {
+                    return FunctionCode.ReadInputRegisters;
+                }
+                default: {
+                    return FunctionCode.WriteMultipleCoils;
+                }
+            }
+        }
+
+        public static AlertAction GetAction(string str) {
+            switch (str) {
+                case "ALARM": {
+                    return AlertAction.ALARM;
+                }
+                case "WARN": {
+                    return AlertAction.WARN;
+                }
+                case "SOFTWARN": {
+                    return AlertAction.SOFTWARN;
+                }
+                case "NOTHING": {
+                    return AlertAction.NOTHING;
+                }
+                case "MAINTENANCE": {
+                    return AlertAction.MAINTENANCE;
+                }
+                default: {
+                    return AlertAction.NOTHING;
+                }
+
+            }
+        }
+
+        public static GeneratorSystemError ToGeneratorSystemError(ushort[] regData) {
+            GeneratorSystemError error = new GeneratorSystemError();
+            byte[] bytes = GetBytes(regData);
+            for (int i = 0; i < bytes.Length; i++) {
+                SystemError index = (SystemError)i;
+                error[index] = (WarningErrorKey)bytes[i];
+            }
+            return error;
+        }
+
+        public static GeneratorSystemWarning ToGeneratorSystemWarning(ushort[] regData) {         
+            GeneratorSystemWarning warning = new GeneratorSystemWarning();
+            byte[] bytes = GetBytes(regData);
+            for (int i = 0; i < bytes.Length; i++) {
+                SystemWarning index = (SystemWarning)i;
+                warning[index] = (WarningErrorKey)bytes[i];
+            }
+            return warning;
+        }
+
+        public static object GetH2RegisterValue(GeneratorRegister register,ushort[] regData=null,bool[] coilData = null) {
+            switch (register.DataType) {
+                case H2Type.WATERLEVEL: {
+                    return coilData[0] ? WaterLevel.WET:WaterLevel.DRY;
+                }
+                case H2Type.WATERFLOW: {
+                    return coilData[0] ? WaterFlow.FLOW : WaterFlow.FLOW;
+                }
+                case H2Type.ONOFF: {
+                    return coilData[0] ? ONOFF.ON : ONOFF.OFF;
+                }
+                case H2Type.INT32: {
+                    return (int)regData[0];
+                }
+                case H2Type.FAULTSTATE: {
+                    return (FaultState)regData[0];
+                }
+                case H2Type.ENABLESTATE: {
+                    return (EnableState)regData[0];
+                }
+                case H2Type.SYSTEMMODE: {
+                    return (SystemMode)regData[0];
+                }
+                case H2Type.OPERATIONMODE: {
+                    return (OperationMode)regData[0];
+                }
+                case H2Type.SYSTEMSTATE: {
+                    return (SystemState)regData[0];
+                }
+                case H2Type.DOUBLE: {
+                    return RegisterConverters.ToDouble(regData[0],regData[1]);
+                }
+                case H2Type.GENERATORSYSTEMWARNING: {
+                    if (regData != null) {
+                        return RegisterConverters.ToGeneratorSystemWarning(regData);
+                    } else {
+                        return null;
+                    }
+                }
+                case H2Type.GENERATORSYSTEMERROR: {
+                    if (regData != null) {
+                        return RegisterConverters.ToGeneratorSystemError(regData);
+                    } else {
+                        return null;
+                    }
+                }
+                default:
+                    return null;
+            }
+        }
+
     }
 }

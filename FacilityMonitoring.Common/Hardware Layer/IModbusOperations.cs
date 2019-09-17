@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Threading.Tasks;
+using FacilityMonitoring.Common.Model;
 
 namespace FacilityMonitoring.Common.Hardware {
     public interface IModbusOperations {
         string IpAddress { get; set; }
         int Port { get; set; }
         byte SlaveAddress { get; set; }
+
+        ushort[] ReadRegisters(FunctionCode fc, int baseAddress, int length);
 
         bool[] ReadCoils(int address, int length);
         Task<bool[]> ReadCoilsAsync(int address, int length);
