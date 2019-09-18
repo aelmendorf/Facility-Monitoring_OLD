@@ -54,6 +54,18 @@ namespace FacilityMonitoring.Common.Converters {
             return reg.ToArray();
         }
 
+        public static ushort[] ConvertCalToReg(AmmoniaCalibrationData nHcal) {
+            List<ushort> reg = new List<ushort>();
+            reg.AddRange(ToUshortArray(nHcal.CalZero));
+            reg.AddRange(ToUshortArray(nHcal.CalNonZero));
+            reg.AddRange(ToUshortArray(nHcal.ActualZero));
+            reg.AddRange(ToUshortArray(nHcal.ActualNonZero));
+            reg.AddRange(ToUshortArray(nHcal.TotalWeight));
+            reg.AddRange(ToUshortArray(nHcal.GasWeight));
+            reg.Add(nHcal.Tank);
+            return reg.ToArray();
+        }
+
         public static byte[] GetBytes(ushort[] arr) {
             return arr.Select(x => (byte)x).ToArray();
         }

@@ -17,7 +17,6 @@ namespace FacilityMonitoring.Common.Model {
         public bool BypassAll { get; set; }
 
         public ICollection<Register> Registers { get; set; }
-
     }
 
     public partial class GenericMonitorBox : ModbusDevice {

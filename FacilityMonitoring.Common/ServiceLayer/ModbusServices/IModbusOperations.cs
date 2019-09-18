@@ -9,6 +9,7 @@ namespace FacilityMonitoring.Common.Hardware {
         byte SlaveAddress { get; set; }
 
         ushort[] ReadRegisters(FunctionCode fc, int baseAddress, int length);
+        Task<ushort[]> ReadRegistersAsync(FunctionCode fc,int address, int length);
 
         bool[] ReadCoils(int address, int length);
         Task<bool[]> ReadCoilsAsync(int address, int length);

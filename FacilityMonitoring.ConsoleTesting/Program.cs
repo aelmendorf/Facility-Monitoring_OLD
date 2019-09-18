@@ -10,7 +10,6 @@ using Console_Table;
 using System.Collections.Generic;
 using System.Text;
 using FacilityMonitoring.Common.Hardware;
-using FacilityMonitoring.Common.Harware;
 using System.Reflection;
 using FacilityMonitoring.Common.Data;
 using System.IO;
@@ -30,7 +29,7 @@ namespace FacilityMonitoring.ConsoleTesting
             //ImportModbus();
             //CreateAmmoniaController();
             //CreateAmmoniaController();
-            //TestAmmoniaRead();
+            TestAmmoniaRead();
             //TestSetCal(true);
             //TestGetCal();
             //TestSendCal();
@@ -40,9 +39,13 @@ namespace FacilityMonitoring.ConsoleTesting
             //ImportModbusH2("Generator 2", "172.21.100.26", 1);
             //ImportModbusH2("Generator 3", "172.21.100.27", 1);
 
-            TestGeneratorRead("Generator 1");
-            TestGeneratorRead("Generator 2");
-            TestGeneratorRead("Generator 3");
+            //TestGeneratorRead("Generator 1");
+            //TestGeneratorRead("Generator 2");
+            //TestGeneratorRead("Generator 3");
+
+
+
+
         }
 
         public static void ExportH2ReadingParam() {
@@ -76,66 +79,66 @@ namespace FacilityMonitoring.ConsoleTesting
             Console.ReadKey();
         }
 
-        public static void TestSetCal(bool on_off) {
-            using var context = new FacilityContext();
-            var controller = context.ModbusDevices.OfType<AmmoniaController>().Include(e => e.Readings).FirstOrDefault(e => e.Identifier == "AmmoniaController");
-            if (controller != null) {
-                AmmoniaControllerOperations operations = new AmmoniaControllerOperations(controller);
-                if (operations.SetCalibrationMode(on_off)) {
-                    Console.WriteLine("Done.  Press Any Key To Turn Off");
-                    Console.ReadKey();
-                    if (operations.SetCalibrationMode(!on_off)) {
-                        Console.WriteLine("Done!");
-                    } else {
-                        Console.WriteLine("Error: Cal Mode Failed");
-                    }
-                } else {
-                    Console.WriteLine("Error: Cal Mode Failed");
-                }
-            }
-            Console.ReadKey();
-        }
+        //public static void TestSetCal(bool on_off) {
+        //    using var context = new FacilityContext();
+        //    var controller = context.ModbusDevices.OfType<AmmoniaController>().Include(e => e.Readings).FirstOrDefault(e => e.Identifier == "AmmoniaController");
+        //    if (controller != null) {
+        //        AmmoniaControllerOperations operations = new AmmoniaControllerOperations(controller);
+        //        if (operations.SetCalibrationMode(on_off)) {
+        //            Console.WriteLine("Done.  Press Any Key To Turn Off");
+        //            Console.ReadKey();
+        //            if (operations.SetCalibrationMode(!on_off)) {
+        //                Console.WriteLine("Done!");
+        //            } else {
+        //                Console.WriteLine("Error: Cal Mode Failed");
+        //            }
+        //        } else {
+        //            Console.WriteLine("Error: Cal Mode Failed");
+        //        }
+        //    }
+        //    Console.ReadKey();
+        //}
 
-        public static void TestGetCal() {
-            using var context = new FacilityContext();
-            var controller = context.ModbusDevices.OfType<AmmoniaController>().Include(e => e.Readings).FirstOrDefault(e => e.Identifier == "AmmoniaController");
-            if (controller != null) {
-                AmmoniaControllerOperations operations = new AmmoniaControllerOperations(controller);
-                var calibration = operations.ReadTankCalibration(1);
-                ConsoleTable table = new ConsoleTable();
-                PropertyInfo[] properties = typeof(AmmoniaCalibrationData).GetProperties();
-                List<object> row = new List<object>();
-                foreach(var property in properties) {
-                    table.Columns.Add(property.Name);
-                    row.Add(property.GetValue(calibration));
-                }
-                table.AddRow(row.ToArray());
-                Console.WriteLine(table.ToMinimalString());
-            }
-            Console.ReadKey();
-        }
+        //public static void TestGetCal() {
+        //    using var context = new FacilityContext();
+        //    var controller = context.ModbusDevices.OfType<AmmoniaController>().Include(e => e.Readings).FirstOrDefault(e => e.Identifier == "AmmoniaController");
+        //    if (controller != null) {
+        //        AmmoniaControllerOperations operations = new AmmoniaControllerOperations(context, controller);
+        //        var calibration = operations.ReadTankCalibration(1);
+        //        ConsoleTable table = new ConsoleTable();
+        //        PropertyInfo[] properties = typeof(AmmoniaCalibrationData).GetProperties();
+        //        List<object> row = new List<object>();
+        //        foreach (var property in properties) {
+        //            table.Columns.Add(property.Name);
+        //            row.Add(property.GetValue(calibration));
+        //        }
+        //        table.AddRow(row.ToArray());
+        //        Console.WriteLine(table.ToMinimalString());
+        //    }
+        //    Console.ReadKey();
+        //}
 
-        public static void TestSendCal() {
-            using var context = new FacilityContext();
-            var controller = context.ModbusDevices.OfType<AmmoniaController>().Include(e => e.Readings).FirstOrDefault(e => e.Identifier == "AmmoniaController");
-            if (controller != null) {
-                AmmoniaControllerOperations operations = new AmmoniaControllerOperations(controller);
-                var cal = operations.ReadTankCalibration(2);
-                if (cal != null) {
-                    cal.ActualNonZero = 30;
-                    if(operations.SetCalibration(cal, 3)) {
-                        Console.WriteLine("Done");
-                    } else {
-                        Console.WriteLine("Error:  Send Failed");
-                    }
-                } else {
-                    Console.WriteLine("Error: Retrieve Cal Failed");
-                }
-            } else {
-                Console.WriteLine("Error: Controller Not Found");
-            }
-            Console.ReadKey();
-        }
+        //public static void TestSendCal() {
+        //    using var context = new FacilityContext();
+        //    var controller = context.ModbusDevices.OfType<AmmoniaController>().Include(e => e.Readings).FirstOrDefault(e => e.Identifier == "AmmoniaController");
+        //    if (controller != null) {
+        //        AmmoniaControllerOperations operations = new AmmoniaControllerOperations(controller);
+        //        var cal = operations.Device.
+        //        if (cal != null) {
+        //            cal.ActualNonZero = 30;
+        //            if (operations.SetCalibration(cal, 3)) {
+        //                Console.WriteLine("Done");
+        //            } else {
+        //                Console.WriteLine("Error:  Send Failed");
+        //            }
+        //        } else {
+        //            Console.WriteLine("Error: Retrieve Cal Failed");
+        //        }
+        //    } else {
+        //        Console.WriteLine("Error: Controller Not Found");
+        //    }
+        //    Console.ReadKey();
+        //}
 
         public static void TestGeneratorRead(string generator) {
             using var context = new FacilityContext();
@@ -143,14 +146,8 @@ namespace FacilityMonitoring.ConsoleTesting
             if (controller != null) {
                 Stopwatch stopwatch = new Stopwatch();
                 stopwatch.Start();
-                GeneratorOperations operations = new GeneratorOperations(controller);
-                var reading = operations.ReadAll();
-                if (reading != null) {
-                    context.GeneratorSystemErrors.Add(reading.AllSystemErrors);
-                    context.GeneratorSystemWarnings.Add(reading.AllSystemWarnings);
-                    controller.H2Readings.Add(reading);
-                    context.H2GenReadings.Add(reading);
-                    context.SaveChanges();
+                GeneratorOperations operations = new GeneratorOperations(context,controller);
+                if (operations.Read()) {
                     stopwatch.Stop();
                     Console.WriteLine("{0} done! Elapsed Time: {1}",generator,stopwatch.ElapsedMilliseconds);
                 } else {
@@ -166,21 +163,10 @@ namespace FacilityMonitoring.ConsoleTesting
             using var context = new FacilityContext();
             var controller = context.ModbusDevices.OfType<AmmoniaController>().Include(e=>e.Readings).FirstOrDefault(e=>e.Identifier== "AmmoniaController");
             if (controller != null) {
-                AmmoniaControllerOperations operations = new AmmoniaControllerOperations(controller);
-                var reading = operations.ReadAll();
-                if (reading != null) {
-                    context.AmmoniaControllerReadings.Add(reading);
-                    context.SaveChanges();
-                    PropertyInfo[] properties = typeof(AmmoniaControllerReading).GetProperties();
-                    ConsoleTable table = new ConsoleTable();
-                    //table.Columns.Add(properties.Select(e => e.Name));
-                    List<object> row = new List<object>();
-                    foreach(var property in properties) {
-                        table.Columns.Add(property.Name);
-                        row.Add(property.GetValue(reading));
-                    }
-                    table.AddRow(row.ToArray());
-                    Console.WriteLine(table.ToMinimalString());
+                AmmoniaControllerOperations operations = new AmmoniaControllerOperations(context,controller);
+                //var reading = operations.ReadAll();
+                if (operations.Read()) {
+                    Console.WriteLine();
                 } else {
                     Console.WriteLine("Error: Read Failed");
                 }
@@ -200,7 +186,7 @@ namespace FacilityMonitoring.ConsoleTesting
                     .Include(e => e.BoxReadings)
                     .FirstOrDefault(e => e.Identifier == "GasBay");
                 if (device != null) {
-                    MonitorBoxOperations operations = new MonitorBoxOperations(device);
+                    MonitorBoxOperations operations = new MonitorBoxOperations(context,device);
                     if (!operations.SetWarning(on_off)) {
                         Console.WriteLine("Done! Press any key to exit");
                     } else {
@@ -223,7 +209,7 @@ namespace FacilityMonitoring.ConsoleTesting
                     .Include(e => e.BoxReadings)
                     .FirstOrDefault(e => e.Identifier == "GasBay");
                 if (device != null) {
-                    MonitorBoxOperations operations = new MonitorBoxOperations(device);
+                    MonitorBoxOperations operations = new MonitorBoxOperations(context,device);
                     if (!operations.SetMaintenance(on_off)) {
                         Console.WriteLine("Done! Press any key to exit");
                     } else {
@@ -246,7 +232,7 @@ namespace FacilityMonitoring.ConsoleTesting
                     .Include(e => e.BoxReadings)
                     .FirstOrDefault(e => e.Identifier == "GasBay");
                 if (device != null) {
-                    MonitorBoxOperations operations = new MonitorBoxOperations(device);
+                    MonitorBoxOperations operations = new MonitorBoxOperations(context,device);
                     if (!operations.SetAlarm(on_off)) {
                         Console.WriteLine("Done! Press any key to exit");
                     } else {
@@ -269,16 +255,8 @@ namespace FacilityMonitoring.ConsoleTesting
                     .Include(e => e.BoxReadings)
                     .FirstOrDefault(e => e.Identifier == "GasBay");
                 if (device != null) {
-                    MonitorBoxOperations operations = new MonitorBoxOperations(device);
-                    var reading = (GenericBoxReading)operations.ReadAll();
-                    if (reading != null) {
-                        foreach (var register in device.Registers.OfType<AnalogChannel>().OrderBy(e => e.RegisterIndex)) {
-                            Console.WriteLine("{0}: {1}", register.Name, Convert.ToDouble(reading[register.PropertyMap]));
-                        }
-                        device.BoxReadings.Add(reading);
-                        context.Entry<ModbusDevice>(device).State = EntityState.Modified;
-                        context.GenericBoxReadings.Add(reading);
-                        context.SaveChanges();
+                    MonitorBoxOperations operations = new MonitorBoxOperations(context, device);
+                    if (operations.Read()) {
                         Console.WriteLine("Done! Press any key to exit");
                     } else {
                         Console.WriteLine("Error Reading Failed");
@@ -290,72 +268,72 @@ namespace FacilityMonitoring.ConsoleTesting
             Console.ReadKey();
         }
 
-        private static void ImportModbusGeneric() {
-            using (FacilityContext context = new FacilityContext()) {
-                GenericMonitorBox monitorBox = new GenericMonitorBox();
-                monitorBox.IpAddress = "172.21.100.30";
-                monitorBox.Port = 502;
-                monitorBox.Identifier = "GasBay";
-                monitorBox.SlaveAddress = 0;
-                monitorBox.Status = "Okay";
-                monitorBox.AnalogChannelCount = 16;
-                monitorBox.DigitalInputChannelCount = 39;
-                monitorBox.DigitalOutputChannelCount = 10;
-                monitorBox.ModbusComAddr = 39;
-                monitorBox.SoftwareMaintAddr = 40;
-                monitorBox.WarningAddr = 41;
-                monitorBox.AlarmAddr = 42;
-                context.ModbusDevices.Add(monitorBox);
-                context.SaveChanges();
-                if (ImportModbusSettings.ImportSensorType(monitorBox, context)) {
-                    Console.WriteLine("Success: Sensor Types Imported");
-                } else {
-                    Console.WriteLine("Error: Sensor Import Failed");
-                }
+        //private static void ImportModbusGeneric() {
+        //    using (FacilityContext context = new FacilityContext()) {
+        //        GenericMonitorBox monitorBox = new GenericMonitorBox();
+        //        monitorBox.IpAddress = "172.21.100.30";
+        //        monitorBox.Port = 502;
+        //        monitorBox.Identifier = "GasBay";
+        //        monitorBox.SlaveAddress = 0;
+        //        monitorBox.Status = "Okay";
+        //        monitorBox.AnalogChannelCount = 16;
+        //        monitorBox.DigitalInputChannelCount = 39;
+        //        monitorBox.DigitalOutputChannelCount = 10;
+        //        monitorBox.ModbusComAddr = 39;
+        //        monitorBox.SoftwareMaintAddr = 40;
+        //        monitorBox.WarningAddr = 41;
+        //        monitorBox.AlarmAddr = 42;
+        //        context.ModbusDevices.Add(monitorBox);
+        //        context.SaveChanges();
+        //        if (ImportModbusSettings.ImportSensorType(monitorBox, context)) {
+        //            Console.WriteLine("Success: Sensor Types Imported");
+        //        } else {
+        //            Console.WriteLine("Error: Sensor Import Failed");
+        //        }
 
-                if (ImportModbusSettings.ImportAnalog(monitorBox, context)) {
-                    Console.WriteLine("Success: Analog Channels Imported");
-                } else {
-                    Console.WriteLine("Error: Analog Import Failed");
-                }
+        //        if (ImportModbusSettings.ImportAnalog(monitorBox, context)) {
+        //            Console.WriteLine("Success: Analog Channels Imported");
+        //        } else {
+        //            Console.WriteLine("Error: Analog Import Failed");
+        //        }
 
-                if (ImportModbusSettings.ImportDigital(monitorBox, context)) {
-                    Console.WriteLine("Success: Digital Channels Imported");
-                } else {
-                    Console.WriteLine("Error: Digital Import Failed");
-                }
+        //        if (ImportModbusSettings.ImportDigital(monitorBox, context)) {
+        //            Console.WriteLine("Success: Digital Channels Imported");
+        //        } else {
+        //            Console.WriteLine("Error: Digital Import Failed");
+        //        }
 
-                if (ImportModbusSettings.ImportOutput(monitorBox, context)) {
-                    Console.WriteLine("Success: Output Channels Imported");
-                } else {
-                    Console.WriteLine("Error: Output Import Failed");
-                }
-                Console.WriteLine();
-                Console.WriteLine("Done, Press any key to exit");
-                Console.ReadKey();
-            }
-        }
+        //        if (ImportModbusSettings.ImportOutput(monitorBox, context)) {
+        //            Console.WriteLine("Success: Output Channels Imported");
+        //        } else {
+        //            Console.WriteLine("Error: Output Import Failed");
+        //        }
+        //        Console.WriteLine();
+        //        Console.WriteLine("Done, Press any key to exit");
+        //        Console.ReadKey();
+        //    }
+        //}
 
-        private static void ImportModbusH2(string name,string IpAddress,int slave) {
-            using (FacilityContext context = new FacilityContext()) {
-                H2Generator monitorBox = new H2Generator();
-                monitorBox.Identifier = name;
-                monitorBox.IpAddress =IpAddress;
-                monitorBox.Port = 502;
-                monitorBox.SlaveAddress = slave;
-                monitorBox.Status = "Okay";
-                context.ModbusDevices.Add(monitorBox);
-                context.SaveChanges();
-                if (ImportModbusSettings.ImportGeneratorRegisters(monitorBox, context)) {
-                    Console.WriteLine("Success: H2 Registers Imported");
-                } else {
-                    Console.WriteLine("Error: Import Failed");
-                }
+        //private static void ImportModbusH2(string name,string IpAddress,int slave) {
+        //    using (FacilityContext context = new FacilityContext()) {
+        //        H2Generator monitorBox = new H2Generator();
+        //        monitorBox.Identifier = name;
+        //        monitorBox.IpAddress =IpAddress;
+        //        monitorBox.Port = 502;
+        //        monitorBox.SlaveAddress = slave;
+        //        monitorBox.Status = "Okay";
+        //        context.ModbusDevices.Add(monitorBox);
+        //        context.SaveChanges();
+        //        if (ImportModbusSettings.ImportGeneratorRegisters(monitorBox, context)) {
+        //            Console.WriteLine("Success: H2 Registers Imported");
+        //        } else {
+        //            Console.WriteLine("Error: Import Failed");
+        //        }
 
-                Console.WriteLine();
-                Console.WriteLine("Done, Press any key to exit");
-                Console.ReadKey();
-            }
-        }
+        //        Console.WriteLine();
+        //        Console.WriteLine("Done, Press any key to exit");
+        //        Console.ReadKey();
+        //    }
+        //}
     }
 }

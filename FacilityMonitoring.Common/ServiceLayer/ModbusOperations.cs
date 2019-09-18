@@ -54,6 +54,39 @@ namespace FacilityMonitoring.Common.Hardware {
             return null;
         }
 
+        public async Task<ushort[]> ReadRegistersAsync(FunctionCode fc, int baseAddress, int length) {
+            ushort[] regData;
+            if (this.CheckConnection())
+                try {
+                    using TcpClient client = new TcpClient(this.IpAddress, this.Port);
+                    ModbusIpMaster master = ModbusIpMaster.CreateIp(client);
+                    switch (fc) {
+                        case FunctionCode.ReadInputRegisters: {
+                            regData = await master.ReadInputRegistersAsync(this.SlaveAddress, (ushort)baseAddress, (ushort)length);
+                            client.Close();
+                            master.Dispose();
+                            return regData;
+                        }
+
+                        case FunctionCode.ReadHoldingRegisters: {
+                            regData = await master.ReadHoldingRegistersAsync(this.SlaveAddress, (ushort)baseAddress, (ushort)length);
+                            client.Close();
+                            master.Dispose();
+                            return regData;
+                        }
+
+                        default: {
+                            client.Close();
+                            master.Dispose();
+                            return null;
+                        }
+                    }
+                } catch {
+                    return null;
+                }
+            return null;
+        }
+
         public ushort[] ReadRegisters(int address, int length) {
             ushort[] regData;
             if (this.CheckConnection())
