@@ -4,28 +4,28 @@ using System.Text;
 using FacilityMonitoring.Common.Data;
 using FacilityMonitoring.Common.Model;
 using FacilityMonitoring.Common.Converters;
-using FacilityMonitoring.Common.Services.Interfaces;
+using FacilityMonitoring.Common.Services.ModbusServices;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace FacilityMonitoring.Common.Hardware {
     public class AmmoniaControllerOperations : IAmmoniaOperations {
-        private AmmoniaControllerReading _lastRead;
         private AmmoniaController _device { get; set; }
-        public AmmoniaControllerReading LastRead {get;set;}
+        private readonly FacilityContext _context;
+        private IModbusOperations _modbus;
+        private readonly ILogger _logger;
 
         public ModbusDevice Device {
             get => this._device;
             private set => this._device = (AmmoniaController)value;
         }
 
-        private readonly FacilityContext _context;
-        private IModbusOperations _modbus;
-
-        public AmmoniaControllerOperations(FacilityContext context,AmmoniaController device) {
+        public AmmoniaControllerOperations(FacilityContext context,AmmoniaController device,ILogger<AmmoniaControllerOperations> logger) {
             this._context = context;
             this._device = device;
             this._modbus = new ModbusOperations(this._device.IpAddress, this._device.Port,this._device.SlaveAddress);
+            this._logger = logger;
         }
 
         public bool Read() {
@@ -41,8 +41,11 @@ namespace FacilityMonitoring.Common.Hardware {
                 }//End loop
                 AmmoniaControllerReading reading = new AmmoniaControllerReading(DateTime.Now, this._device);
                 reading.Set(regValues, data.Item2);
-                return this.Save(reading);
+                this._device.LastRead = reading;
+                this._logger.LogInformation("{0} Read Succeeded", this.Device.Identifier);
+                return true;
             } else {
+                this._logger.LogError("{0} Read Failed", this.Device.Identifier);
                 return false;
             }
         }
@@ -60,8 +63,11 @@ namespace FacilityMonitoring.Common.Hardware {
                 }//End loop
                 AmmoniaControllerReading reading = new AmmoniaControllerReading(DateTime.Now, this._device);
                 reading.Set(regValues, data.Item2);
-                return this.Save(reading);
+                this._device.LastRead = reading;
+                this._logger.LogInformation("{0} Read Succeeded", this.Device.Identifier);
+                return true;
             } else {
+                this._logger.LogError("{0} Read Failed", this.Device.Identifier);
                 return false;
             }
         }
@@ -97,15 +103,29 @@ namespace FacilityMonitoring.Common.Hardware {
             return await this._modbus.WriteSingleCoilAsync(this._device.CalModeAddr, on_off);
         }
 
-        private bool Save(AmmoniaControllerReading reading) {
-            this.LastRead = reading;
-            this._device.Readings.Add(reading);
+        public bool Save() {
+            this._device.Readings.Add(this._device.LastRead);
             this._context.Entry<AmmoniaController>(this._device).State = EntityState.Modified;
-            this._context.AmmoniaControllerReadings.Add(reading);
+            this._context.AmmoniaControllerReadings.Add(this._device.LastRead);
             try {
                 this._context.SaveChanges();
+                this._logger.LogInformation("{0} Save Succeeded", this.Device.Identifier);
                 return true;
             } catch {
+                return false;
+            }
+        }
+
+        public async Task<bool> SaveAsync() {
+            this._device.Readings.Add(this._device.LastRead);
+            this._context.Entry<AmmoniaController>(this._device).State = EntityState.Modified;
+            this._context.AmmoniaControllerReadings.Add(this._device.LastRead);
+            try {
+                await this._context.SaveChangesAsync();
+                this._logger.LogInformation("{0} Save Succeeded", this.Device.Identifier);
+                return true;
+            } catch {
+                this._logger.LogError("{0} Save Failed", this.Device.Identifier);
                 return false;
             }
         }

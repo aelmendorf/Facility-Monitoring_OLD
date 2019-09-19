@@ -5,26 +5,27 @@ using System.Text;
 using System.Threading.Tasks;
 using FacilityMonitoring.Common.Converters;
 using FacilityMonitoring.Common.Model;
-using FacilityMonitoring.Common.Services.Interfaces;
+using FacilityMonitoring.Common.Services.ModbusServices;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace FacilityMonitoring.Common.Hardware {
     public class GeneratorOperations : IGeneratorOperations {
         private H2Generator _device { get; set; }
-        public H2GenReading LastRead { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        private IModbusOperations _modbus;
+        private readonly FacilityContext _context;
+        private readonly ILogger _logger;
 
         public ModbusDevice Device {
             get => this._device;
             private set => this._device = (H2Generator)value;
         }
 
-        private IModbusOperations _modbus;
-        private readonly FacilityContext _context;
-
-        public GeneratorOperations(FacilityContext context,H2Generator device) {
+        public GeneratorOperations(FacilityContext context,H2Generator device,ILogger<GeneratorOperations> logger) {
             this._context = context;
             this._device = device;
             this._modbus = new ModbusOperations(this._device.IpAddress, this._device.Port, this._device.SlaveAddress);
+            this._logger = logger;
         }
 
         public bool Read() {
@@ -37,6 +38,7 @@ namespace FacilityMonitoring.Common.Hardware {
                         if (coils != null) {
                             reading[register.PropertyMap] = reading[register.PropertyMap] = RegisterConverters.GetH2RegisterValue(register, coilData: coils);
                         } else {
+                            this._logger.LogError("{0} Read Failed On {1} property",this.Device.Identifier,register.PropertyMap);
                             return false;
                         }
                         break;
@@ -50,6 +52,7 @@ namespace FacilityMonitoring.Common.Hardware {
                             if (value != null) {
                                 reading[register.PropertyMap] = value;
                             } else {
+                                this._logger.LogError("{0} Read Failed On {1} property", this.Device.Identifier, register.PropertyMap);
                                 return false;
                             }
                         }
@@ -62,8 +65,8 @@ namespace FacilityMonitoring.Common.Hardware {
 
                     case FunctionCode.WriteMultipleHoldingRegisters: { break; }
                 }
-
             }
+            this._logger.LogInformation("{0} Read Succeeded",this.Device.Identifier);
             return true;
         }
 
@@ -77,6 +80,7 @@ namespace FacilityMonitoring.Common.Hardware {
                         if (coils != null) {
                             reading[register.PropertyMap] = reading[register.PropertyMap] = RegisterConverters.GetH2RegisterValue(register, coilData: coils);
                         } else {
+                            this._logger.LogError("{0} Read Failed On {1} property", this.Device.Identifier, register.PropertyMap);
                             return false;
                         }
                         break;
@@ -90,6 +94,7 @@ namespace FacilityMonitoring.Common.Hardware {
                             if (value != null) {
                                 reading[register.PropertyMap] = value;
                             } else {
+                                this._logger.LogError("{0} Read Failed On {1} property", this.Device.Identifier, register.PropertyMap);
                                 return false;
                             }
                         }
@@ -104,37 +109,43 @@ namespace FacilityMonitoring.Common.Hardware {
                 }
 
             }
-            return this.Save(reading);
+            this._logger.LogInformation("{0} Read Succeeded", this.Device.Identifier);
+            this._device.LastRead = reading;
+            return true;
         }
 
-        private bool Save(H2GenReading reading) {
+        public bool Save() {
             try {
-                this._context.GeneratorSystemErrors.Add(reading.AllSystemErrors);
-                this._context.GeneratorSystemWarnings.Add(reading.AllSystemWarnings);
-                this._device.H2Readings.Add(reading);
-                this._device.SystemState = reading.SystemState;
-                this._device.OperationMode = reading.OperationMode;
+                this._context.GeneratorSystemErrors.Add(this._device.LastRead.AllSystemErrors);
+                this._context.GeneratorSystemWarnings.Add(this._device.LastRead.AllSystemWarnings);
+                this._device.H2Readings.Add(this._device.LastRead);
+                this._device.SystemState = this._device.LastRead.SystemState;
+                this._device.OperationMode = this._device.LastRead.OperationMode;
                 this._context.Entry<H2Generator>(this._device).State = EntityState.Modified;
-                this._context.H2GenReadings.Add(reading);
+                this._context.H2GenReadings.Add(this._device.LastRead);
                 this._context.SaveChanges();
+                this._logger.LogInformation("{0} Save Succeeded", this.Device.Identifier);
                 return true;
             } catch {
+                this._logger.LogError("{0} Failed To Save", this._device.Identifier);
                 return false;
             }
         }
 
-        private async Task<bool> SaveAsync(H2GenReading reading) {
+        public async Task<bool> SaveAsync() {
             try {
-                this._context.GeneratorSystemErrors.Add(reading.AllSystemErrors);
-                this._context.GeneratorSystemWarnings.Add(reading.AllSystemWarnings);
-                this._device.H2Readings.Add(reading);
-                this._device.SystemState = reading.SystemState;
-                this._device.OperationMode = reading.OperationMode;
+                this._context.GeneratorSystemErrors.Add(this._device.LastRead.AllSystemErrors);
+                this._context.GeneratorSystemWarnings.Add(this._device.LastRead.AllSystemWarnings);
+                this._device.H2Readings.Add(this._device.LastRead);
+                this._device.SystemState = this._device.LastRead.SystemState;
+                this._device.OperationMode = this._device.LastRead.OperationMode;
                 this._context.Entry<H2Generator>(this._device).State = EntityState.Modified;
-                this._context.H2GenReadings.Add(reading);
+                this._context.H2GenReadings.Add(this._device.LastRead);
+                this._logger.LogInformation("{0} Save Succeeded", this.Device.Identifier);
                 await this._context.SaveChangesAsync();
                 return true;
             } catch {
+                this._logger.LogError("{0} Failed To Save",this._device.Identifier);
                 return false;
             }
         }

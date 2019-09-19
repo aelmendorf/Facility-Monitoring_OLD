@@ -29,7 +29,7 @@ namespace FacilityMonitoring.ConsoleTesting
             //ImportModbus();
             //CreateAmmoniaController();
             //CreateAmmoniaController();
-            TestAmmoniaRead();
+            //TestAmmoniaRead();
             //TestSetCal(true);
             //TestGetCal();
             //TestSendCal();
@@ -140,133 +140,133 @@ namespace FacilityMonitoring.ConsoleTesting
         //    Console.ReadKey();
         //}
 
-        public static void TestGeneratorRead(string generator) {
-            using var context = new FacilityContext();
-            var controller = context.ModbusDevices.OfType<H2Generator>().Include(e => e.H2Readings).Include(e=>e.Registers).FirstOrDefault(e => e.Identifier == generator);
-            if (controller != null) {
-                Stopwatch stopwatch = new Stopwatch();
-                stopwatch.Start();
-                GeneratorOperations operations = new GeneratorOperations(context,controller);
-                if (operations.Read()) {
-                    stopwatch.Stop();
-                    Console.WriteLine("{0} done! Elapsed Time: {1}",generator,stopwatch.ElapsedMilliseconds);
-                } else {
-                    Console.WriteLine("Error: Read Failed");
-                }
-            } else {
-                Console.WriteLine("Error: Controller not found!");
-            }
-            Console.ReadKey();
-        }
+        //public static void TestGeneratorRead(string generator) {
+        //    using var context = new FacilityContext();
+        //    var controller = context.ModbusDevices.OfType<H2Generator>().Include(e => e.H2Readings).Include(e=>e.Registers).FirstOrDefault(e => e.Identifier == generator);
+        //    if (controller != null) {
+        //        Stopwatch stopwatch = new Stopwatch();
+        //        stopwatch.Start();
+        //        GeneratorOperations operations = new GeneratorOperations(context,controller);
+        //        if (operations.Read()) {
+        //            stopwatch.Stop();
+        //            Console.WriteLine("{0} done! Elapsed Time: {1}",generator,stopwatch.ElapsedMilliseconds);
+        //        } else {
+        //            Console.WriteLine("Error: Read Failed");
+        //        }
+        //    } else {
+        //        Console.WriteLine("Error: Controller not found!");
+        //    }
+        //    Console.ReadKey();
+        //}
 
-        public static void TestAmmoniaRead() {
-            using var context = new FacilityContext();
-            var controller = context.ModbusDevices.OfType<AmmoniaController>().Include(e=>e.Readings).FirstOrDefault(e=>e.Identifier== "AmmoniaController");
-            if (controller != null) {
-                AmmoniaControllerOperations operations = new AmmoniaControllerOperations(context,controller);
-                //var reading = operations.ReadAll();
-                if (operations.Read()) {
-                    Console.WriteLine();
-                } else {
-                    Console.WriteLine("Error: Read Failed");
-                }
-            } else {
-                Console.WriteLine("Error: Controller not found!");
-            }
-            Console.ReadKey();
-        }
+        //public static void TestAmmoniaRead() {
+        //    using var context = new FacilityContext();
+        //    var controller = context.ModbusDevices.OfType<AmmoniaController>().Include(e=>e.Readings).FirstOrDefault(e=>e.Identifier== "AmmoniaController");
+        //    if (controller != null) {
+        //        AmmoniaControllerOperations operations = new AmmoniaControllerOperations(context,controller);
+        //        //var reading = operations.ReadAll();
+        //        if (operations.Read()) {
+        //            Console.WriteLine();
+        //        } else {
+        //            Console.WriteLine("Error: Read Failed");
+        //        }
+        //    } else {
+        //        Console.WriteLine("Error: Controller not found!");
+        //    }
+        //    Console.ReadKey();
+        //}
 
-        public static void TestWarning(bool on_off) {
-            using (var context = new FacilityContext()) {
-                var device = context.ModbusDevices
-                    .OfType<GenericMonitorBox>()
-                    .AsNoTracking()
-                    .Include(e => e.Registers)
-                        .ThenInclude(e => e.SensorType)
-                    .Include(e => e.BoxReadings)
-                    .FirstOrDefault(e => e.Identifier == "GasBay");
-                if (device != null) {
-                    MonitorBoxOperations operations = new MonitorBoxOperations(context,device);
-                    if (!operations.SetWarning(on_off)) {
-                        Console.WriteLine("Done! Press any key to exit");
-                    } else {
-                        Console.WriteLine("Error Send Failed");
-                    }
-                } else {
-                    Console.WriteLine("Error: Device Not Found");
-                }
-            }
-            Console.ReadKey();
-        }
+        //public static void TestWarning(bool on_off) {
+        //    using (var context = new FacilityContext()) {
+        //        var device = context.ModbusDevices
+        //            .OfType<GenericMonitorBox>()
+        //            .AsNoTracking()
+        //            .Include(e => e.Registers)
+        //                .ThenInclude(e => e.SensorType)
+        //            .Include(e => e.BoxReadings)
+        //            .FirstOrDefault(e => e.Identifier == "GasBay");
+        //        if (device != null) {
+        //            MonitorBoxOperations operations = new MonitorBoxOperations(context,device);
+        //            if (!operations.SetWarning(on_off)) {
+        //                Console.WriteLine("Done! Press any key to exit");
+        //            } else {
+        //                Console.WriteLine("Error Send Failed");
+        //            }
+        //        } else {
+        //            Console.WriteLine("Error: Device Not Found");
+        //        }
+        //    }
+        //    Console.ReadKey();
+        //}
 
-        public static void TestMaintenance(bool on_off) {
-            using (var context = new FacilityContext()) {
-                var device = context.ModbusDevices
-                    .OfType<GenericMonitorBox>()
-                    .AsNoTracking()
-                    .Include(e => e.Registers)
-                        .ThenInclude(e => e.SensorType)
-                    .Include(e => e.BoxReadings)
-                    .FirstOrDefault(e => e.Identifier == "GasBay");
-                if (device != null) {
-                    MonitorBoxOperations operations = new MonitorBoxOperations(context,device);
-                    if (!operations.SetMaintenance(on_off)) {
-                        Console.WriteLine("Done! Press any key to exit");
-                    } else {
-                        Console.WriteLine("Error Send Failed");
-                    }
-                } else {
-                    Console.WriteLine("Error: Device Not Found");
-                }
-            }
-            Console.ReadKey();
-        }
+        //public static void TestMaintenance(bool on_off) {
+        //    using (var context = new FacilityContext()) {
+        //        var device = context.ModbusDevices
+        //            .OfType<GenericMonitorBox>()
+        //            .AsNoTracking()
+        //            .Include(e => e.Registers)
+        //                .ThenInclude(e => e.SensorType)
+        //            .Include(e => e.BoxReadings)
+        //            .FirstOrDefault(e => e.Identifier == "GasBay");
+        //        if (device != null) {
+        //            MonitorBoxOperations operations = new MonitorBoxOperations(context,device);
+        //            if (!operations.SetMaintenance(on_off)) {
+        //                Console.WriteLine("Done! Press any key to exit");
+        //            } else {
+        //                Console.WriteLine("Error Send Failed");
+        //            }
+        //        } else {
+        //            Console.WriteLine("Error: Device Not Found");
+        //        }
+        //    }
+        //    Console.ReadKey();
+        //}
 
-        public static void TestAlarm(bool on_off) {
-            using (var context = new FacilityContext()) {
-                var device = context.ModbusDevices
-                    .OfType<GenericMonitorBox>()
-                    .AsNoTracking()
-                    .Include(e => e.Registers)
-                        .ThenInclude(e => e.SensorType)
-                    .Include(e => e.BoxReadings)
-                    .FirstOrDefault(e => e.Identifier == "GasBay");
-                if (device != null) {
-                    MonitorBoxOperations operations = new MonitorBoxOperations(context,device);
-                    if (!operations.SetAlarm(on_off)) {
-                        Console.WriteLine("Done! Press any key to exit");
-                    } else {
-                        Console.WriteLine("Error Send Failed");
-                    }
-                } else {
-                    Console.WriteLine("Error: Device Not Found");
-                }
-            }
-            Console.ReadKey();
-        }
+        //public static void TestAlarm(bool on_off) {
+        //    using (var context = new FacilityContext()) {
+        //        var device = context.ModbusDevices
+        //            .OfType<GenericMonitorBox>()
+        //            .AsNoTracking()
+        //            .Include(e => e.Registers)
+        //                .ThenInclude(e => e.SensorType)
+        //            .Include(e => e.BoxReadings)
+        //            .FirstOrDefault(e => e.Identifier == "GasBay");
+        //        if (device != null) {
+        //            MonitorBoxOperations operations = new MonitorBoxOperations(context,device);
+        //            if (!operations.SetAlarm(on_off)) {
+        //                Console.WriteLine("Done! Press any key to exit");
+        //            } else {
+        //                Console.WriteLine("Error Send Failed");
+        //            }
+        //        } else {
+        //            Console.WriteLine("Error: Device Not Found");
+        //        }
+        //    }
+        //    Console.ReadKey();
+        //}
 
-        public static void TestRead() {
-            using (var context = new FacilityContext()) {
-                var device = context.ModbusDevices
-                    .OfType<GenericMonitorBox>()
-                    .AsNoTracking()
-                    .Include(e => e.Registers)
-                        .ThenInclude(e => e.SensorType)
-                    .Include(e => e.BoxReadings)
-                    .FirstOrDefault(e => e.Identifier == "GasBay");
-                if (device != null) {
-                    MonitorBoxOperations operations = new MonitorBoxOperations(context, device);
-                    if (operations.Read()) {
-                        Console.WriteLine("Done! Press any key to exit");
-                    } else {
-                        Console.WriteLine("Error Reading Failed");
-                    }
-                } else {
-                    Console.WriteLine("Error: Device Not Found");
-                }
-            }
-            Console.ReadKey();
-        }
+        //public static void TestRead() {
+        //    using (var context = new FacilityContext()) {
+        //        var device = context.ModbusDevices
+        //            .OfType<GenericMonitorBox>()
+        //            .AsNoTracking()
+        //            .Include(e => e.Registers)
+        //                .ThenInclude(e => e.SensorType)
+        //            .Include(e => e.BoxReadings)
+        //            .FirstOrDefault(e => e.Identifier == "GasBay");
+        //        if (device != null) {
+        //            MonitorBoxOperations operations = new MonitorBoxOperations(context, device);
+        //            if (operations.Read()) {
+        //                Console.WriteLine("Done! Press any key to exit");
+        //            } else {
+        //                Console.WriteLine("Error Reading Failed");
+        //            }
+        //        } else {
+        //            Console.WriteLine("Error: Device Not Found");
+        //        }
+        //    }
+        //    Console.ReadKey();
+        //}
 
         //private static void ImportModbusGeneric() {
         //    using (FacilityContext context = new FacilityContext()) {

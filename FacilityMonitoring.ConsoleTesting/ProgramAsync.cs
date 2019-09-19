@@ -1,6 +1,6 @@
 ﻿using FacilityMonitoring.Common.Hardware;
 using FacilityMonitoring.Common.Model;
-using FacilityMonitoring.Common.Services.Interfaces;
+using FacilityMonitoring.Common.Services.ModbusServices;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -10,21 +10,18 @@ using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using System.Timers;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Console;
+using FacilityMonitoring.Common.ServiceLayer;
 
 namespace FacilityMonitoring.ConsoleTesting {
     class ProgramAsync {
         static async Task<int> Main(string[] args) {
-            var serviceCollection = new ServiceCollection();
-            ConfigureService(serviceCollection);
             DeviceController controller = new DeviceController();
             controller.Start();
             var task=controller.Run();
             await Task.WhenAll(task);
             return 0;
-        }
-
-        static void ConfigureService(IServiceCollection services) {
-            services.AddTransient<DeviceController>();
         }
     }
 
@@ -33,6 +30,7 @@ namespace FacilityMonitoring.ConsoleTesting {
         private BufferBlock<IDeviceOperations> _operationQueue;
         private Timer _timer;
         private List<IDeviceOperations> _deviceOperations;
+        private IServiceProvider _serviceProvider;
         
         public DeviceController() {
             this._context = new FacilityContext();
@@ -42,19 +40,26 @@ namespace FacilityMonitoring.ConsoleTesting {
         }
 
         public void Start() {
+            var serviceCollection = new ServiceCollection();
+
             var controller = this._context.ModbusDevices.OfType<AmmoniaController>().Include(e => e.Readings).FirstOrDefault(e => e.Identifier == "AmmoniaController");
             var generator1 = this._context.ModbusDevices.OfType<H2Generator>().Include(e => e.H2Readings).Include(e => e.Registers).FirstOrDefault(e => e.Identifier == "Generator 1");
             var generator2 = this._context.ModbusDevices.OfType<H2Generator>().Include(e => e.H2Readings).Include(e => e.Registers).FirstOrDefault(e => e.Identifier == "Generator 2");
             var generator3 = this._context.ModbusDevices.OfType<H2Generator>().Include(e => e.H2Readings).Include(e => e.Registers).FirstOrDefault(e => e.Identifier == "Generator 3");
-            var device = this._context.ModbusDevices.OfType<GenericMonitorBox>().Include(e => e.Registers)
+            var device = this._context.ModbusDevices.OfType<GenericMonitorBox>()
+            .Include(e => e.Registers)
                 .ThenInclude(e => e.SensorType)
             .Include(e => e.BoxReadings)
             .FirstOrDefault(e => e.Identifier == "GasBay");
-            this._deviceOperations.Add(this.OperationFactory(controller));
-            this._deviceOperations.Add(this.OperationFactory(generator1));
-            this._deviceOperations.Add(this.OperationFactory(generator2));
-            this._deviceOperations.Add(this.OperationFactory(generator3));
-            this._deviceOperations.Add(this.OperationFactory(device));
+
+            serviceCollection.AddLogging(configure => { configure.AddConsole(); });
+            this._serviceProvider = serviceCollection.BuildServiceProvider();
+
+            this._deviceOperations.Add(DeviceOperationFactory.OperationFactory(controller,this._serviceProvider));
+            this._deviceOperations.Add(DeviceOperationFactory.OperationFactory(generator1, this._serviceProvider));
+            this._deviceOperations.Add(DeviceOperationFactory.OperationFactory(generator2, this._serviceProvider));
+            this._deviceOperations.Add(DeviceOperationFactory.OperationFactory(generator3, this._serviceProvider));
+            this._deviceOperations.Add(DeviceOperationFactory.OperationFactory(device, this._serviceProvider));
 
             this._timer.AutoReset = true;
             this._timer.Interval = 5000;
@@ -65,7 +70,6 @@ namespace FacilityMonitoring.ConsoleTesting {
         public async Task Run() {
             while (await this._operationQueue.OutputAvailableAsync()) {
                 var operation = await this._operationQueue.ReceiveAsync();
-                Console.WriteLine("Time: {0} Device: {1} ", DateTime.Now, operation.Device.Identifier);
             }
         }
 
@@ -82,20 +86,11 @@ namespace FacilityMonitoring.ConsoleTesting {
 
         private async Task Produce(IDeviceOperations operation) {
             var success=await operation.ReadAsync();
-            await this._operationQueue.SendAsync(operation);
-        }
-
-        private IDeviceOperations OperationFactory(ModbusDevice device) {
-            Type type = device.GetType();
-            if (type == typeof(GenericMonitorBox)) {
-                return new MonitorBoxOperations(new FacilityContext(),(GenericMonitorBox)device);
-            } else if (type == typeof(H2Generator)) {
-                return new GeneratorOperations(new FacilityContext(), (H2Generator)device);
-            } else if (type == typeof(AmmoniaController)) {
-                return new AmmoniaControllerOperations(new FacilityContext(), (AmmoniaController)device);
-            } else {
-                return null;
+            if (success) {
+                await operation.SaveAsync();
             }
+
+            await this._operationQueue.SendAsync(operation);
         }
     }
 }

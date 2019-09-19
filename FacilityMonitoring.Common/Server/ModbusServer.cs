@@ -19,16 +19,13 @@ namespace FacilityMonitoring.Common.Server {
         public ModbusServer() {
             this._context = new FacilityContext();
             this._readTimer = new Timer(5000);
-            this._readTimer.Elapsed += new ElapsedEventHandler(this.TimerEvent);
         }
 
         private void Setup() {
 
         }
 
-        private async void TimerEvent(object sender, ElapsedEventArgs e) {
 
-        }
 
 
     }

@@ -1,6 +1,7 @@
 ﻿
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FacilityMonitoring.Common.Model {
     public enum DeviceState { OKAY, WARNING, ALARM, MAINTENCE }
@@ -49,6 +50,9 @@ namespace FacilityMonitoring.Common.Model {
             this.BypassAll = false;
             this.State = DeviceState.OKAY;
         }
+
+        [NotMapped]
+        public GenericBoxReading LastRead { get; set; }
     }
 
     public partial class AmmoniaController : ModbusDevice {
@@ -86,6 +90,9 @@ namespace FacilityMonitoring.Common.Model {
             this.State = DeviceState.OKAY;
         }
 
+        [NotMapped]
+        public AmmoniaControllerReading LastRead { get; set; }
+
     }
 
     public partial class H2Generator : ModbusDevice {
@@ -111,5 +118,8 @@ namespace FacilityMonitoring.Common.Model {
             this.BypassAll = false;
             this.State = DeviceState.OKAY;
         }
+
+        [NotMapped]
+        public H2GenReading LastRead { get; set; }
     }
 }
