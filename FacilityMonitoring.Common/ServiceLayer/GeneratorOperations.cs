@@ -134,15 +134,17 @@ namespace FacilityMonitoring.Common.Hardware {
 
         public async Task<bool> SaveAsync() {
             try {
+                this._device.LastRead.GeneratorId = this._device.Id;
                 this._context.GeneratorSystemErrors.Add(this._device.LastRead.AllSystemErrors);
                 this._context.GeneratorSystemWarnings.Add(this._device.LastRead.AllSystemWarnings);
-                this._device.H2Readings.Add(this._device.LastRead);
+                //this._device.H2Readings.Add(this._device.LastRead);
                 this._device.SystemState = this._device.LastRead.SystemState;
                 this._device.OperationMode = this._device.LastRead.OperationMode;
                 this._context.Entry<H2Generator>(this._device).State = EntityState.Modified;
                 this._context.H2GenReadings.Add(this._device.LastRead);
                 this._logger.LogInformation("{0} Save Succeeded", this.Device.Identifier);
                 await this._context.SaveChangesAsync();
+                GC.Collect();
                 return true;
             } catch {
                 this._logger.LogError("{0} Failed To Save",this._device.Identifier);

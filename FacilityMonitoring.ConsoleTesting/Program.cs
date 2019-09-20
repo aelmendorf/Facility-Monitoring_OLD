@@ -42,10 +42,6 @@ namespace FacilityMonitoring.ConsoleTesting
             //TestGeneratorRead("Generator 1");
             //TestGeneratorRead("Generator 2");
             //TestGeneratorRead("Generator 3");
-
-
-
-
         }
 
         public static void ExportH2ReadingParam() {

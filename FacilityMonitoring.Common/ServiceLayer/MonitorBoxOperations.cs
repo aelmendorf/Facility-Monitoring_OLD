@@ -7,8 +7,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace FacilityMonitoring.Common.Hardware {
-    //TODO:  Add Function codes and switch between input/read/etc etc
-
     public class MonitorBoxOperations : IGenericBoxOperations {
         private readonly FacilityContext _context;
         private IModbusOperations _modbus;
