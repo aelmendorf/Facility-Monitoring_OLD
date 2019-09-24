@@ -13,6 +13,7 @@ using FacilityMonitoring.Common.Hardware;
 using System.Reflection;
 using FacilityMonitoring.Common.Data;
 using System.IO;
+using FacilityMonitoring.Common.Harware;
 
 namespace FacilityMonitoring.ConsoleTesting
 {
@@ -28,6 +29,7 @@ namespace FacilityMonitoring.ConsoleTesting
             //TestRead();
             //ImportModbus();
             //CreateAmmoniaController();
+            //ImportModbusGeneric();
             //CreateAmmoniaController();
             //TestAmmoniaRead();
             //TestSetCal(true);
@@ -69,10 +71,84 @@ namespace FacilityMonitoring.ConsoleTesting
             controller.CalInputLength = 12;
             controller.SlaveAddress = 0;
             controller.State = DeviceState.OKAY;
+            controller.ReadInterval = 10;
+            controller.SaveInterval = 30;
             context.ModbusDevices.Add(controller);
             context.SaveChanges();
             Console.WriteLine("Should be done");
             Console.ReadKey();
+        }
+
+        private static void ImportModbusGeneric() {
+            using (FacilityContext context = new FacilityContext()) {
+                GenericMonitorBox monitorBox = new GenericMonitorBox();
+                monitorBox.IpAddress = "172.21.100.30";
+                monitorBox.Port = 502;
+                monitorBox.Identifier = "GasBay";
+                monitorBox.SlaveAddress = 0;
+                monitorBox.Status = "Okay";
+                monitorBox.AnalogChannelCount = 16;
+                monitorBox.DigitalInputChannelCount = 39;
+                monitorBox.DigitalOutputChannelCount = 10;
+                monitorBox.ModbusComAddr = 39;
+                monitorBox.SoftwareMaintAddr = 40;
+                monitorBox.WarningAddr = 41;
+                monitorBox.AlarmAddr = 42;
+                monitorBox.ReadInterval = 10;
+                monitorBox.SaveInterval = 30;
+                context.ModbusDevices.Add(monitorBox);
+                context.SaveChanges();
+                if (ImportModbusSettings.ImportSensorType(monitorBox, context)) {
+                    Console.WriteLine("Success: Sensor Types Imported");
+                } else {
+                    Console.WriteLine("Error: Sensor Import Failed");
+                }
+
+                if (ImportModbusSettings.ImportAnalog(monitorBox, context)) {
+                    Console.WriteLine("Success: Analog Channels Imported");
+                } else {
+                    Console.WriteLine("Error: Analog Import Failed");
+                }
+
+                if (ImportModbusSettings.ImportDigital(monitorBox, context)) {
+                    Console.WriteLine("Success: Digital Channels Imported");
+                } else {
+                    Console.WriteLine("Error: Digital Import Failed");
+                }
+
+                if (ImportModbusSettings.ImportOutput(monitorBox, context)) {
+                    Console.WriteLine("Success: Output Channels Imported");
+                } else {
+                    Console.WriteLine("Error: Output Import Failed");
+                }
+                Console.WriteLine();
+                Console.WriteLine("Done, Press any key to exit");
+                Console.ReadKey();
+            }
+        }
+
+        private static void ImportModbusH2(string name, string IpAddress, int slave) {
+            using (FacilityContext context = new FacilityContext()) {
+                H2Generator monitorBox = new H2Generator();
+                monitorBox.Identifier = name;
+                monitorBox.IpAddress = IpAddress;
+                monitorBox.Port = 502;
+                monitorBox.SlaveAddress = slave;
+                monitorBox.Status = "Okay";
+                monitorBox.ReadInterval = 10;
+                monitorBox.SaveInterval = 30;
+                context.ModbusDevices.Add(monitorBox);
+                context.SaveChanges();
+                if (ImportModbusSettings.ImportGeneratorRegisters(monitorBox, context)) {
+                    Console.WriteLine("Success: H2 Registers Imported");
+                } else {
+                    Console.WriteLine("Error: Import Failed");
+                }
+
+                Console.WriteLine();
+                Console.WriteLine("Done, Press any key to exit");
+                Console.ReadKey();
+            }
         }
 
         //public static void TestSetCal(bool on_off) {
@@ -264,72 +340,6 @@ namespace FacilityMonitoring.ConsoleTesting
         //    Console.ReadKey();
         //}
 
-        //private static void ImportModbusGeneric() {
-        //    using (FacilityContext context = new FacilityContext()) {
-        //        GenericMonitorBox monitorBox = new GenericMonitorBox();
-        //        monitorBox.IpAddress = "172.21.100.30";
-        //        monitorBox.Port = 502;
-        //        monitorBox.Identifier = "GasBay";
-        //        monitorBox.SlaveAddress = 0;
-        //        monitorBox.Status = "Okay";
-        //        monitorBox.AnalogChannelCount = 16;
-        //        monitorBox.DigitalInputChannelCount = 39;
-        //        monitorBox.DigitalOutputChannelCount = 10;
-        //        monitorBox.ModbusComAddr = 39;
-        //        monitorBox.SoftwareMaintAddr = 40;
-        //        monitorBox.WarningAddr = 41;
-        //        monitorBox.AlarmAddr = 42;
-        //        context.ModbusDevices.Add(monitorBox);
-        //        context.SaveChanges();
-        //        if (ImportModbusSettings.ImportSensorType(monitorBox, context)) {
-        //            Console.WriteLine("Success: Sensor Types Imported");
-        //        } else {
-        //            Console.WriteLine("Error: Sensor Import Failed");
-        //        }
 
-        //        if (ImportModbusSettings.ImportAnalog(monitorBox, context)) {
-        //            Console.WriteLine("Success: Analog Channels Imported");
-        //        } else {
-        //            Console.WriteLine("Error: Analog Import Failed");
-        //        }
-
-        //        if (ImportModbusSettings.ImportDigital(monitorBox, context)) {
-        //            Console.WriteLine("Success: Digital Channels Imported");
-        //        } else {
-        //            Console.WriteLine("Error: Digital Import Failed");
-        //        }
-
-        //        if (ImportModbusSettings.ImportOutput(monitorBox, context)) {
-        //            Console.WriteLine("Success: Output Channels Imported");
-        //        } else {
-        //            Console.WriteLine("Error: Output Import Failed");
-        //        }
-        //        Console.WriteLine();
-        //        Console.WriteLine("Done, Press any key to exit");
-        //        Console.ReadKey();
-        //    }
-        //}
-
-        //private static void ImportModbusH2(string name,string IpAddress,int slave) {
-        //    using (FacilityContext context = new FacilityContext()) {
-        //        H2Generator monitorBox = new H2Generator();
-        //        monitorBox.Identifier = name;
-        //        monitorBox.IpAddress =IpAddress;
-        //        monitorBox.Port = 502;
-        //        monitorBox.SlaveAddress = slave;
-        //        monitorBox.Status = "Okay";
-        //        context.ModbusDevices.Add(monitorBox);
-        //        context.SaveChanges();
-        //        if (ImportModbusSettings.ImportGeneratorRegisters(monitorBox, context)) {
-        //            Console.WriteLine("Success: H2 Registers Imported");
-        //        } else {
-        //            Console.WriteLine("Error: Import Failed");
-        //        }
-
-        //        Console.WriteLine();
-        //        Console.WriteLine("Done, Press any key to exit");
-        //        Console.ReadKey();
-        //    }
-        //}
     }
 }

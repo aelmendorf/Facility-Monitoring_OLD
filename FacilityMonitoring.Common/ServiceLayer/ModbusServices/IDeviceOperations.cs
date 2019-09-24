@@ -4,9 +4,15 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using System.Timers;
 
 namespace FacilityMonitoring.Common.Services.ModbusServices {
     public interface IDeviceOperations {
+        Timer DeviceTimer { get; set; }
+        double ReadInterval { get; set; }
+        double SaveInterval { get; set; }
+        Task Start();
+
         ModbusDevice Device { get;}
         bool Read();
         Task<bool> ReadAsync();

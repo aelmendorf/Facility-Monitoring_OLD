@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading.Tasks.Dataflow;
+using System.Timers;
 using FacilityMonitoring.Common.Converters;
 using FacilityMonitoring.Common.Model;
 using FacilityMonitoring.Common.Services.ModbusServices;
@@ -13,19 +15,55 @@ namespace FacilityMonitoring.Common.Hardware {
     public class GeneratorOperations : IGeneratorOperations {
         private H2Generator _device { get; set; }
         private IModbusOperations _modbus;
-        private readonly FacilityContext _context;
         private readonly ILogger _logger;
+        private Timer _timer;
+        private TimeSpan _saveInterval;
+        private DateTime _lastSave;
+        private readonly BufferBlock<IDeviceOperations> _bufferBlock;
+
+        public double ReadInterval { get; set; }
+        public double SaveInterval { get; set; }
 
         public ModbusDevice Device {
             get => this._device;
             private set => this._device = (H2Generator)value;
         }
 
-        public GeneratorOperations(FacilityContext context,H2Generator device,ILogger<GeneratorOperations> logger) {
-            this._context = context;
+        public Timer DeviceTimer {
+            get => this._timer;
+            set => this._timer = value;
+        }
+
+        public GeneratorOperations(BufferBlock<IDeviceOperations> buffer,H2Generator device,ILogger<GeneratorOperations> logger) {
             this._device = device;
             this._modbus = new ModbusOperations(this._device.IpAddress, this._device.Port, this._device.SlaveAddress);
             this._logger = logger;
+            this._bufferBlock = buffer;
+            this.ReadInterval = 5000;
+            this.SaveInterval = 30000;
+            this._saveInterval = new TimeSpan(0, 0, (int)(this.SaveInterval/1000));
+            this._timer = new Timer();
+        }
+
+        public async Task Start() {
+            await this.ReadAsync();
+            await this.SaveAsync();
+            this._lastSave = DateTime.Now;
+            this._timer.Interval = this.ReadInterval;
+            this._timer.Elapsed += this._timer_Elapsed;
+            this._timer.AutoReset = true;
+            this._timer.Start();
+        }
+
+        private async void _timer_Elapsed(object sender, ElapsedEventArgs e) {
+            this._timer.Enabled = false;
+            await this.ReadAsync();
+            if ((DateTime.Now - this._lastSave).TotalSeconds > this._saveInterval.TotalSeconds) {
+                await this.SaveAsync();
+                this._lastSave = DateTime.Now;
+            }
+            await this._bufferBlock.SendAsync(this);
+            this._timer.Enabled = true;
         }
 
         public bool Read() {
@@ -116,16 +154,25 @@ namespace FacilityMonitoring.Common.Hardware {
 
         public bool Save() {
             try {
-                this._context.GeneratorSystemErrors.Add(this._device.LastRead.AllSystemErrors);
-                this._context.GeneratorSystemWarnings.Add(this._device.LastRead.AllSystemWarnings);
-                this._device.H2Readings.Add(this._device.LastRead);
-                this._device.SystemState = this._device.LastRead.SystemState;
-                this._device.OperationMode = this._device.LastRead.OperationMode;
-                this._context.Entry<H2Generator>(this._device).State = EntityState.Modified;
-                this._context.H2GenReadings.Add(this._device.LastRead);
-                this._context.SaveChanges();
-                this._logger.LogInformation("{0} Save Succeeded", this.Device.Identifier);
-                return true;
+                using var context = new FacilityContext();
+                var device = context.ModbusDevices.Find(this._device.Id);
+                if (device != null) {
+                    this._device.LastRead.GeneratorId = this._device.Id;
+                    context.GeneratorSystemErrors.Add(this._device.LastRead.AllSystemErrors);
+                    context.GeneratorSystemWarnings.Add(this._device.LastRead.AllSystemWarnings);
+                    //this._device.H2Readings.Add(this._device.LastRead);
+                    this._device.SystemState = this._device.LastRead.SystemState;
+                    this._device.OperationMode = this._device.LastRead.OperationMode;
+                    context.Entry(device).State = EntityState.Modified;
+                    context.H2GenReadings.Add(this._device.LastRead);
+                    context.SaveChanges();
+                    this._logger.LogInformation("{0} Save Succeeded", this.Device.Identifier);
+                    GC.Collect();
+                    return true;
+                } else {
+                    this._logger.LogError("{0} Device Not Found", this.Device.Identifier);
+                    return false;
+                }
             } catch {
                 this._logger.LogError("{0} Failed To Save", this._device.Identifier);
                 return false;
@@ -134,18 +181,25 @@ namespace FacilityMonitoring.Common.Hardware {
 
         public async Task<bool> SaveAsync() {
             try {
-                this._device.LastRead.GeneratorId = this._device.Id;
-                this._context.GeneratorSystemErrors.Add(this._device.LastRead.AllSystemErrors);
-                this._context.GeneratorSystemWarnings.Add(this._device.LastRead.AllSystemWarnings);
-                //this._device.H2Readings.Add(this._device.LastRead);
-                this._device.SystemState = this._device.LastRead.SystemState;
-                this._device.OperationMode = this._device.LastRead.OperationMode;
-                this._context.Entry<H2Generator>(this._device).State = EntityState.Modified;
-                this._context.H2GenReadings.Add(this._device.LastRead);
-                this._logger.LogInformation("{0} Save Succeeded", this.Device.Identifier);
-                await this._context.SaveChangesAsync();
-                GC.Collect();
-                return true;
+                using var context = new FacilityContext();
+                var device = await context.ModbusDevices.FindAsync(this._device.Id);
+                if (device != null) {
+                    this._device.LastRead.GeneratorId = this._device.Id;
+                    context.GeneratorSystemErrors.Add(this._device.LastRead.AllSystemErrors);
+                    context.GeneratorSystemWarnings.Add(this._device.LastRead.AllSystemWarnings);
+                    //this._device.H2Readings.Add(this._device.LastRead);
+                    this._device.SystemState = this._device.LastRead.SystemState;
+                    this._device.OperationMode = this._device.LastRead.OperationMode;
+                    context.Entry(device).State = EntityState.Modified;
+                    context.H2GenReadings.Add(this._device.LastRead);
+                    await context.SaveChangesAsync();
+                    this._logger.LogInformation("{0} Save Succeeded, In-Memory Read: {1}", this.Device.Identifier,this._device.H2Readings.Count);
+                    GC.Collect();
+                    return true;
+                } else {
+                    this._logger.LogError("{0} Device Not Found", this.Device.Identifier);
+                    return false;
+                }
             } catch {
                 this._logger.LogError("{0} Failed To Save",this._device.Identifier);
                 return false;

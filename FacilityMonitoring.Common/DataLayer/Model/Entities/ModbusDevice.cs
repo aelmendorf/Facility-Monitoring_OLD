@@ -16,6 +16,8 @@ namespace FacilityMonitoring.Common.Model {
         public DeviceState State { get; set; }
         public string Status { get; set; }
         public bool BypassAll { get; set; }
+        public double ReadInterval { get; set; }
+        public double SaveInterval { get; set; }
 
         public ICollection<Register> Registers { get; set; }
     }

@@ -89,11 +89,11 @@ namespace FacilityMonitoring.Common.Model {
         public bool OutputCh9 { get; set; }
         public bool OutputCh10 { get; set; }
 
+        public GenericMonitorBoxAlert GenericMonitorBoxAlert { get; set; }
+
         public bool Alarm1 { get; set; }
         public bool Alarm2 { get; set; }
         public bool Alarm3 { get; set; }
-
-
 
         [NotMapped]
         public object this[string propertyName] {

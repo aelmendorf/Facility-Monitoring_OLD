@@ -4,14 +4,16 @@ using FacilityMonitoring.Common.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace FacilityMonitoring.Common.Migrations
 {
     [DbContext(typeof(FacilityContext))]
-    partial class FacilityContextModelSnapshot : ModelSnapshot
+    [Migration("20190924170921_Build-v1.1")]
+    partial class Buildv11
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -539,130 +541,6 @@ namespace FacilityMonitoring.Common.Migrations
                     b.ToTable("GenericBoxReadings");
                 });
 
-            modelBuilder.Entity("FacilityMonitoring.Common.Model.GenericMonitorBoxAlert", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int>("AnalogCh1");
-
-                    b.Property<int>("AnalogCh10");
-
-                    b.Property<int>("AnalogCh11");
-
-                    b.Property<int>("AnalogCh12");
-
-                    b.Property<int>("AnalogCh13");
-
-                    b.Property<int>("AnalogCh14");
-
-                    b.Property<int>("AnalogCh15");
-
-                    b.Property<int>("AnalogCh16");
-
-                    b.Property<int>("AnalogCh2");
-
-                    b.Property<int>("AnalogCh3");
-
-                    b.Property<int>("AnalogCh4");
-
-                    b.Property<int>("AnalogCh5");
-
-                    b.Property<int>("AnalogCh6");
-
-                    b.Property<int>("AnalogCh7");
-
-                    b.Property<int>("AnalogCh8");
-
-                    b.Property<int>("AnalogCh9");
-
-                    b.Property<bool>("DigitalCh1");
-
-                    b.Property<bool>("DigitalCh10");
-
-                    b.Property<bool>("DigitalCh11");
-
-                    b.Property<bool>("DigitalCh12");
-
-                    b.Property<bool>("DigitalCh13");
-
-                    b.Property<bool>("DigitalCh14");
-
-                    b.Property<bool>("DigitalCh15");
-
-                    b.Property<bool>("DigitalCh16");
-
-                    b.Property<bool>("DigitalCh17");
-
-                    b.Property<bool>("DigitalCh18");
-
-                    b.Property<bool>("DigitalCh19");
-
-                    b.Property<bool>("DigitalCh2");
-
-                    b.Property<bool>("DigitalCh20");
-
-                    b.Property<bool>("DigitalCh21");
-
-                    b.Property<bool>("DigitalCh22");
-
-                    b.Property<bool>("DigitalCh23");
-
-                    b.Property<bool>("DigitalCh24");
-
-                    b.Property<bool>("DigitalCh25");
-
-                    b.Property<bool>("DigitalCh26");
-
-                    b.Property<bool>("DigitalCh27");
-
-                    b.Property<bool>("DigitalCh28");
-
-                    b.Property<bool>("DigitalCh29");
-
-                    b.Property<bool>("DigitalCh3");
-
-                    b.Property<bool>("DigitalCh30");
-
-                    b.Property<bool>("DigitalCh31");
-
-                    b.Property<bool>("DigitalCh32");
-
-                    b.Property<bool>("DigitalCh33");
-
-                    b.Property<bool>("DigitalCh34");
-
-                    b.Property<bool>("DigitalCh35");
-
-                    b.Property<bool>("DigitalCh36");
-
-                    b.Property<bool>("DigitalCh37");
-
-                    b.Property<bool>("DigitalCh38");
-
-                    b.Property<bool>("DigitalCh4");
-
-                    b.Property<bool>("DigitalCh5");
-
-                    b.Property<bool>("DigitalCh6");
-
-                    b.Property<bool>("DigitalCh7");
-
-                    b.Property<bool>("DigitalCh8");
-
-                    b.Property<bool>("DigitalCh9");
-
-                    b.Property<int>("GenericBoxReadingId");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("GenericBoxReadingId")
-                        .IsUnique();
-
-                    b.ToTable("GenericBoxAlerts");
-                });
-
             modelBuilder.Entity("FacilityMonitoring.Common.Model.H2GenReading", b =>
                 {
                     b.Property<int>("Id")
@@ -1076,14 +954,6 @@ namespace FacilityMonitoring.Common.Migrations
                     b.HasOne("FacilityMonitoring.Common.Model.GenericMonitorBox", "GenericMonitorBox")
                         .WithMany("BoxReadings")
                         .HasForeignKey("GenericMonitorBoxId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("FacilityMonitoring.Common.Model.GenericMonitorBoxAlert", b =>
-                {
-                    b.HasOne("FacilityMonitoring.Common.Model.GenericBoxReading", "GenericMonitorBoxReading")
-                        .WithOne("GenericMonitorBoxAlert")
-                        .HasForeignKey("FacilityMonitoring.Common.Model.GenericMonitorBoxAlert", "GenericBoxReadingId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 

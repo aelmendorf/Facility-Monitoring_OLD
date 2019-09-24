@@ -315,6 +315,7 @@ namespace FacilityMonitoring.Common.Model {
     }
 
     public partial class DigitalOutputChannel:Register {
+
         public OutputControl OutputControl { get; set; }
 
         public DigitalOutputChannel(string name, int regIndex,int regLength, bool connected, string pname, LogicType ltype) {

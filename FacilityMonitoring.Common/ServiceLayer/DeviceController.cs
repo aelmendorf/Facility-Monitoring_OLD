@@ -20,6 +20,7 @@ namespace FacilityMonitoring.Common.ServiceLayer {
         private FacilityContext _context;
         private BufferBlock<IDeviceOperations> _operationQueue;
         private Timer _timer;
+        private Timer _genTime1, _genTime2, _genTime3, _boxTime, _nhTime;
         private List<IDeviceOperations> _deviceOperations;
         private IServiceProvider _serviceProvider;
         private ILogger _logger;
@@ -27,11 +28,10 @@ namespace FacilityMonitoring.Common.ServiceLayer {
         public DeviceController() {
             this._context = new FacilityContext();
             this._operationQueue = new BufferBlock<IDeviceOperations>(new DataflowBlockOptions { BoundedCapacity = 5 });
-            this._timer = new Timer();
             this._deviceOperations = new List<IDeviceOperations>();
         }
 
-        public void Start() {
+        public async Task Start() {
             var serviceCollection = new ServiceCollection();
 
             var controller = this._context.ModbusDevices
@@ -68,44 +68,24 @@ namespace FacilityMonitoring.Common.ServiceLayer {
             this._serviceProvider = serviceCollection.BuildServiceProvider();
 
             this._logger = this._serviceProvider.GetService<ILogger<DeviceController>>();
-            this._logger.LogInformation("{0}:Memory Before Init: {1}", DateTime.Now, GC.GetTotalMemory(false));
 
-            this._deviceOperations.Add(DeviceOperationFactory.OperationFactory(controller, this._serviceProvider));
-            this._deviceOperations.Add(DeviceOperationFactory.OperationFactory(generator1, this._serviceProvider));
-            this._deviceOperations.Add(DeviceOperationFactory.OperationFactory(generator2, this._serviceProvider));
-            this._deviceOperations.Add(DeviceOperationFactory.OperationFactory(generator3, this._serviceProvider));
-            this._deviceOperations.Add(DeviceOperationFactory.OperationFactory(device, this._serviceProvider));
-            this._logger.LogInformation("{0}:Memory At Start Timer: {1}", DateTime.Now, GC.GetTotalMemory(false));
-            this._timer.AutoReset = true;
-            this._timer.Interval = 10000;
-            this._timer.Elapsed += this._timer_Elapsed;
-            this._timer.Start();
+            //this._logger.LogInformation("{0}:Memory Before Init: {1}", DateTime.Now, GC.GetTotalMemory(false));
+
+            this._deviceOperations.Add(DeviceOperationFactory.OperationFactory(this._operationQueue,controller, this._serviceProvider));
+            this._deviceOperations.Add(DeviceOperationFactory.OperationFactory(this._operationQueue, generator1, this._serviceProvider));
+            this._deviceOperations.Add(DeviceOperationFactory.OperationFactory(this._operationQueue, generator2, this._serviceProvider));
+            this._deviceOperations.Add(DeviceOperationFactory.OperationFactory(this._operationQueue, generator3, this._serviceProvider));
+            this._deviceOperations.Add(DeviceOperationFactory.OperationFactory(this._operationQueue, device, this._serviceProvider));
+
+            foreach(var dev in this._deviceOperations) {
+                await dev.Start();
+            }
         }
 
         public async Task Run() {
             while (await this._operationQueue.OutputAvailableAsync()) {
                 var operation = await this._operationQueue.ReceiveAsync();
             }
-        }
-
-        private async void _timer_Elapsed(object sender, ElapsedEventArgs e) {
-            this._timer.Enabled = false;
-            this._logger.LogInformation("{0}:Timer Handler Memory Before: {1}", DateTime.Now, GC.GetTotalMemory(false));
-            List<Task> task = new List<Task>();
-            foreach (var operation in this._deviceOperations) {
-                task.Add(this.Produce(operation));
-            }
-
-            await Task.WhenAll(task);
-            this._logger.LogInformation("{0}:Timer Handler Memory After: {1}",DateTime.Now,GC.GetTotalMemory(false));
-            this._timer.Enabled = true;
-        }
-
-        private async Task Produce(IDeviceOperations operation) {
-            if (await operation.ReadAsync()) {
-                await operation.SaveAsync();
-            }
-            await this._operationQueue.SendAsync(operation);
         }
     }
 }

@@ -17,11 +17,9 @@ using FacilityMonitoring.Common.ServiceLayer;
 namespace FacilityMonitoring.ConsoleTesting {
     class ProgramAsync {
         static async Task<int> Main(string[] args) {
-
             DeviceController controller = new DeviceController();
-            controller.Start();
+            await controller.Start();
             await controller.Run();
-            //await Task.WhenAll(task);
             return 0;
         }
     }

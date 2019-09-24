@@ -8,24 +8,62 @@ using FacilityMonitoring.Common.Services.ModbusServices;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System.Threading.Tasks.Dataflow;
+using System.Timers;
 
 namespace FacilityMonitoring.Common.Hardware {
     public class AmmoniaControllerOperations : IAmmoniaOperations {
         private AmmoniaController _device { get; set; }
-        private readonly FacilityContext _context;
         private IModbusOperations _modbus;
         private readonly ILogger _logger;
+        private readonly BufferBlock<IDeviceOperations> _bufferBlock;
+        private Timer _timer;
+        private TimeSpan _saveInterval;
+        private DateTime _lastSave;
+
+        public double ReadInterval { get; set; }
+        public double SaveInterval { get; set; }
 
         public ModbusDevice Device {
             get => this._device;
             private set => this._device = (AmmoniaController)value;
         }
 
-        public AmmoniaControllerOperations(FacilityContext context,AmmoniaController device,ILogger<AmmoniaControllerOperations> logger) {
-            this._context = context;
+        public Timer DeviceTimer {
+            get => this._timer;
+            set => this._timer = value;
+        }
+
+        public AmmoniaControllerOperations(BufferBlock<IDeviceOperations> buffer,AmmoniaController device,ILogger<AmmoniaControllerOperations> logger) {
             this._device = device;
             this._modbus = new ModbusOperations(this._device.IpAddress, this._device.Port,this._device.SlaveAddress);
             this._logger = logger;
+            this._bufferBlock = buffer;
+            this.ReadInterval = 2000;
+            this.SaveInterval = 10000;
+            this._saveInterval = new TimeSpan(0, 0, 10);
+            this._timer = new Timer();
+        }
+
+        public async Task Start() {
+            await this.ReadAsync();
+            await this.SaveAsync();
+            this._lastSave = DateTime.Now;
+            this._timer.Interval = this.ReadInterval;
+            this._timer.Elapsed += this._timer_Elapsed;
+            this._timer.AutoReset = true;
+            this._timer.Start();
+        }
+
+        private async void _timer_Elapsed(object sender, ElapsedEventArgs e) {
+            this._timer.Enabled = false;
+            await this.ReadAsync();
+            if ((DateTime.Now - this._lastSave).TotalSeconds > this._saveInterval.TotalSeconds) {
+                await this.SaveAsync();
+                this._lastSave = DateTime.Now;
+            }
+            await this._bufferBlock.SendAsync(this);
+            this._timer.Enabled = true;
         }
 
         public bool Read() {
@@ -104,24 +142,40 @@ namespace FacilityMonitoring.Common.Hardware {
         }
 
         public bool Save() {
-            this._device.Readings.Add(this._device.LastRead);
-            this._context.Entry<AmmoniaController>(this._device).State = EntityState.Modified;
-            this._context.AmmoniaControllerReadings.Add(this._device.LastRead);
+            using var context = new FacilityContext();
+            var device = context.ModbusDevices.Find(this._device.Id);
+            if (device != null) {
+                this._device.LastRead.AmmoniaControllerId = this._device.Id;
+                //device.Readings.Add(this._device.LastRead);
+                context.Entry<ModbusDevice>(device).State = EntityState.Modified;
+                context.AmmoniaControllerReadings.Add(this._device.LastRead);
+            } else {
+                this._logger.LogError("{0} Device Not Found", this.Device.Identifier);
+                return false;
+            }
             try {
-                this._context.SaveChanges();
+                context.SaveChanges();
                 this._logger.LogInformation("{0} Save Succeeded", this.Device.Identifier);
                 return true;
             } catch {
+                this._logger.LogError("{0} Save Failed", this.Device.Identifier);
                 return false;
             }
         }
 
         public async Task<bool> SaveAsync() {
-            this._device.Readings.Add(this._device.LastRead);
-            this._context.Entry<AmmoniaController>(this._device).State = EntityState.Modified;
-            this._context.AmmoniaControllerReadings.Add(this._device.LastRead);
             try {
-                await this._context.SaveChangesAsync();
+                using var context = new FacilityContext();
+                var device = await context.ModbusDevices.FindAsync(this._device.Id);
+                if (device != null) {
+                    this._device.LastRead.AmmoniaControllerId = this._device.Id;
+                    context.Entry<ModbusDevice>(device).State = EntityState.Modified;
+                    context.AmmoniaControllerReadings.Add(this._device.LastRead);
+                } else {
+                    this._logger.LogError("{0} Device Not Found", this.Device.Identifier);
+                    return false;
+                }
+                await context.SaveChangesAsync();
                 this._logger.LogInformation("{0} Save Succeeded", this.Device.Identifier);
                 return true;
             } catch {

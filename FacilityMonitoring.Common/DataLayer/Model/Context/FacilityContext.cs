@@ -9,6 +9,7 @@ namespace FacilityMonitoring.Common.Model {
 
         public DbSet<ModbusDevice> ModbusDevices { get; set; }
         public DbSet<GenericBoxReading> GenericBoxReadings { get; set; }
+        public DbSet<GenericMonitorBoxAlert> GenericBoxAlerts { get; set; }
         public DbSet<H2GenReading> H2GenReadings { get; set; }
         public DbSet<AmmoniaControllerReading> AmmoniaControllerReadings { get; set; }
         public DbSet<GeneratorSystemError> GeneratorSystemErrors { get; set; }
@@ -16,9 +17,7 @@ namespace FacilityMonitoring.Common.Model {
         public DbSet<Register> Registers { get; set; }
         public DbSet<Category> Categories { get; set; }
 
-
         public FacilityContext(DbContextOptions<FacilityContext> options):base(options) {
-
         }
 
         public FacilityContext():base() {
@@ -47,6 +46,11 @@ namespace FacilityMonitoring.Common.Model {
                 .WithOne(e => e.GenericMonitorBox)
                 .HasForeignKey(e => e.GenericMonitorBoxId)
                 .IsRequired(true);
+
+            builder.Entity<GenericBoxReading>()
+                .HasOne(e => e.GenericMonitorBoxAlert)
+                .WithOne(e => e.GenericMonitorBoxReading)
+                .HasForeignKey<GenericMonitorBoxAlert>(e => e.GenericBoxReadingId);
 
             builder.Entity<H2Generator>()
                 .HasMany(e => e.H2Readings)
