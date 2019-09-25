@@ -4,14 +4,16 @@ using FacilityMonitoring.Common.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace FacilityMonitoring.Common.Migrations
 {
     [DbContext(typeof(FacilityContext))]
-    partial class FacilityContextModelSnapshot : ModelSnapshot
+    [Migration("20190925192639_Redesign-efcore3-v1.01")]
+    partial class Redesignefcore3v101
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -46,7 +48,7 @@ namespace FacilityMonitoring.Common.Migrations
                     b.HasIndex("AmmoniaControllerReadingId")
                         .IsUnique();
 
-                    b.ToTable("AmmoniaControllerAlerts");
+                    b.ToTable("AmmoniaControllerAlert");
                 });
 
             modelBuilder.Entity("FacilityMonitoring.Common.Model.AmmoniaControllerReading", b =>
@@ -1339,9 +1341,6 @@ namespace FacilityMonitoring.Common.Migrations
                     b.Property<int>("ActiveTank")
                         .HasColumnType("int");
 
-                    b.Property<int>("AlarmSetPoint")
-                        .HasColumnType("int");
-
                     b.Property<int>("CalInputBaseAddr")
                         .HasColumnType("int");
 
@@ -1377,9 +1376,6 @@ namespace FacilityMonitoring.Common.Migrations
 
                     b.Property<bool>("Tank4AlertEnabled")
                         .HasColumnType("bit");
-
-                    b.Property<int>("WarningSetPoint")
-                        .HasColumnType("int");
 
                     b.HasDiscriminator().HasValue("AmmoniaController");
                 });

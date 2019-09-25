@@ -29,8 +29,8 @@ namespace FacilityMonitoring.ConsoleTesting
             //TestMaintenance(false);
             //TestRead();
             //ImportModbus();
-            CreateAmmoniaController();
-            ImportModbusGeneric();
+            //CreateAmmoniaController();
+            //ImportModbusGeneric();
             //CreateAmmoniaController();
             //TestAmmoniaRead();
             //TestSetCal(true);
@@ -38,9 +38,10 @@ namespace FacilityMonitoring.ConsoleTesting
             //TestSendCal();
 
             //ExportH2ReadingParam();
-            ImportModbusH2("Generator 1", "172.21.100.25", 1);
-            ImportModbusH2("Generator 2", "172.21.100.26", 1);
-            ImportModbusH2("Generator 3", "172.21.100.27", 1);
+            ExportNH3ReadingParam();
+            //ImportModbusH2("Generator 1", "172.21.100.25", 1);
+            //ImportModbusH2("Generator 2", "172.21.100.26", 1);
+            //ImportModbusH2("Generator 3", "172.21.100.27", 1);
 
             //TestGeneratorRead("Generator 1");
             //TestGeneratorRead("Generator 2");
@@ -72,6 +73,15 @@ namespace FacilityMonitoring.ConsoleTesting
             File.WriteAllText(@"D:\Software Development\Monitoring\ImportFiles\H2GenParam.txt", builder.ToString());
         }
 
+        public static void ExportNH3ReadingParam() {
+            PropertyInfo[] properties = typeof(AmmoniaControllerReading).GetProperties();
+            StringBuilder builder = new StringBuilder();
+            foreach (var property in properties) {
+                builder.AppendFormat("{0}\t{1}", property.Name, property.PropertyType.Name).AppendLine();
+            }
+            File.WriteAllText(@"D:\Software Development\Monitoring\ImportFiles\NH3GenParam.txt", builder.ToString());
+        }
+
         public static void CreateAmmoniaController() {
             using var context = new FacilityContext();
             AmmoniaController controller = new AmmoniaController();
@@ -90,6 +100,13 @@ namespace FacilityMonitoring.ConsoleTesting
             controller.State = DeviceState.OKAY;
             controller.ReadInterval = 10;
             controller.SaveInterval = 30;
+            controller.AlarmSetPoint = 100;
+            controller.WarningSetPoint = 150;
+            controller.Tank1AlertEnabled = true;
+            controller.Tank2AlertEnabled = true;
+            controller.Tank3AlertEnabled = true;
+            controller.Tank4AlertEnabled = true;
+            controller.ActiveTank = 1;
             context.ModbusDevices.Add(controller);
             context.SaveChanges();
             Console.WriteLine("Should be done");

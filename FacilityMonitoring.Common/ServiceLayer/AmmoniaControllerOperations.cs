@@ -57,10 +57,12 @@ namespace FacilityMonitoring.Common.Hardware {
 
         private async void _timer_Elapsed(object sender, ElapsedEventArgs e) {
             this._timer.Enabled = false;
-            await this.ReadAsync();
+            var succeeded=await this.ReadAsync();
             if ((DateTime.Now - this._lastSave).TotalSeconds > this._saveInterval.TotalSeconds) {
-                await this.SaveAsync();
-                this._lastSave = DateTime.Now;
+                if (succeeded) {
+                    await this.SaveAsync();
+                    this._lastSave = DateTime.Now;
+                }
             }
             await this._bufferBlock.SendAsync(this);
             this._timer.Enabled = true;
@@ -78,7 +80,59 @@ namespace FacilityMonitoring.Common.Hardware {
                     }
                 }//End loop
                 AmmoniaControllerReading reading = new AmmoniaControllerReading(DateTime.Now, this._device);
+                AmmoniaControllerAlert alert = new AmmoniaControllerAlert();
                 reading.Set(regValues, data.Item2);
+                alert.AmmoniaControllerReading = reading;
+                reading.AmmoniaControllerAlert = alert;
+
+                if (this._device.Tank1AlertEnabled) {
+                    if (reading.Tank1Weight <= this._device.AlarmSetPoint) {
+                        alert.Tank1Alert = TankAlert.ALARM;
+                    }else if (reading.Tank1Weight <= this._device.AlarmSetPoint) {
+                        alert.Tank1Alert = TankAlert.WARNING;
+                    } else {
+                        alert.Tank1Alert = TankAlert.NONE;
+                    }
+                } else {
+                    alert.Tank1Alert = TankAlert.NONE;
+                }
+
+
+                if (this._device.Tank2AlertEnabled) {
+                    if (reading.Tank2Weight <= this._device.AlarmSetPoint) {
+                        alert.Tank2Alert = TankAlert.ALARM;
+                    } else if (reading.Tank2Weight <= this._device.AlarmSetPoint) {
+                        alert.Tank2Alert = TankAlert.WARNING;
+                    } else {
+                        alert.Tank2Alert = TankAlert.NONE;
+                    }
+                } else {
+                    alert.Tank2Alert = TankAlert.NONE;
+                }
+
+                if (this._device.Tank3AlertEnabled) {
+                    if (reading.Tank3Weight <= this._device.AlarmSetPoint) {
+                        alert.Tank3Alert = TankAlert.ALARM;
+                    } else if (reading.Tank3Weight <= this._device.AlarmSetPoint) {
+                        alert.Tank3Alert = TankAlert.WARNING;
+                    } else {
+                        alert.Tank3Alert = TankAlert.NONE;
+                    }
+                } else {
+                    alert.Tank3Alert = TankAlert.NONE;
+                }
+
+                if (this._device.Tank4AlertEnabled) {
+                    if (reading.Tank4Weight <= this._device.AlarmSetPoint) {
+                        alert.Tank4Alert = TankAlert.ALARM;
+                    } else if (reading.Tank4Weight <= this._device.AlarmSetPoint) {
+                        alert.Tank4Alert = TankAlert.WARNING;
+                    } else {
+                        alert.Tank4Alert = TankAlert.NONE;
+                    }
+                } else {
+                    alert.Tank4Alert = TankAlert.NONE;
+                }
                 this._device.LastRead = reading;
                 this._logger.LogInformation("{0} Read Succeeded", this.Device.Identifier);
                 return true;
@@ -100,7 +154,59 @@ namespace FacilityMonitoring.Common.Hardware {
                     }
                 }//End loop
                 AmmoniaControllerReading reading = new AmmoniaControllerReading(DateTime.Now, this._device);
+                AmmoniaControllerAlert alert = new AmmoniaControllerAlert();
                 reading.Set(regValues, data.Item2);
+                alert.AmmoniaControllerReading = reading;
+                reading.AmmoniaControllerAlert = alert;
+
+                if (this._device.Tank1AlertEnabled) {
+                    if (reading.Tank1Weight <= this._device.AlarmSetPoint) {
+                        alert.Tank1Alert = TankAlert.ALARM;
+                    } else if (reading.Tank1Weight <= this._device.WarningSetPoint) {
+                        alert.Tank1Alert = TankAlert.WARNING;
+                    } else {
+                        alert.Tank1Alert = TankAlert.NONE;
+                    }
+                } else {
+                    alert.Tank1Alert = TankAlert.NONE;
+                }
+
+
+                if (this._device.Tank2AlertEnabled) {
+                    if (reading.Tank2Weight <= this._device.AlarmSetPoint) {
+                        alert.Tank2Alert = TankAlert.ALARM;
+                    } else if (reading.Tank2Weight <= this._device.WarningSetPoint) {
+                        alert.Tank2Alert = TankAlert.WARNING;
+                    } else {
+                        alert.Tank2Alert = TankAlert.NONE;
+                    }
+                } else {
+                    alert.Tank2Alert = TankAlert.NONE;
+                }
+
+                if (this._device.Tank3AlertEnabled) {
+                    if (reading.Tank3Weight <= this._device.AlarmSetPoint) {
+                        alert.Tank3Alert = TankAlert.ALARM;
+                    } else if (reading.Tank3Weight <= this._device.WarningSetPoint) {
+                        alert.Tank3Alert = TankAlert.WARNING;
+                    } else {
+                        alert.Tank3Alert = TankAlert.NONE;
+                    }
+                } else {
+                    alert.Tank3Alert = TankAlert.NONE;
+                }
+
+                if (this._device.Tank4AlertEnabled) {
+                    if (reading.Tank4Weight <= this._device.AlarmSetPoint) {
+                        alert.Tank4Alert = TankAlert.ALARM;
+                    } else if (reading.Tank4Weight <= this._device.WarningSetPoint) {
+                        alert.Tank4Alert = TankAlert.WARNING;
+                    } else {
+                        alert.Tank4Alert = TankAlert.NONE;
+                    }
+                } else {
+                    alert.Tank4Alert = TankAlert.NONE;
+                }
                 this._device.LastRead = reading;
                 this._logger.LogInformation("{0} Read Succeeded", this.Device.Identifier);
                 return true;
@@ -176,8 +282,10 @@ namespace FacilityMonitoring.Common.Hardware {
                 var device = await context.ModbusDevices.FindAsync(this._device.Id);
                 if (device != null) {
                     this._device.LastRead.AmmoniaControllerId = this._device.Id;
+
                     context.Entry<ModbusDevice>(device).State = EntityState.Modified;
                     context.AmmoniaControllerReadings.Add(this._device.LastRead);
+                    context.AmmoniaControllerAlerts.Add(this._device.LastRead.AmmoniaControllerAlert);
                     await context.SaveChangesAsync();
                     this._logger.LogInformation("{0} Save Succeeded", this.Device.Identifier);
                     return true;

@@ -13,8 +13,11 @@ namespace FacilityMonitoring.Common.Model {
         public DbSet<GenericMonitorBoxAlert> GenericBoxAlerts { get; set; }
         public DbSet<H2GenReading> H2GenReadings { get; set; }
         public DbSet<AmmoniaControllerReading> AmmoniaControllerReadings { get; set; }
+        public DbSet<AmmoniaControllerAlert> AmmoniaControllerAlerts { get; set; }
+
         public DbSet<GeneratorSystemError> GeneratorSystemErrors { get; set; }
         public DbSet<GeneratorSystemWarning> GeneratorSystemWarnings { get; set; }
+
         public DbSet<Register> Registers { get; set; }
         public DbSet<Category> Categories { get; set; }
 
@@ -81,6 +84,11 @@ namespace FacilityMonitoring.Common.Model {
                 .WithMany(e => e.Readings)
                 .HasForeignKey(e => e.AmmoniaControllerId)
                 .IsRequired(true);
+
+            builder.Entity<AmmoniaControllerReading>()
+                .HasOne(e => e.AmmoniaControllerAlert)
+                .WithOne(e => e.AmmoniaControllerReading)
+                .HasForeignKey<AmmoniaControllerAlert>(e => e.AmmoniaControllerReadingId);
 
             builder.Entity<Register>()
                 .HasOne(e => e.Device)

@@ -5,6 +5,7 @@ using System.Text;
 
 namespace FacilityMonitoring.Common.Model {
     public enum AnalogAlert { ALARM1, ALARM2, ALARM3, NONE }
+    public enum TankAlert { WARNING=1,ALARM=2,NONE=0}
 
     public partial class GenericMonitorBoxAlert {
         public int Id { get; set; }
@@ -349,5 +350,18 @@ namespace FacilityMonitoring.Common.Model {
                 }
             }
         }
+    }
+
+    public partial class AmmoniaControllerAlert {
+        public int Id { get; set; }
+        public int AmmoniaControllerReadingId { get; set; }
+        public AmmoniaControllerReading AmmoniaControllerReading { get; set; }
+
+        public TankAlert Tank1Alert { get; set; }
+        public TankAlert Tank2Alert { get; set; }
+        public TankAlert Tank3Alert { get; set; }
+        public TankAlert Tank4Alert { get; set; }
+
+
     }
 }

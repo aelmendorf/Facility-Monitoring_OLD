@@ -61,6 +61,14 @@ namespace FacilityMonitoring.Common.Model {
 
         public int ActiveTank { get; set; }
 
+        public int WarningSetPoint { get; set; }
+        public int AlarmSetPoint { get; set; }
+
+        public bool Tank1AlertEnabled { get; set; }
+        public bool Tank2AlertEnabled { get; set; }
+        public bool Tank3AlertEnabled { get; set; }
+        public bool Tank4AlertEnabled { get; set; }
+
         public int RegisterBaseAddress { get; set; }
         public int ReadRegisterLength { get; set; }
 

@@ -688,6 +688,8 @@ namespace FacilityMonitoring.Common.Model {
         public int AmmoniaControllerId { get; set; }
         public AmmoniaController AmmoniaController { get; set; }
 
+        public AmmoniaControllerAlert AmmoniaControllerAlert { get; set; }
+
         public AmmoniaControllerReading() { }
 
         public AmmoniaControllerReading(DateTime timestamp, AmmoniaController device) {
