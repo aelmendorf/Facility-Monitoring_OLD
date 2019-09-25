@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using System.Threading.Tasks.Dataflow;
 using System.Timers;
 using System.Collections.Generic;
+using System.Text;
 
 namespace FacilityMonitoring.Common.Hardware {
     public class MonitorBoxOperations : IGenericBoxOperations {
@@ -114,6 +115,7 @@ namespace FacilityMonitoring.Common.Hardware {
                 foreach (var channel in this._device.Registers.OfType<DigitalOutputChannel>().OrderBy(e => e.RegisterIndex)) {
                     reading[channel.PropertyMap] = regData[channel.RegisterIndex] == 1 ? true : false;
                 }
+
                 this._device.LastRead = reading;
                 this._device.LastRead.GenericMonitorBoxAlert = alert;
                 this._device.LastRead.GenericMonitorBoxAlert.GenericMonitorBoxReading = this._device.LastRead;
@@ -160,9 +162,9 @@ namespace FacilityMonitoring.Common.Hardware {
                 foreach (var channel in this._device.Registers.OfType<DigitalInputChannel>().OrderBy(e => e.RegisterIndex)) {
                     if (channel.Connected) {
                         if (channel.Logic == LogicType.HIGH) {
-                            alert[channel.PropertyMap] = !coilData[channel.RegisterIndex];
-                        } else {
                             alert[channel.PropertyMap] = coilData[channel.RegisterIndex];
+                        } else {
+                            alert[channel.PropertyMap] = !coilData[channel.RegisterIndex];
                         }
                     } else {
                         alert[channel.PropertyMap] = false;
@@ -235,8 +237,15 @@ namespace FacilityMonitoring.Common.Hardware {
                     return false;
                 }
 
-            } catch {
-                this._logger.LogError("{0} Failed To Save", this._device.Identifier);
+            } catch (Exception e) {
+                StringBuilder builder = new StringBuilder();
+                builder.AppendFormat("{0} Save Failed", this.Device.Identifier)
+                    .AppendFormat("Exception: {0}", e.Message).AppendLine();
+                if (e.InnerException != null) {
+                    builder.AppendFormat("Inner Exception: {0}", e.InnerException.Message).AppendLine();
+                }
+
+                this._logger.LogError(builder.ToString());
                 return false;
             }
         }
@@ -258,8 +267,15 @@ namespace FacilityMonitoring.Common.Hardware {
                     return false;
                 }
 
-            } catch {
-                this._logger.LogError("{0} Failed To Save", this._device.Identifier);
+            } catch (Exception e) {
+                StringBuilder builder = new StringBuilder();
+                builder.AppendFormat("{0} Save Failed", this.Device.Identifier)
+                    .AppendFormat("Exception: {0}", e.Message).AppendLine();
+                if (e.InnerException != null) {
+                    builder.AppendFormat("Inner Exception: {0}", e.InnerException.Message).AppendLine();
+                }
+
+                this._logger.LogError(builder.ToString());
                 return false;
             }
         }

@@ -223,7 +223,7 @@ namespace FacilityMonitoring.Common.Model {
         GENERATORSYSTEMERROR
     }
 
-    public enum LogicType { HIGH, LOW }
+    public enum LogicType { HIGH=0, LOW }
     public enum AlertAction { ALARM,WARN,SOFTWARN,MAINTENANCE,NOTHING }
     public enum OutputControl { HARDWARE,SOFTWARE}
 
@@ -337,5 +337,9 @@ namespace FacilityMonitoring.Common.Model {
     public partial class GeneratorRegister:Register {
         public FunctionCode FunctionCode { get; set; }
         public H2Type DataType { get; set; }
+    }
+
+    public partial class AmmoniaRegister {
+        
     }
 }

@@ -183,7 +183,7 @@ namespace FacilityMonitoring.Common.Model {
                         this.DigitalCh21 = Convert.ToBoolean(value);
                         break;
                     case "DigitalCh22":
-                        this.DigitalCh23 = Convert.ToBoolean(value);
+                        this.DigitalCh22 = Convert.ToBoolean(value);
                         break;
                     case "DigitalCh23":
                         this.DigitalCh23 = Convert.ToBoolean(value);
@@ -312,7 +312,7 @@ namespace FacilityMonitoring.Common.Model {
                     case "DigitalCh21":
                         return this.DigitalCh21;
                     case "DigitalCh22":
-                        return this.DigitalCh23;
+                        return this.DigitalCh22;
                     case "DigitalCh23":
                         return this.DigitalCh23;
                     case "DigitalCh24":

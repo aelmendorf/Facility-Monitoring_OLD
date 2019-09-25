@@ -37,32 +37,32 @@ namespace FacilityMonitoring.Common.ServiceLayer {
             var controller = this._context.ModbusDevices
                 .AsNoTracking()
                 .OfType<AmmoniaController>()
-                .FirstOrDefault(e => e.Identifier == "AmmoniaController");
+                .SingleOrDefault(e => e.Identifier == "AmmoniaController");
 
             var generator1 = this._context.ModbusDevices
                 .AsNoTracking()
                 .OfType<H2Generator>()
                 .Include(e => e.Registers)
-                .FirstOrDefault(e => e.Identifier == "Generator 1");
+                .SingleOrDefault(e => e.Identifier == "Generator 1");
 
             var generator2 = this._context.ModbusDevices
                 .AsNoTracking()
                 .OfType<H2Generator>()
                 .Include(e => e.Registers)
-                .FirstOrDefault(e => e.Identifier == "Generator 2");
+                .SingleOrDefault(e => e.Identifier == "Generator 2");
 
             var generator3 = this._context.ModbusDevices
                 .AsNoTracking()
                 .OfType<H2Generator>()
                 .Include(e => e.Registers)
-                .FirstOrDefault(e => e.Identifier == "Generator 3");
+                .SingleOrDefault(e => e.Identifier == "Generator 3");
 
             var device = this._context.ModbusDevices
                 .AsNoTracking()
                 .OfType<GenericMonitorBox>()
                 .Include(e => e.Registers)
-                    .ThenInclude(e => e.SensorType)
-                .FirstOrDefault(e => e.Identifier == "GasBay");
+                    .ThenInclude(reg=>reg.SensorType)
+                .SingleOrDefault(e => e.Identifier == "GasBay");
 
             serviceCollection.AddLogging(configure => { configure.AddFile(); configure.AddConsole(); });
             this._serviceProvider = serviceCollection.BuildServiceProvider();

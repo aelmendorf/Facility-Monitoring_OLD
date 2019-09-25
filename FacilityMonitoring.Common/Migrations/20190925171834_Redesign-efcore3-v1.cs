@@ -2,7 +2,7 @@
 
 namespace FacilityMonitoring.Common.Migrations
 {
-    public partial class Buildv1 : Migration
+    public partial class Redesignefcore3v1 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

@@ -173,8 +173,15 @@ namespace FacilityMonitoring.Common.Hardware {
                     this._logger.LogError("{0} Device Not Found", this.Device.Identifier);
                     return false;
                 }
-            } catch {
-                this._logger.LogError("{0} Failed To Save", this._device.Identifier);
+            } catch (Exception e) {
+                StringBuilder builder = new StringBuilder();
+                builder.AppendFormat("{0} Save Failed", this.Device.Identifier)
+                    .AppendFormat("Exception: {0}", e.Message).AppendLine();
+                if (e.InnerException != null) {
+                    builder.AppendFormat("Inner Exception: {0}", e.InnerException.Message).AppendLine();
+                }
+
+                this._logger.LogError(builder.ToString());
                 return false;
             }
         }
@@ -200,8 +207,15 @@ namespace FacilityMonitoring.Common.Hardware {
                     this._logger.LogError("{0} Device Not Found", this.Device.Identifier);
                     return false;
                 }
-            } catch {
-                this._logger.LogError("{0} Failed To Save",this._device.Identifier);
+            } catch (Exception e) {
+                StringBuilder builder = new StringBuilder();
+                builder.AppendFormat("{0} Save Failed", this.Device.Identifier)
+                    .AppendFormat("Exception: {0}", e.Message).AppendLine();
+                if (e.InnerException != null) {
+                    builder.AppendFormat("Inner Exception: {0}", e.InnerException.Message).AppendLine();
+                }
+
+                this._logger.LogError(builder.ToString());
                 return false;
             }
         }

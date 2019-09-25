@@ -39,13 +39,13 @@ namespace FacilityMonitoring.Common.Harware {
                         channel.Alarm2Enabled = (row[14] == "TRUE") ? true : false;
                         channel.Alarm2Action = RegisterConverters.GetAction(row[15]);
 
-                        channel.Alarm1SetPoint = Convert.ToDouble(row[16]);
-                        channel.Alarm1Enabled = (row[17] == "TRUE") ? true : false;
-                        channel.Alarm1Action = RegisterConverters.GetAction(row[18]);
+                        channel.Alarm3SetPoint = Convert.ToDouble(row[16]);
+                        channel.Alarm3Enabled = (row[17] == "TRUE") ? true : false;
+                        channel.Alarm3Action = RegisterConverters.GetAction(row[18]);
 
                         string sname = row[19];
                         channel.ValueDivisor = Convert.ToDouble(row[20]);
-                        var sensor = context.Categories.OfType<SensorType>().Include(e => e.AnalogChannels).FirstOrDefault(e=>e.Name==sname);
+                        var sensor = context.Categories.OfType<SensorType>().Include(e => e.Registers).FirstOrDefault(e=>e.Name==sname);
                         if (sensor != null) {
                             channel.SensorType = sensor;
                         }

@@ -20,6 +20,7 @@ namespace FacilityMonitoring.ConsoleTesting
     class Program {
 
         static void Main(string[] args) {
+            //TestingNewLinq();
             //TestWarning(true);
             //TestWarning(false);
             //TestAlarm(true);
@@ -28,8 +29,8 @@ namespace FacilityMonitoring.ConsoleTesting
             //TestMaintenance(false);
             //TestRead();
             //ImportModbus();
-            //CreateAmmoniaController();
-            //ImportModbusGeneric();
+            CreateAmmoniaController();
+            ImportModbusGeneric();
             //CreateAmmoniaController();
             //TestAmmoniaRead();
             //TestSetCal(true);
@@ -37,13 +38,29 @@ namespace FacilityMonitoring.ConsoleTesting
             //TestSendCal();
 
             //ExportH2ReadingParam();
-            //ImportModbusH2("Generator 1", "172.21.100.25", 1);
-            //ImportModbusH2("Generator 2", "172.21.100.26", 1);
-            //ImportModbusH2("Generator 3", "172.21.100.27", 1);
+            ImportModbusH2("Generator 1", "172.21.100.25", 1);
+            ImportModbusH2("Generator 2", "172.21.100.26", 1);
+            ImportModbusH2("Generator 3", "172.21.100.27", 1);
 
             //TestGeneratorRead("Generator 1");
             //TestGeneratorRead("Generator 2");
             //TestGeneratorRead("Generator 3");
+        }
+
+        public static void TestingNewLinq() {
+            using FacilityContext context = new FacilityContext();
+
+            var box =context.ModbusDevices.OfType<GenericMonitorBox>().Include(device => device.Registers).ThenInclude(register=>register.SensorType).SingleOrDefault(e => e.Id == 1);
+            Console.WriteLine("Device: {0}", box.Identifier);
+            foreach(var register in box.Registers) {
+                if (register.SensorType != null) {
+                    Console.WriteLine("Register: {0}  Sensor: {1}", register.Name, register.SensorType.Name);
+                } else {
+                    Console.WriteLine("Register: {0}  Sensor: NULL", register.Name);
+                }
+
+            }
+            Console.ReadKey();
         }
 
         public static void ExportH2ReadingParam() {

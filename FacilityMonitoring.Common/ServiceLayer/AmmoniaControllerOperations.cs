@@ -157,8 +157,15 @@ namespace FacilityMonitoring.Common.Hardware {
                 context.SaveChanges();
                 this._logger.LogInformation("{0} Save Succeeded", this.Device.Identifier);
                 return true;
-            } catch {
-                this._logger.LogError("{0} Save Failed", this.Device.Identifier);
+            } catch (Exception e) {
+                StringBuilder builder = new StringBuilder();
+                builder.AppendFormat("{0} Save Failed", this.Device.Identifier)
+                    .AppendFormat("Exception: {0}", e.Message).AppendLine();
+                if (e.InnerException != null) {
+                    builder.AppendFormat("Inner Exception: {0}", e.InnerException.Message).AppendLine();
+                }
+
+                this._logger.LogError(builder.ToString());
                 return false;
             }
         }
@@ -171,15 +178,22 @@ namespace FacilityMonitoring.Common.Hardware {
                     this._device.LastRead.AmmoniaControllerId = this._device.Id;
                     context.Entry<ModbusDevice>(device).State = EntityState.Modified;
                     context.AmmoniaControllerReadings.Add(this._device.LastRead);
+                    await context.SaveChangesAsync();
+                    this._logger.LogInformation("{0} Save Succeeded", this.Device.Identifier);
+                    return true;
                 } else {
                     this._logger.LogError("{0} Device Not Found", this.Device.Identifier);
                     return false;
                 }
-                await context.SaveChangesAsync();
-                this._logger.LogInformation("{0} Save Succeeded", this.Device.Identifier);
-                return true;
-            } catch {
-                this._logger.LogError("{0} Save Failed", this.Device.Identifier);
+            } catch(Exception e) {
+                StringBuilder builder = new StringBuilder();
+                builder.AppendFormat("{0} Save Failed", this.Device.Identifier)
+                    .AppendFormat("Exception: {0}",e.Message).AppendLine();
+                if (e.InnerException != null) {
+                    builder.AppendFormat("Inner Exception: {0}", e.InnerException.Message).AppendLine();
+                }
+
+                this._logger.LogError(builder.ToString());
                 return false;
             }
         }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using System;
 using System.Collections.Generic;
@@ -18,6 +19,7 @@ namespace FacilityMonitoring.Common.Model {
         public DbSet<Category> Categories { get; set; }
 
         public FacilityContext(DbContextOptions<FacilityContext> options):base(options) {
+        
         }
 
         public FacilityContext():base() {
@@ -25,7 +27,7 @@ namespace FacilityMonitoring.Common.Model {
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
-            optionsBuilder.UseSqlServer("server=172.20.4.20;database=MonitorTesting;User Id=aelmendorf;Password=Drizzle123!;");
+            optionsBuilder.UseSqlServer("server=172.20.4.20;database=facilitymonitoring;User Id=aelmendorf;Password=Drizzle123!;");
         }
 
         protected override void OnModelCreating(ModelBuilder builder) {
@@ -86,8 +88,14 @@ namespace FacilityMonitoring.Common.Model {
                 .HasForeignKey(e => e.DeviceId)
                 .IsRequired(true);
 
+            //builder.Entity<Register>()
+            //    .HasOne(e => e.SensorType)
+            //    .WithMany(e => e.Registers)
+            //    .HasForeignKey(e => e.SensorTypeId)
+            //    .IsRequired(false);
+
             builder.Entity<SensorType>()
-                .HasMany(e => e.AnalogChannels)
+                .HasMany(e => e.Registers)
                 .WithOne(e => e.SensorType)
                 .HasForeignKey(e=>e.SensorTypeId)
                 .IsRequired(false);

@@ -15,10 +15,10 @@ namespace FacilityMonitoring.Common.Model {
         public double MaxPoint { get; set; }
         public string Units { get; set; }
 
-        public ICollection<AnalogChannel> AnalogChannels { get; set; }
+        public ICollection<Register> Registers { get; set; }
 
         public SensorType() {
-            this.AnalogChannels = new ObservableHashSet<AnalogChannel>();
+            this.Registers = new ObservableHashSet<Register>();
         }
     }
 }
