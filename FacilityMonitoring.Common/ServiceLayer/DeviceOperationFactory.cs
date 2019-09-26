@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using FacilityMonitoring.Common.Hardware;
 using System.Threading.Tasks.Dataflow;
+using FacilityMonitoring.Common.DataLayer;
 
 namespace FacilityMonitoring.Common.ServiceLayer {
 
@@ -14,7 +15,7 @@ namespace FacilityMonitoring.Common.ServiceLayer {
             if (type == typeof(GenericMonitorBox)) {
                 return new MonitorBoxOperations(buffer,(GenericMonitorBox)device,serviceProvider.GetService<ILogger<MonitorBoxOperations>>());
             } else if (type == typeof(H2Generator)) {
-                return new GeneratorOperations(buffer,(H2Generator)device,serviceProvider.GetService<ILogger<GeneratorOperations>>());
+                return new GeneratorOperations(buffer,(H2Generator)device,serviceProvider.GetService<ILogger<GeneratorOperations>>(),serviceProvider.GetService<IAddDeviceReading>());
             } else if (type == typeof(AmmoniaController)) {
                 return new AmmoniaControllerOperations(buffer,(AmmoniaController)device,serviceProvider.GetService<ILogger<AmmoniaControllerOperations>>());
             } else {

@@ -38,7 +38,8 @@ namespace FacilityMonitoring.ConsoleTesting
             //TestSendCal();
 
             //ExportH2ReadingParam();
-            ExportNH3ReadingParam();
+            //ExportNH3ReadingParam();
+            ExportH2SystemErrorParam();
             //ImportModbusH2("Generator 1", "172.21.100.25", 1);
             //ImportModbusH2("Generator 2", "172.21.100.26", 1);
             //ImportModbusH2("Generator 3", "172.21.100.27", 1);
@@ -74,12 +75,22 @@ namespace FacilityMonitoring.ConsoleTesting
         }
 
         public static void ExportNH3ReadingParam() {
+
             PropertyInfo[] properties = typeof(AmmoniaControllerReading).GetProperties();
             StringBuilder builder = new StringBuilder();
             foreach (var property in properties) {
                 builder.AppendFormat("{0}\t{1}", property.Name, property.PropertyType.Name).AppendLine();
             }
             File.WriteAllText(@"D:\Software Development\Monitoring\ImportFiles\NH3GenParam.txt", builder.ToString());
+        }
+
+        public static void ExportH2SystemErrorParam() {
+            PropertyInfo[] properties = typeof(GeneratorSystemError).GetProperties();
+            StringBuilder builder = new StringBuilder();
+            foreach (var property in properties) {
+                builder.AppendFormat("{0}\t{1}", property.Name, property.PropertyType.Name).AppendLine();
+            }
+            File.WriteAllText(@"D:\Software Development\Monitoring\ImportFiles\H2SystemErrorParam.txt", builder.ToString());
         }
 
         public static void CreateAmmoniaController() {
@@ -104,8 +115,8 @@ namespace FacilityMonitoring.ConsoleTesting
             controller.WarningSetPoint = 150;
             controller.Tank1AlertEnabled = true;
             controller.Tank2AlertEnabled = true;
-            controller.Tank3AlertEnabled = true;
-            controller.Tank4AlertEnabled = true;
+            controller.Tank3AlertEnabled = false;
+            controller.Tank4AlertEnabled = false;
             controller.ActiveTank = 1;
             context.ModbusDevices.Add(controller);
             context.SaveChanges();

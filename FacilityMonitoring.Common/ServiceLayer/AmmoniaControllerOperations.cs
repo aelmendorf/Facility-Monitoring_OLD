@@ -87,51 +87,51 @@ namespace FacilityMonitoring.Common.Hardware {
 
                 if (this._device.Tank1AlertEnabled) {
                     if (reading.Tank1Weight <= this._device.AlarmSetPoint) {
-                        alert.Tank1Alert = TankAlert.ALARM;
+                        alert.Tank1Alert = GenericAlert.ALARM;
                     }else if (reading.Tank1Weight <= this._device.AlarmSetPoint) {
-                        alert.Tank1Alert = TankAlert.WARNING;
+                        alert.Tank1Alert = GenericAlert.WARNING;
                     } else {
-                        alert.Tank1Alert = TankAlert.NONE;
+                        alert.Tank1Alert = GenericAlert.NONE;
                     }
                 } else {
-                    alert.Tank1Alert = TankAlert.NONE;
+                    alert.Tank1Alert = GenericAlert.NONE;
                 }
 
 
                 if (this._device.Tank2AlertEnabled) {
                     if (reading.Tank2Weight <= this._device.AlarmSetPoint) {
-                        alert.Tank2Alert = TankAlert.ALARM;
+                        alert.Tank2Alert = GenericAlert.ALARM;
                     } else if (reading.Tank2Weight <= this._device.AlarmSetPoint) {
-                        alert.Tank2Alert = TankAlert.WARNING;
+                        alert.Tank2Alert = GenericAlert.WARNING;
                     } else {
-                        alert.Tank2Alert = TankAlert.NONE;
+                        alert.Tank2Alert = GenericAlert.NONE;
                     }
                 } else {
-                    alert.Tank2Alert = TankAlert.NONE;
+                    alert.Tank2Alert = GenericAlert.NONE;
                 }
 
                 if (this._device.Tank3AlertEnabled) {
                     if (reading.Tank3Weight <= this._device.AlarmSetPoint) {
-                        alert.Tank3Alert = TankAlert.ALARM;
+                        alert.Tank3Alert = GenericAlert.ALARM;
                     } else if (reading.Tank3Weight <= this._device.AlarmSetPoint) {
-                        alert.Tank3Alert = TankAlert.WARNING;
+                        alert.Tank3Alert = GenericAlert.WARNING;
                     } else {
-                        alert.Tank3Alert = TankAlert.NONE;
+                        alert.Tank3Alert = GenericAlert.NONE;
                     }
                 } else {
-                    alert.Tank3Alert = TankAlert.NONE;
+                    alert.Tank3Alert = GenericAlert.NONE;
                 }
 
                 if (this._device.Tank4AlertEnabled) {
                     if (reading.Tank4Weight <= this._device.AlarmSetPoint) {
-                        alert.Tank4Alert = TankAlert.ALARM;
+                        alert.Tank4Alert = GenericAlert.ALARM;
                     } else if (reading.Tank4Weight <= this._device.AlarmSetPoint) {
-                        alert.Tank4Alert = TankAlert.WARNING;
+                        alert.Tank4Alert = GenericAlert.WARNING;
                     } else {
-                        alert.Tank4Alert = TankAlert.NONE;
+                        alert.Tank4Alert = GenericAlert.NONE;
                     }
                 } else {
-                    alert.Tank4Alert = TankAlert.NONE;
+                    alert.Tank4Alert = GenericAlert.NONE;
                 }
                 this._device.LastRead = reading;
                 this._logger.LogInformation("{0} Read Succeeded", this.Device.Identifier);
@@ -161,51 +161,51 @@ namespace FacilityMonitoring.Common.Hardware {
 
                 if (this._device.Tank1AlertEnabled) {
                     if (reading.Tank1Weight <= this._device.AlarmSetPoint) {
-                        alert.Tank1Alert = TankAlert.ALARM;
+                        alert.Tank1Alert = GenericAlert.ALARM;
                     } else if (reading.Tank1Weight <= this._device.WarningSetPoint) {
-                        alert.Tank1Alert = TankAlert.WARNING;
+                        alert.Tank1Alert = GenericAlert.WARNING;
                     } else {
-                        alert.Tank1Alert = TankAlert.NONE;
+                        alert.Tank1Alert = GenericAlert.NONE;
                     }
                 } else {
-                    alert.Tank1Alert = TankAlert.NONE;
+                    alert.Tank1Alert = GenericAlert.NONE;
                 }
 
 
                 if (this._device.Tank2AlertEnabled) {
                     if (reading.Tank2Weight <= this._device.AlarmSetPoint) {
-                        alert.Tank2Alert = TankAlert.ALARM;
+                        alert.Tank2Alert = GenericAlert.ALARM;
                     } else if (reading.Tank2Weight <= this._device.WarningSetPoint) {
-                        alert.Tank2Alert = TankAlert.WARNING;
+                        alert.Tank2Alert = GenericAlert.WARNING;
                     } else {
-                        alert.Tank2Alert = TankAlert.NONE;
+                        alert.Tank2Alert = GenericAlert.NONE;
                     }
                 } else {
-                    alert.Tank2Alert = TankAlert.NONE;
+                    alert.Tank2Alert = GenericAlert.NONE;
                 }
 
                 if (this._device.Tank3AlertEnabled) {
                     if (reading.Tank3Weight <= this._device.AlarmSetPoint) {
-                        alert.Tank3Alert = TankAlert.ALARM;
+                        alert.Tank3Alert = GenericAlert.ALARM;
                     } else if (reading.Tank3Weight <= this._device.WarningSetPoint) {
-                        alert.Tank3Alert = TankAlert.WARNING;
+                        alert.Tank3Alert = GenericAlert.WARNING;
                     } else {
-                        alert.Tank3Alert = TankAlert.NONE;
+                        alert.Tank3Alert = GenericAlert.NONE;
                     }
                 } else {
-                    alert.Tank3Alert = TankAlert.NONE;
+                    alert.Tank3Alert = GenericAlert.NONE;
                 }
 
                 if (this._device.Tank4AlertEnabled) {
                     if (reading.Tank4Weight <= this._device.AlarmSetPoint) {
-                        alert.Tank4Alert = TankAlert.ALARM;
+                        alert.Tank4Alert = GenericAlert.ALARM;
                     } else if (reading.Tank4Weight <= this._device.WarningSetPoint) {
-                        alert.Tank4Alert = TankAlert.WARNING;
+                        alert.Tank4Alert = GenericAlert.WARNING;
                     } else {
-                        alert.Tank4Alert = TankAlert.NONE;
+                        alert.Tank4Alert = GenericAlert.NONE;
                     }
                 } else {
-                    alert.Tank4Alert = TankAlert.NONE;
+                    alert.Tank4Alert = GenericAlert.NONE;
                 }
                 this._device.LastRead = reading;
                 this._logger.LogInformation("{0} Read Succeeded", this.Device.Identifier);

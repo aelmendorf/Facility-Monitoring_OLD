@@ -1,0 +1,166 @@
+﻿using FacilityMonitoring.Common.Model;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace FacilityMonitoring.Common.DataLayer {
+
+    public interface IAddDeviceReading {
+        Task<bool> AddReadingAsync(ModbusDevice device);
+        bool AddReading(ModbusDevice device);
+    }
+
+    public interface IAddGeneratorReading {
+        Task<bool> AddReadingAsync(H2Generator generator);
+        bool AddReading(H2Generator generator);
+    }
+
+    public interface IAddMonitorBoxReading {
+        Task<bool> AddReadingAsync(GenericMonitorBox generator);
+        bool AddReading(GenericMonitorBox generator);
+    }
+
+    public interface IAddNHControllerReading {
+        Task<bool> AddReadingAsync(AmmoniaController generator);
+        bool AddReading(AmmoniaController generator);
+    }
+
+    public class AddDeviceReading : IAddDeviceReading {
+
+        private IAddGeneratorReading _addGenReading;
+        private IAddMonitorBoxReading _addMonitorBoxReading; 
+        private IAddNHControllerReading _addNHReading;
+
+        public AddDeviceReading(IAddGeneratorReading addGenReading, IAddMonitorBoxReading addMonitorBoxReading, IAddNHControllerReading addNHReading) {
+            this._addGenReading = addGenReading;
+            this._addMonitorBoxReading = addMonitorBoxReading;
+            this._addNHReading = addNHReading;
+        }
+
+        public async Task<bool> AddReadingAsync(ModbusDevice device) {
+            Type type = device.GetType();
+            if (type == typeof(GenericMonitorBox)) {
+                return await this._addMonitorBoxReading.AddReadingAsync((GenericMonitorBox)device);
+            } else if (type == typeof(H2Generator)) {
+                return await this._addGenReading.AddReadingAsync((H2Generator)device);
+            } else if (type == typeof(AmmoniaController)) {
+                return await this._addNHReading.AddReadingAsync((AmmoniaController)device);
+            } else {
+                return false;
+            }
+        }
+
+        public bool AddReading(ModbusDevice device) {
+            Type type = device.GetType();
+            if (type == typeof(GenericMonitorBox)) {
+                return this._addMonitorBoxReading.AddReading((GenericMonitorBox)device);
+            } else if (type == typeof(H2Generator)) {
+                return this._addGenReading.AddReading((H2Generator)device);
+            } else if (type == typeof(AmmoniaController)) {
+                return this._addNHReading.AddReading((AmmoniaController)device);
+            } else {
+                return false;
+            }
+        }
+    }
+
+    public class AddNHControllerReading : IAddNHControllerReading {
+        private readonly ILogger _logger;
+
+        public AddNHControllerReading(ILogger<IAddGeneratorReading> logger) {
+            this._logger = logger;
+        }
+
+        public bool AddReading(AmmoniaController generator) => throw new NotImplementedException();
+        public Task<bool> AddReadingAsync(AmmoniaController generator) => throw new NotImplementedException();
+    }
+
+    public class AddMonitorBoxReading : IAddMonitorBoxReading {
+        private readonly ILogger _logger;
+
+        public AddMonitorBoxReading(ILogger<IAddGeneratorReading> logger) {
+            this._logger = logger;
+        }
+
+        public bool AddReading(GenericMonitorBox generator) => throw new NotImplementedException();
+        public Task<bool> AddReadingAsync(GenericMonitorBox generator) => throw new NotImplementedException();
+    }
+
+
+    public class AddGeneratorReading : IAddGeneratorReading {
+        private readonly ILogger _logger;
+
+        public AddGeneratorReading(ILogger<IAddGeneratorReading> logger) {
+            this._logger = logger;
+        }
+
+        public async Task<bool> AddReadingAsync(H2Generator generator) {
+            try {
+                using var context = new FacilityContext();
+                var device = await context.ModbusDevices.FindAsync(generator.Id);
+                if (device != null) {
+                    generator.LastRead.GeneratorId = generator.Id;
+                    context.GeneratorSystemErrors.Add(generator.LastRead.AllSystemErrors);
+                    context.GeneratorSystemWarnings.Add(generator.LastRead.AllSystemWarnings);
+                    //generator.H2Readings.Add(generator.LastRead);
+                    generator.SystemState = generator.LastRead.SystemState;
+                    generator.OperationMode = generator.LastRead.OperationMode;
+                    context.Entry(device).State = EntityState.Modified;
+                    context.H2GenReadings.Add(generator.LastRead);
+                    await context.SaveChangesAsync();
+                    this._logger.LogInformation("{0} Save Succeeded, In-Memory Read: {1}", generator.Identifier, generator.H2Readings.Count);
+                    //GC.Collect();
+                    return true;
+                } else {
+                    return false;
+                }
+            } catch (Exception e) {
+                StringBuilder builder = new StringBuilder();
+                builder.AppendFormat("{0} Save Failed", generator.Identifier)
+                    .AppendFormat("Exception: {0}", e.Message).AppendLine();
+                if (e.InnerException != null) {
+                    builder.AppendFormat("Inner Exception: {0}", e.InnerException.Message).AppendLine();
+                }
+
+                this._logger.LogError(builder.ToString());
+                return false;
+            }
+        }
+
+        public bool AddReading(H2Generator generator) {
+            try {
+                using var context = new FacilityContext();
+                var device = context.ModbusDevices.Find(generator.Id);
+                if (device != null) {
+                    generator.LastRead.GeneratorId = generator.Id;
+                    context.GeneratorSystemErrors.Add(generator.LastRead.AllSystemErrors);
+                    context.GeneratorSystemWarnings.Add(generator.LastRead.AllSystemWarnings);
+                    generator.SystemState = generator.LastRead.SystemState;
+                    generator.OperationMode = generator.LastRead.OperationMode;
+                    context.Entry(device).State = EntityState.Modified;
+                    context.H2GenReadings.Add(generator.LastRead);
+                    context.SaveChanges();
+                    this._logger.LogInformation("{0} Save Succeeded, In-Memory Read: {1}", generator.Identifier, generator.H2Readings.Count);
+                    //GC.Collect();
+                    return true;
+                } else {
+                    return false;
+                }
+            } catch (Exception e) {
+                StringBuilder builder = new StringBuilder();
+                builder.AppendFormat("{0} Save Failed", generator.Identifier)
+                    .AppendFormat("Exception: {0}", e.Message).AppendLine();
+                if (e.InnerException != null) {
+                    builder.AppendFormat("Inner Exception: {0}", e.InnerException.Message).AppendLine();
+                }
+
+                this._logger.LogError(builder.ToString());
+                return false;
+            }
+        }
+    }
+}

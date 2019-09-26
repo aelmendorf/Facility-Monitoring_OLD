@@ -4,8 +4,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
 namespace FacilityMonitoring.Common.Model {
-    public enum AnalogAlert { ALARM1, ALARM2, ALARM3, NONE }
-    public enum TankAlert { WARNING=1,ALARM=2,NONE=0}
+    public enum AnalogAlert { ALARM1, ALARM2, ALARM3, NONE }   
+    public enum GenericAlert { WARNING=1, ALARM=2, NONE=0 }
+
 
     public partial class GenericMonitorBoxAlert {
         public int Id { get; set; }
@@ -357,10 +358,18 @@ namespace FacilityMonitoring.Common.Model {
         public int AmmoniaControllerReadingId { get; set; }
         public AmmoniaControllerReading AmmoniaControllerReading { get; set; }
 
-        public TankAlert Tank1Alert { get; set; }
-        public TankAlert Tank2Alert { get; set; }
-        public TankAlert Tank3Alert { get; set; }
-        public TankAlert Tank4Alert { get; set; }
+        public GenericAlert Tank1Alert { get; set; }
+        public GenericAlert Tank2Alert { get; set; }
+        public GenericAlert Tank3Alert { get; set; }
+        public GenericAlert Tank4Alert { get; set; }
+    }
+
+    public partial class GeneratorAlert {
+        public int Id { get; set; }
+        public int GeneratorId { get; set; }
+        public H2GenReading H2GenReading { get; set; }
+
+        public GenericAlert Pressure { get; set; }
 
 
     }

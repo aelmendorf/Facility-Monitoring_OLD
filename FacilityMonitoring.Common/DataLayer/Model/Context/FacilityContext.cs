@@ -3,10 +3,59 @@
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace FacilityMonitoring.Common.Model {
     public class FacilityContext:DbContext {
+
+        private static Func<FacilityContext, string, QueryTrackingBehavior, Task<H2Generator>> _getGeneratorAsync =
+                EF.CompileAsyncQuery((FacilityContext context, string identifier,QueryTrackingBehavior tracking ) =>
+                    context.ModbusDevices
+                    .AsNoTracking()
+                    .OfType<H2Generator>()
+                    .Include(e => e.Registers)
+                    .SingleOrDefault(e => e.Identifier == identifier));
+
+        private static Func<FacilityContext, string, QueryTrackingBehavior, H2Generator> _getGenerator =
+                EF.CompileQuery((FacilityContext context, string identifier, QueryTrackingBehavior tracking) =>
+                    context.ModbusDevices
+                    .AsNoTracking()
+                    .OfType<H2Generator>()
+                    .Include(e => e.Registers)
+                    .SingleOrDefault(e => e.Identifier == identifier));
+
+        private static Func<FacilityContext, string, QueryTrackingBehavior, Task<AmmoniaController>> _getNHControllerAsync =
+                EF.CompileAsyncQuery((FacilityContext context, string identifier, QueryTrackingBehavior tracking) =>
+                    context.ModbusDevices
+                    .AsNoTracking()
+                    .OfType<AmmoniaController>()
+                    .SingleOrDefault(e => e.Identifier == identifier));
+
+        private static Func<FacilityContext, string, QueryTrackingBehavior, AmmoniaController> _getNHController =
+                EF.CompileQuery((FacilityContext context, string identifier, QueryTrackingBehavior tracking) =>
+                    context.ModbusDevices
+                    .AsNoTracking()
+                    .OfType<AmmoniaController>()
+                    .SingleOrDefault(e => e.Identifier == identifier));
+
+        private static Func<FacilityContext, string, QueryTrackingBehavior, Task<GenericMonitorBox>> _getMonitorBoxAsync =
+                EF.CompileAsyncQuery((FacilityContext context, string identifier, QueryTrackingBehavior tracking) =>
+                    context.ModbusDevices
+                    .AsNoTracking()
+                    .OfType<GenericMonitorBox>()
+                    .Include(e=>e.Registers)
+                        .ThenInclude(e=>e.SensorType)
+                    .SingleOrDefault(e => e.Identifier == identifier));
+
+        private static Func<FacilityContext, string, QueryTrackingBehavior, GenericMonitorBox> _getMonitorBox =
+                EF.CompileQuery((FacilityContext context, string identifier, QueryTrackingBehavior tracking) =>
+                    context.ModbusDevices
+                    .AsNoTracking()
+                    .OfType<GenericMonitorBox>()
+                    .SingleOrDefault(e => e.Identifier == identifier));
+
 
         public DbSet<ModbusDevice> ModbusDevices { get; set; }
         public DbSet<GenericBoxReading> GenericBoxReadings { get; set; }
@@ -14,12 +63,12 @@ namespace FacilityMonitoring.Common.Model {
         public DbSet<H2GenReading> H2GenReadings { get; set; }
         public DbSet<AmmoniaControllerReading> AmmoniaControllerReadings { get; set; }
         public DbSet<AmmoniaControllerAlert> AmmoniaControllerAlerts { get; set; }
-
         public DbSet<GeneratorSystemError> GeneratorSystemErrors { get; set; }
         public DbSet<GeneratorSystemWarning> GeneratorSystemWarnings { get; set; }
-
         public DbSet<Register> Registers { get; set; }
         public DbSet<Category> Categories { get; set; }
+
+
 
         public FacilityContext(DbContextOptions<FacilityContext> options):base(options) {
         
@@ -27,6 +76,37 @@ namespace FacilityMonitoring.Common.Model {
 
         public FacilityContext():base() {
 
+        }
+
+
+        public async Task<H2Generator> GetGeneratorAsync(string identifier,bool tracking) {
+            var option = (tracking) ? QueryTrackingBehavior.TrackAll : QueryTrackingBehavior.NoTracking;
+            return await FacilityContext._getGeneratorAsync(this, identifier,option);
+        }
+
+        public H2Generator GetGenerator(string identifier,bool tracking) {
+            var option = (tracking) ? QueryTrackingBehavior.TrackAll : QueryTrackingBehavior.NoTracking;
+            return FacilityContext._getGenerator(this, identifier, option);
+        }
+
+        public async Task<AmmoniaController> GetNHControllerAsync(string identifier, bool tracking) {
+            var option = (tracking) ? QueryTrackingBehavior.TrackAll : QueryTrackingBehavior.NoTracking;
+            return await FacilityContext._getNHControllerAsync(this, identifier, option);
+        }
+
+        public AmmoniaController GetNHController(string identifier, bool tracking) {
+            var option = (tracking) ? QueryTrackingBehavior.TrackAll : QueryTrackingBehavior.NoTracking;
+            return FacilityContext._getNHController(this, identifier, option);
+        }
+
+        public async Task<GenericMonitorBox> GetMonitorBoxAsync(string identifier, bool tracking) {
+            var option = (tracking) ? QueryTrackingBehavior.TrackAll : QueryTrackingBehavior.NoTracking;
+            return await FacilityContext._getMonitorBoxAsync(this, identifier, option);
+        }
+
+        public GenericMonitorBox GetMonitorBox(string identifier, bool tracking) {
+            var option = (tracking) ? QueryTrackingBehavior.TrackAll : QueryTrackingBehavior.NoTracking;
+            return FacilityContext._getMonitorBox(this, identifier, option);
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {

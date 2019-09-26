@@ -13,7 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Console;
 using FacilityMonitoring.Common.ServiceLayer;
-
+using FacilityMonitoring.Common.DataLayer;
 
 namespace FacilityMonitoring.Common.ServiceLayer {
     public class DeviceController {
@@ -25,6 +25,7 @@ namespace FacilityMonitoring.Common.ServiceLayer {
         private IServiceProvider _serviceProvider;
         private ILogger _logger;
 
+
         public DeviceController() {
             this._context = new FacilityContext();
             this._operationQueue = new BufferBlock<IDeviceOperations>(new DataflowBlockOptions { BoundedCapacity = 5 });
@@ -34,37 +35,51 @@ namespace FacilityMonitoring.Common.ServiceLayer {
         public async Task Start() {
             var serviceCollection = new ServiceCollection();
 
-            var controller = this._context.ModbusDevices
-                .AsNoTracking()
-                .OfType<AmmoniaController>()
-                .SingleOrDefault(e => e.Identifier == "AmmoniaController");
+            //var controller = this._context.ModbusDevices
+            //    .AsNoTracking()
+            //    .OfType<AmmoniaController>()
+            //    .SingleOrDefault(e => e.Identifier == "AmmoniaController");
 
-            var generator1 = this._context.ModbusDevices
-                .AsNoTracking()
-                .OfType<H2Generator>()
-                .Include(e => e.Registers)
-                .SingleOrDefault(e => e.Identifier == "Generator 1");
+            //var generator1 = this._context.ModbusDevices
+            //    .AsNoTracking()
+            //    .OfType<H2Generator>()
+            //    .Include(e => e.Registers)
+            //    .SingleOrDefault(e => e.Identifier == "Generator 1");
 
-            var generator2 = this._context.ModbusDevices
-                .AsNoTracking()
-                .OfType<H2Generator>()
-                .Include(e => e.Registers)
-                .SingleOrDefault(e => e.Identifier == "Generator 2");
+            //var generator2 = this._context.ModbusDevices
+            //    .AsNoTracking()
+            //    .OfType<H2Generator>()
+            //    .Include(e => e.Registers)
+            //    .SingleOrDefault(e => e.Identifier == "Generator 2");
 
-            var generator3 = this._context.ModbusDevices
-                .AsNoTracking()
-                .OfType<H2Generator>()
-                .Include(e => e.Registers)
-                .SingleOrDefault(e => e.Identifier == "Generator 3");
+            //var generator3 = this._context.ModbusDevices
+            //    .AsNoTracking()
+            //    .OfType<H2Generator>()
+            //    .Include(e => e.Registers)
+            //    .SingleOrDefault(e => e.Identifier == "Generator 3");
 
-            var device = this._context.ModbusDevices
-                .AsNoTracking()
-                .OfType<GenericMonitorBox>()
-                .Include(e => e.Registers)
-                    .ThenInclude(reg=>reg.SensorType)
-                .SingleOrDefault(e => e.Identifier == "GasBay");
+            //var device = this._context.ModbusDevices
+            //    .AsNoTracking()
+            //    .OfType<GenericMonitorBox>()
+            //    .Include(e => e.Registers)
+            //        .ThenInclude(reg=>reg.SensorType)
+            //    .SingleOrDefault(e => e.Identifier == "GasBay");
 
-            serviceCollection.AddLogging(configure => { configure.AddFile(); configure.AddConsole(); });
+            var controller = this._context.GetNHController("AmmoniaController",false);
+
+            var generator1 = this._context.GetGenerator("Generator 1",false);
+
+            var generator2 = this._context.GetGenerator("Generator 2", false);
+
+            var generator3 = this._context.GetGenerator("Generator 3", false);
+
+            var device = this._context.GetMonitorBox("GasBay", false);
+
+            serviceCollection.AddLogging(configure => { configure.AddFile(); configure.AddConsole();});
+            serviceCollection.AddTransient<IAddGeneratorReading,AddGeneratorReading>();
+            serviceCollection.AddTransient<IAddNHControllerReading,AddNHControllerReading >();
+            serviceCollection.AddTransient<IAddMonitorBoxReading,AddMonitorBoxReading>();
+            serviceCollection.AddTransient<IAddDeviceReading, AddDeviceReading>();
             this._serviceProvider = serviceCollection.BuildServiceProvider();
 
             this._logger = this._serviceProvider.GetService<ILogger<DeviceController>>();
