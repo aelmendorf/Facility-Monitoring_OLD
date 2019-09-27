@@ -9,12 +9,14 @@ using System.Threading.Tasks.Dataflow;
 using System.Timers;
 using System.Collections.Generic;
 using System.Text;
+using FacilityMonitoring.Common.DataLayer;
 
 namespace FacilityMonitoring.Common.Hardware {
     public class MonitorBoxOperations : IGenericBoxOperations {
         private IModbusOperations _modbus;
         private readonly ILogger _logger;
         private readonly BufferBlock<IDeviceOperations> _bufferBlock;
+        private IAddDeviceReading _addReading;
         private Timer _timer;
         private TimeSpan _saveInterval;
         private DateTime _lastSave;
@@ -33,11 +35,12 @@ namespace FacilityMonitoring.Common.Hardware {
             set => this._timer=value;
         }
 
-        public MonitorBoxOperations(BufferBlock<IDeviceOperations> buffer,GenericMonitorBox box,ILogger<MonitorBoxOperations> logger) {
+        public MonitorBoxOperations(BufferBlock<IDeviceOperations> buffer,GenericMonitorBox box,ILogger<MonitorBoxOperations> logger,IAddDeviceReading addread) {
             this._bufferBlock = buffer;
             this._device = box;
             this._modbus = new ModbusOperations(this._device.IpAddress, this._device.Port, this._device.SlaveAddress);
             this._logger = logger;
+            this._addReading = addread;
             this.ReadInterval = box.ReadInterval*1000;
             this.SaveInterval = box.SaveInterval*1000;
             this._saveInterval = new TimeSpan(0, 0, (int)box.SaveInterval);
@@ -220,66 +223,74 @@ namespace FacilityMonitoring.Common.Hardware {
 
         }
 
-        public bool Save() {
-            try {
-                using var context = new FacilityContext();
-                var device = context.ModbusDevices.Find(this._device.Id);
-                if (device != null) {
-                    this._device.LastRead.GenericMonitorBoxId = this._device.Id;
-                    context.GenericBoxAlerts.Add(this._device.LastRead.GenericMonitorBoxAlert);
-                    context.GenericBoxReadings.Add(this._device.LastRead);
-                    context.Entry<ModbusDevice>(device).State = EntityState.Modified;
-                    context.SaveChanges();
-                    this._logger.LogInformation("{0} Save Succeeded, In-Memory Read: {1}", this.Device.Identifier, this._device.BoxReadings.Count);
-                    return true;
-                } else {
-                    this._logger.LogError("{0} Device Not Found", this.Device.Identifier);
-                    return false;
-                }
-
-            } catch (Exception e) {
-                StringBuilder builder = new StringBuilder();
-                builder.AppendFormat("{0} Save Failed", this.Device.Identifier)
-                    .AppendFormat("Exception: {0}", e.Message).AppendLine();
-                if (e.InnerException != null) {
-                    builder.AppendFormat("Inner Exception: {0}", e.InnerException.Message).AppendLine();
-                }
-
-                this._logger.LogError(builder.ToString());
-                return false;
-            }
-        }
-
         public async Task<bool> SaveAsync() {
-            try {
-                using var context = new FacilityContext();
-                var device = await context.ModbusDevices.FindAsync(this._device.Id);
-                if (device != null) {
-                    this._device.LastRead.GenericMonitorBoxId = this._device.Id;
-                    context.GenericBoxAlerts.Add(this._device.LastRead.GenericMonitorBoxAlert);
-                    context.GenericBoxReadings.Add(this._device.LastRead);
-                    context.Entry<ModbusDevice>(device).State = EntityState.Modified;
-                    await context.SaveChangesAsync();
-                    this._logger.LogInformation("{0} Save Succeeded, In-Memory Read: {1}", this.Device.Identifier, this._device.BoxReadings.Count);
-                    return true;
-                } else {
-                    this._logger.LogError("{0} Device Not Found", this.Device.Identifier);
-                    return false;
-                }
-
-            } catch (Exception e) {
-                StringBuilder builder = new StringBuilder();
-                builder.AppendFormat("{0} Save Failed", this.Device.Identifier)
-                    .AppendFormat("Exception: {0}", e.Message).AppendLine();
-                if (e.InnerException != null) {
-                    builder.AppendFormat("Inner Exception: {0}", e.InnerException.Message).AppendLine();
-                }
-
-                this._logger.LogError(builder.ToString());
-                return false;
-            }
+            return await this._addReading.AddReadingAsync(this._device);
         }
 
-        
+        public bool Save() {
+            return this._addReading.AddReading(this._device);
+        }
+
+        //public bool Save() {
+        //    try {
+        //        using var context = new FacilityContext();
+        //        var device = context.ModbusDevices.Find(this._device.Id);
+        //        if (device != null) {
+        //            this._device.LastRead.GenericMonitorBoxId = this._device.Id;
+        //            context.GenericBoxAlerts.Add(this._device.LastRead.GenericMonitorBoxAlert);
+        //            context.GenericBoxReadings.Add(this._device.LastRead);
+        //            context.Entry<ModbusDevice>(device).State = EntityState.Modified;
+        //            context.SaveChanges();
+        //            this._logger.LogInformation("{0} Save Succeeded, In-Memory Read: {1}", this.Device.Identifier, this._device.BoxReadings.Count);
+        //            return true;
+        //        } else {
+        //            this._logger.LogError("{0} Device Not Found", this.Device.Identifier);
+        //            return false;
+        //        }
+
+        //    } catch (Exception e) {
+        //        StringBuilder builder = new StringBuilder();
+        //        builder.AppendFormat("{0} Save Failed", this.Device.Identifier)
+        //            .AppendFormat("Exception: {0}", e.Message).AppendLine();
+        //        if (e.InnerException != null) {
+        //            builder.AppendFormat("Inner Exception: {0}", e.InnerException.Message).AppendLine();
+        //        }
+
+        //        this._logger.LogError(builder.ToString());
+        //        return false;
+        //    }
+        //}
+
+        //public async Task<bool> SaveAsync() {
+        //    try {
+        //        using var context = new FacilityContext();
+        //        var device = await context.ModbusDevices.FindAsync(this._device.Id);
+        //        if (device != null) {
+        //            this._device.LastRead.GenericMonitorBoxId = this._device.Id;
+        //            context.GenericBoxAlerts.Add(this._device.LastRead.GenericMonitorBoxAlert);
+        //            context.GenericBoxReadings.Add(this._device.LastRead);
+        //            context.Entry<ModbusDevice>(device).State = EntityState.Modified;
+        //            await context.SaveChangesAsync();
+        //            this._logger.LogInformation("{0} Save Succeeded, In-Memory Read: {1}", this.Device.Identifier, this._device.BoxReadings.Count);
+        //            return true;
+        //        } else {
+        //            this._logger.LogError("{0} Device Not Found", this.Device.Identifier);
+        //            return false;
+        //        }
+
+        //    } catch (Exception e) {
+        //        StringBuilder builder = new StringBuilder();
+        //        builder.AppendFormat("{0} Save Failed", this.Device.Identifier)
+        //            .AppendFormat("Exception: {0}", e.Message).AppendLine();
+        //        if (e.InnerException != null) {
+        //            builder.AppendFormat("Inner Exception: {0}", e.InnerException.Message).AppendLine();
+        //        }
+
+        //        this._logger.LogError(builder.ToString());
+        //        return false;
+        //    }
+        //}
+
+
     }
 }

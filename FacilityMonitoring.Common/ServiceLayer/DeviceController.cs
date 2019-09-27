@@ -19,8 +19,6 @@ namespace FacilityMonitoring.Common.ServiceLayer {
     public class DeviceController {
         private FacilityContext _context;
         private BufferBlock<IDeviceOperations> _operationQueue;
-        private Timer _timer;
-        private Timer _genTime1, _genTime2, _genTime3, _boxTime, _nhTime;
         private List<IDeviceOperations> _deviceOperations;
         private IServiceProvider _serviceProvider;
         private ILogger _logger;
@@ -35,45 +33,14 @@ namespace FacilityMonitoring.Common.ServiceLayer {
         public async Task Start() {
             var serviceCollection = new ServiceCollection();
 
-            //var controller = this._context.ModbusDevices
-            //    .AsNoTracking()
-            //    .OfType<AmmoniaController>()
-            //    .SingleOrDefault(e => e.Identifier == "AmmoniaController");
+            //var controller = this._context.GetNHController("AmmoniaController",false);
+            //var generator1 = this._context.GetGenerator("Generator 1",false);
+            //var generator2 = this._context.GetGenerator("Generator 2", false);
+            //var generator3 = this._context.GetGenerator("Generator 3", false);
+            //var device = this._context.GetMonitorBox("GasBay", false);
 
-            //var generator1 = this._context.ModbusDevices
-            //    .AsNoTracking()
-            //    .OfType<H2Generator>()
-            //    .Include(e => e.Registers)
-            //    .SingleOrDefault(e => e.Identifier == "Generator 1");
+            var devices = this._context.GetAllDevices();
 
-            //var generator2 = this._context.ModbusDevices
-            //    .AsNoTracking()
-            //    .OfType<H2Generator>()
-            //    .Include(e => e.Registers)
-            //    .SingleOrDefault(e => e.Identifier == "Generator 2");
-
-            //var generator3 = this._context.ModbusDevices
-            //    .AsNoTracking()
-            //    .OfType<H2Generator>()
-            //    .Include(e => e.Registers)
-            //    .SingleOrDefault(e => e.Identifier == "Generator 3");
-
-            //var device = this._context.ModbusDevices
-            //    .AsNoTracking()
-            //    .OfType<GenericMonitorBox>()
-            //    .Include(e => e.Registers)
-            //        .ThenInclude(reg=>reg.SensorType)
-            //    .SingleOrDefault(e => e.Identifier == "GasBay");
-
-            var controller = this._context.GetNHController("AmmoniaController",false);
-
-            var generator1 = this._context.GetGenerator("Generator 1",false);
-
-            var generator2 = this._context.GetGenerator("Generator 2", false);
-
-            var generator3 = this._context.GetGenerator("Generator 3", false);
-
-            var device = this._context.GetMonitorBox("GasBay", false);
 
             serviceCollection.AddLogging(configure => { configure.AddFile(); configure.AddConsole();});
             serviceCollection.AddTransient<IAddGeneratorReading,AddGeneratorReading>();
@@ -81,16 +48,18 @@ namespace FacilityMonitoring.Common.ServiceLayer {
             serviceCollection.AddTransient<IAddMonitorBoxReading,AddMonitorBoxReading>();
             serviceCollection.AddTransient<IAddDeviceReading, AddDeviceReading>();
             this._serviceProvider = serviceCollection.BuildServiceProvider();
-
             this._logger = this._serviceProvider.GetService<ILogger<DeviceController>>();
 
-            //this._logger.LogInformation("{0}:Memory Before Init: {1}", DateTime.Now, GC.GetTotalMemory(false));
 
-            this._deviceOperations.Add(DeviceOperationFactory.OperationFactory(this._operationQueue,controller, this._serviceProvider));
-            this._deviceOperations.Add(DeviceOperationFactory.OperationFactory(this._operationQueue, generator1, this._serviceProvider));
-            this._deviceOperations.Add(DeviceOperationFactory.OperationFactory(this._operationQueue, generator2, this._serviceProvider));
-            this._deviceOperations.Add(DeviceOperationFactory.OperationFactory(this._operationQueue, generator3, this._serviceProvider));
-            this._deviceOperations.Add(DeviceOperationFactory.OperationFactory(this._operationQueue, device, this._serviceProvider));
+            this._context.ModbusDevices.AsNoTracking().ToList().ForEach(device => {
+                this._deviceOperations.Add(DeviceOperationFactory.OperationFactory(this._context,this._operationQueue,device ,this._serviceProvider));
+            });
+
+            //this._deviceOperations.Add(DeviceOperationFactory.OperationFactory(this._operationQueue,controller, this._serviceProvider));
+            //this._deviceOperations.Add(DeviceOperationFactory.OperationFactory(this._operationQueue, generator1, this._serviceProvider));
+            //this._deviceOperations.Add(DeviceOperationFactory.OperationFactory(this._operationQueue, generator2, this._serviceProvider));
+            //this._deviceOperations.Add(DeviceOperationFactory.OperationFactory(this._operationQueue, generator3, this._serviceProvider));
+            //this._deviceOperations.Add(DeviceOperationFactory.OperationFactory(this._operationQueue, device, this._serviceProvider));
 
             foreach(var dev in this._deviceOperations) {
                 await dev.Start();

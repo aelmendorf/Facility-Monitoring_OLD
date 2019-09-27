@@ -10,11 +10,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks.Dataflow;
 using System.Timers;
+using FacilityMonitoring.Common.DataLayer;
 
 namespace FacilityMonitoring.Common.Hardware {
     public class AmmoniaControllerOperations : IAmmoniaOperations {
         private AmmoniaController _device { get; set; }
         private IModbusOperations _modbus;
+        private IAddDeviceReading _addReading;
         private readonly ILogger _logger;
         private readonly BufferBlock<IDeviceOperations> _bufferBlock;
         private Timer _timer;
@@ -34,11 +36,12 @@ namespace FacilityMonitoring.Common.Hardware {
             set => this._timer = value;
         }
 
-        public AmmoniaControllerOperations(BufferBlock<IDeviceOperations> buffer,AmmoniaController device,ILogger<AmmoniaControllerOperations> logger) {
+        public AmmoniaControllerOperations(BufferBlock<IDeviceOperations> buffer,AmmoniaController device,ILogger<AmmoniaControllerOperations> logger, IAddDeviceReading addread) {
             this._device = device;
             this._modbus = new ModbusOperations(this._device.IpAddress, this._device.Port,this._device.SlaveAddress);
             this._logger = logger;
             this._bufferBlock = buffer;
+            this._addReading = addread;
             this.ReadInterval = 2000;
             this.SaveInterval = 10000;
             this._saveInterval = new TimeSpan(0, 0, 10);
@@ -247,63 +250,71 @@ namespace FacilityMonitoring.Common.Hardware {
             return await this._modbus.WriteSingleCoilAsync(this._device.CalModeAddr, on_off);
         }
 
-        public bool Save() {
-            using var context = new FacilityContext();
-            var device = context.ModbusDevices.Find(this._device.Id);
-            if (device != null) {
-                this._device.LastRead.AmmoniaControllerId = this._device.Id;
-                //device.Readings.Add(this._device.LastRead);
-                context.Entry<ModbusDevice>(device).State = EntityState.Modified;
-                context.AmmoniaControllerReadings.Add(this._device.LastRead);
-            } else {
-                this._logger.LogError("{0} Device Not Found", this.Device.Identifier);
-                return false;
-            }
-            try {
-                context.SaveChanges();
-                this._logger.LogInformation("{0} Save Succeeded", this.Device.Identifier);
-                return true;
-            } catch (Exception e) {
-                StringBuilder builder = new StringBuilder();
-                builder.AppendFormat("{0} Save Failed", this.Device.Identifier)
-                    .AppendFormat("Exception: {0}", e.Message).AppendLine();
-                if (e.InnerException != null) {
-                    builder.AppendFormat("Inner Exception: {0}", e.InnerException.Message).AppendLine();
-                }
-
-                this._logger.LogError(builder.ToString());
-                return false;
-            }
-        }
-
         public async Task<bool> SaveAsync() {
-            try {
-                using var context = new FacilityContext();
-                var device = await context.ModbusDevices.FindAsync(this._device.Id);
-                if (device != null) {
-                    this._device.LastRead.AmmoniaControllerId = this._device.Id;
-
-                    context.Entry<ModbusDevice>(device).State = EntityState.Modified;
-                    context.AmmoniaControllerReadings.Add(this._device.LastRead);
-                    context.AmmoniaControllerAlerts.Add(this._device.LastRead.AmmoniaControllerAlert);
-                    await context.SaveChangesAsync();
-                    this._logger.LogInformation("{0} Save Succeeded", this.Device.Identifier);
-                    return true;
-                } else {
-                    this._logger.LogError("{0} Device Not Found", this.Device.Identifier);
-                    return false;
-                }
-            } catch(Exception e) {
-                StringBuilder builder = new StringBuilder();
-                builder.AppendFormat("{0} Save Failed", this.Device.Identifier)
-                    .AppendFormat("Exception: {0}",e.Message).AppendLine();
-                if (e.InnerException != null) {
-                    builder.AppendFormat("Inner Exception: {0}", e.InnerException.Message).AppendLine();
-                }
-
-                this._logger.LogError(builder.ToString());
-                return false;
-            }
+            return await this._addReading.AddReadingAsync(this._device);
         }
+
+        public bool Save() {
+            return  this._addReading.AddReading(this._device);
+        }
+
+        //public bool Save() {
+        //    using var context = new FacilityContext();
+        //    var device = context.ModbusDevices.Find(this._device.Id);
+        //    if (device != null) {
+        //        this._device.LastRead.AmmoniaControllerId = this._device.Id;
+        //        //device.Readings.Add(this._device.LastRead);
+        //        context.Entry<ModbusDevice>(device).State = EntityState.Modified;
+        //        context.AmmoniaControllerReadings.Add(this._device.LastRead);
+        //    } else {
+        //        this._logger.LogError("{0} Device Not Found", this.Device.Identifier);
+        //        return false;
+        //    }
+        //    try {
+        //        context.SaveChanges();
+        //        this._logger.LogInformation("{0} Save Succeeded", this.Device.Identifier);
+        //        return true;
+        //    } catch (Exception e) {
+        //        StringBuilder builder = new StringBuilder();
+        //        builder.AppendFormat("{0} Save Failed", this.Device.Identifier)
+        //            .AppendFormat("Exception: {0}", e.Message).AppendLine();
+        //        if (e.InnerException != null) {
+        //            builder.AppendFormat("Inner Exception: {0}", e.InnerException.Message).AppendLine();
+        //        }
+
+        //        this._logger.LogError(builder.ToString());
+        //        return false;
+        //    }
+        //}
+
+        //public async Task<bool> SaveAsync() {
+        //    try {
+        //        using var context = new FacilityContext();
+        //        var device = await context.ModbusDevices.FindAsync(this._device.Id);
+        //        if (device != null) {
+        //            this._device.LastRead.AmmoniaControllerId = this._device.Id;
+
+        //            context.Entry<ModbusDevice>(device).State = EntityState.Modified;
+        //            context.AmmoniaControllerReadings.Add(this._device.LastRead);
+        //            context.AmmoniaControllerAlerts.Add(this._device.LastRead.AmmoniaControllerAlert);
+        //            await context.SaveChangesAsync();
+        //            this._logger.LogInformation("{0} Save Succeeded", this.Device.Identifier);
+        //            return true;
+        //        } else {
+        //            this._logger.LogError("{0} Device Not Found", this.Device.Identifier);
+        //            return false;
+        //        }
+        //    } catch(Exception e) {
+        //        StringBuilder builder = new StringBuilder();
+        //        builder.AppendFormat("{0} Save Failed", this.Device.Identifier)
+        //            .AppendFormat("Exception: {0}",e.Message).AppendLine();
+        //        if (e.InnerException != null) {
+        //            builder.AppendFormat("Inner Exception: {0}", e.InnerException.Message).AppendLine();
+        //        }
+
+        //        this._logger.LogError(builder.ToString());
+        //        return false;
+        //    }
+        //}
     }
 }

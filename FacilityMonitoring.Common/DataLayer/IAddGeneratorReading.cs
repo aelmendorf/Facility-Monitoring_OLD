@@ -20,13 +20,13 @@ namespace FacilityMonitoring.Common.DataLayer {
     }
 
     public interface IAddMonitorBoxReading {
-        Task<bool> AddReadingAsync(GenericMonitorBox generator);
-        bool AddReading(GenericMonitorBox generator);
+        Task<bool> AddReadingAsync(GenericMonitorBox monitorBox);
+        bool AddReading(GenericMonitorBox monitorBox);
     }
 
     public interface IAddNHControllerReading {
-        Task<bool> AddReadingAsync(AmmoniaController generator);
-        bool AddReading(AmmoniaController generator);
+        Task<bool> AddReadingAsync(AmmoniaController controller);
+        bool AddReading(AmmoniaController controller);
     }
 
     public class AddDeviceReading : IAddDeviceReading {
@@ -75,8 +75,64 @@ namespace FacilityMonitoring.Common.DataLayer {
             this._logger = logger;
         }
 
-        public bool AddReading(AmmoniaController generator) => throw new NotImplementedException();
-        public Task<bool> AddReadingAsync(AmmoniaController generator) => throw new NotImplementedException();
+        public bool AddReading(AmmoniaController controller) {
+            using var context = new FacilityContext();
+            var device = context.ModbusDevices.Find(controller.Id);
+            if (device != null) {
+                controller.LastRead.AmmoniaControllerId = controller.Id;
+                context.Entry<ModbusDevice>(device).State = EntityState.Modified;
+                context.AmmoniaControllerReadings.Add(controller.LastRead);
+            } else {
+                this._logger.LogError("{0} Device Not Found", controller.Identifier);
+                return false;
+            }
+            try {
+                context.SaveChanges();
+                this._logger.LogInformation("{0} Save Succeeded", controller.Identifier);
+                return true;
+            } catch (Exception e) {
+                StringBuilder builder = new StringBuilder();
+                builder.AppendFormat("{0} Save Failed", controller.Identifier)
+                    .AppendFormat("Exception: {0}", e.Message).AppendLine();
+                if (e.InnerException != null) {
+                    builder.AppendFormat("Inner Exception: {0}", e.InnerException.Message).AppendLine();
+                }
+
+                this._logger.LogError(builder.ToString());
+                return false;
+            }
+
+        }
+
+        public async Task<bool> AddReadingAsync(AmmoniaController controller) {
+            try {
+                using var context = new FacilityContext();
+                var device = await context.ModbusDevices.FindAsync(controller.Id);
+                if (device != null) {
+                    controller.LastRead.AmmoniaControllerId = controller.Id;
+
+                    context.Entry<ModbusDevice>(device).State = EntityState.Modified;
+                    context.AmmoniaControllerReadings.Add(controller.LastRead);
+                    context.AmmoniaControllerAlerts.Add(controller.LastRead.AmmoniaControllerAlert);
+                    await context.SaveChangesAsync();
+                    this._logger.LogInformation("{0} Save Succeeded", controller.Identifier);
+                    return true;
+                } else {
+                    this._logger.LogError("{0} Device Not Found", controller.Identifier);
+                    return false;
+                }
+            } catch (Exception e) {
+                StringBuilder builder = new StringBuilder();
+                builder.AppendFormat("{0} Save Failed", controller.Identifier)
+                    .AppendFormat("Exception: {0}", e.Message).AppendLine();
+                if (e.InnerException != null) {
+                    builder.AppendFormat("Inner Exception: {0}", e.InnerException.Message).AppendLine();
+                }
+
+                this._logger.LogError(builder.ToString());
+                return false;
+            }
+        }
     }
 
     public class AddMonitorBoxReading : IAddMonitorBoxReading {
@@ -86,10 +142,66 @@ namespace FacilityMonitoring.Common.DataLayer {
             this._logger = logger;
         }
 
-        public bool AddReading(GenericMonitorBox generator) => throw new NotImplementedException();
-        public Task<bool> AddReadingAsync(GenericMonitorBox generator) => throw new NotImplementedException();
-    }
+        public bool AddReading(GenericMonitorBox monitorBox) {
+            try {
+                using var context = new FacilityContext();
+                var device = context.ModbusDevices.Find(monitorBox.Id);
+                if (device != null) {
+                    monitorBox.LastRead.GenericMonitorBoxId = monitorBox.Id;
+                    context.GenericBoxAlerts.Add(monitorBox.LastRead.GenericMonitorBoxAlert);
+                    context.GenericBoxReadings.Add(monitorBox.LastRead);
+                    context.Entry<ModbusDevice>(device).State = EntityState.Modified;
+                    context.SaveChanges();
+                    this._logger.LogInformation("{0} Save Succeeded, In-Memory Read: {1}", monitorBox.Identifier, monitorBox.BoxReadings.Count);
+                    return true;
+                } else {
+                    this._logger.LogError("{0} Device Not Found", monitorBox.Identifier);
+                    return false;
+                }
 
+            } catch (Exception e) {
+                StringBuilder builder = new StringBuilder();
+                builder.AppendFormat("{0} Save Failed", monitorBox.Identifier)
+                    .AppendFormat("Exception: {0}", e.Message).AppendLine();
+                if (e.InnerException != null) {
+                    builder.AppendFormat("Inner Exception: {0}", e.InnerException.Message).AppendLine();
+                }
+
+                this._logger.LogError(builder.ToString());
+                return false;
+            }
+        }
+
+        public async Task<bool> AddReadingAsync(GenericMonitorBox monitorBox) {
+            try {
+                using var context = new FacilityContext();
+                var device = await context.ModbusDevices.FindAsync(monitorBox.Id);
+                if (device != null) {
+                    monitorBox.LastRead.GenericMonitorBoxId = monitorBox.Id;
+                    context.GenericBoxAlerts.Add(monitorBox.LastRead.GenericMonitorBoxAlert);
+                    context.GenericBoxReadings.Add(monitorBox.LastRead);
+                    context.Entry<ModbusDevice>(device).State = EntityState.Modified;
+                    await context.SaveChangesAsync();
+                    this._logger.LogInformation("{0} Save Succeeded, In-Memory Read: {1}", monitorBox.Identifier, monitorBox.BoxReadings.Count);
+                    return true;
+                } else {
+                    this._logger.LogError("{0} Device Not Found", monitorBox.Identifier);
+                    return false;
+                }
+
+            } catch (Exception e) {
+                StringBuilder builder = new StringBuilder();
+                builder.AppendFormat("{0} Save Failed", monitorBox.Identifier)
+                    .AppendFormat("Exception: {0}", e.Message).AppendLine();
+                if (e.InnerException != null) {
+                    builder.AppendFormat("Inner Exception: {0}", e.InnerException.Message).AppendLine();
+                }
+
+                this._logger.LogError(builder.ToString());
+                return false;
+            }
+        }
+    }
 
     public class AddGeneratorReading : IAddGeneratorReading {
         private readonly ILogger _logger;
@@ -157,10 +269,13 @@ namespace FacilityMonitoring.Common.DataLayer {
                 if (e.InnerException != null) {
                     builder.AppendFormat("Inner Exception: {0}", e.InnerException.Message).AppendLine();
                 }
-
                 this._logger.LogError(builder.ToString());
                 return false;
             }
         }
     }
+
+
+
+
 }
