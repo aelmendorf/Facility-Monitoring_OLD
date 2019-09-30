@@ -13,11 +13,11 @@ namespace FacilityMonitoring.Common.ServiceLayer {
         public static IDeviceOperations OperationFactory(FacilityContext context,BufferBlock<IDeviceOperations> buffer, ModbusDevice device, IServiceProvider serviceProvider) {
             Type type = device.GetType();
             if (type == typeof(GenericMonitorBox)) {
-                return new MonitorBoxOperations(buffer,context.GetMonitorBox(device.Identifier,false),serviceProvider.GetService<ILogger<MonitorBoxOperations>>(),, serviceProvider.GetService<IAddDeviceReading>());
+                return new MonitorBoxOperations(buffer,context.GetMonitorBox(device.Identifier,false),serviceProvider.GetService<ILogger<MonitorBoxOperations>>(), serviceProvider.GetService<IAddDeviceReading>());
             } else if (type == typeof(H2Generator)) {
                 return new GeneratorOperations(buffer, context.GetGenerator(device.Identifier, false), serviceProvider.GetService<ILogger<GeneratorOperations>>(),serviceProvider.GetService<IAddDeviceReading>());
             } else if (type == typeof(AmmoniaController)) {
-                return new AmmoniaControllerOperations(buffer,context.GetNHController(device.Identifier, false), serviceProvider.GetService<ILogger<AmmoniaControllerOperations>>(),, serviceProvider.GetService<IAddDeviceReading>());
+                return new AmmoniaControllerOperations(buffer,context.GetNHController(device.Identifier, false), serviceProvider.GetService<ILogger<AmmoniaControllerOperations>>(),serviceProvider.GetService<IAddDeviceReading>());
             } else {
                 return null;
             }

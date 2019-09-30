@@ -32,16 +32,7 @@ namespace FacilityMonitoring.Common.ServiceLayer {
 
         public async Task Start() {
             var serviceCollection = new ServiceCollection();
-
-            //var controller = this._context.GetNHController("AmmoniaController",false);
-            //var generator1 = this._context.GetGenerator("Generator 1",false);
-            //var generator2 = this._context.GetGenerator("Generator 2", false);
-            //var generator3 = this._context.GetGenerator("Generator 3", false);
-            //var device = this._context.GetMonitorBox("GasBay", false);
-
             var devices = this._context.GetAllDevices();
-
-
             serviceCollection.AddLogging(configure => { configure.AddFile(); configure.AddConsole();});
             serviceCollection.AddTransient<IAddGeneratorReading,AddGeneratorReading>();
             serviceCollection.AddTransient<IAddNHControllerReading,AddNHControllerReading >();
@@ -54,12 +45,6 @@ namespace FacilityMonitoring.Common.ServiceLayer {
             this._context.ModbusDevices.AsNoTracking().ToList().ForEach(device => {
                 this._deviceOperations.Add(DeviceOperationFactory.OperationFactory(this._context,this._operationQueue,device ,this._serviceProvider));
             });
-
-            //this._deviceOperations.Add(DeviceOperationFactory.OperationFactory(this._operationQueue,controller, this._serviceProvider));
-            //this._deviceOperations.Add(DeviceOperationFactory.OperationFactory(this._operationQueue, generator1, this._serviceProvider));
-            //this._deviceOperations.Add(DeviceOperationFactory.OperationFactory(this._operationQueue, generator2, this._serviceProvider));
-            //this._deviceOperations.Add(DeviceOperationFactory.OperationFactory(this._operationQueue, generator3, this._serviceProvider));
-            //this._deviceOperations.Add(DeviceOperationFactory.OperationFactory(this._operationQueue, device, this._serviceProvider));
 
             foreach(var dev in this._deviceOperations) {
                 await dev.Start();

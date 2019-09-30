@@ -213,12 +213,14 @@ namespace FacilityMonitoring.Common.DataLayer {
         public async Task<bool> AddReadingAsync(H2Generator generator) {
             try {
                 using var context = new FacilityContext();
-                var device = await context.ModbusDevices.FindAsync(generator.Id);
+                var device = await context.ModbusDevices.FindAsync(generator.Id) as H2Generator;
                 if (device != null) {
                     generator.LastRead.GeneratorId = generator.Id;
                     context.GeneratorSystemErrors.Add(generator.LastRead.AllSystemErrors);
                     context.GeneratorSystemWarnings.Add(generator.LastRead.AllSystemWarnings);
                     //generator.H2Readings.Add(generator.LastRead);
+                    device.SystemState = generator.LastRead.SystemState;
+                    device.OperationMode = generator.LastRead.OperationMode;
                     generator.SystemState = generator.LastRead.SystemState;
                     generator.OperationMode = generator.LastRead.OperationMode;
                     context.Entry(device).State = EntityState.Modified;
