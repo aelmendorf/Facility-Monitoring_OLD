@@ -10,7 +10,7 @@ namespace FacilityMonitoring.ConsoleTesting {
     class Program2 {
         static async Task Main(string[] args) {
             var connection = new HubConnectionBuilder()
-                .WithUrl("https://localhost:5001/hubs/monitor")
+                .WithUrl("https://172.20.1.61:443/hubs/monitor")
                 .Build();
 
 

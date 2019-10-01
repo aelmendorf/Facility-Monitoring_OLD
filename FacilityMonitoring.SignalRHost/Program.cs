@@ -25,6 +25,10 @@ namespace FacilityMonitoring.SignalRHost {
                 services.AddTransient<IAddDeviceReading, AddDeviceReading>();
                 services.AddHostedService<MonitorBoxBackground>();
             }).ConfigureWebHostDefaults(webBuilder=> {
+                webBuilder.UseHttpSys(options =>
+                {
+                    options.UrlPrefixes.Add("https://172.20.1.61:443");
+                });
                 webBuilder.UseStartup<Startup>();
             });
     }
