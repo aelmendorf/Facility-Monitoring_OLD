@@ -1,22 +1,13 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Linq;
-using System.Net.NetworkInformation;
-using System.Net.Sockets;
-using System.Timers;
 using FacilityMonitoring.Common.Model;
 using Microsoft.EntityFrameworkCore;
-using Console_Table;
-using System.Collections.Generic;
 using System.Text;
-using FacilityMonitoring.Common.Hardware;
 using System.Reflection;
-using FacilityMonitoring.Common.Data;
 using System.IO;
 using FacilityMonitoring.Common.Harware;
 
-namespace FacilityMonitoring.ConsoleTesting
-{
+namespace FacilityMonitoring.ConsoleTesting {
     class Program {
 
         static void Main(string[] args) {

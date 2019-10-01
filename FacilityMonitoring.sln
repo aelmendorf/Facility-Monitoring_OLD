@@ -20,6 +20,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Assemblies", "Assemblies", 
 		Assembiles\NModbus4.pdb = Assembiles\NModbus4.pdb
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FacilityMonitoring.HubServer", "FacilityMonitoring.HubServer\FacilityMonitoring.HubServer.csproj", "{65669CDA-34FC-4433-BDA7-D062BFF0CFF9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FacilityMonitoring.SignalRHost", "FacilityMonitoring.SignalRHost\FacilityMonitoring.SignalRHost.csproj", "{ECB022DA-F9E5-4874-8DA6-236A718CD5AA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -34,6 +38,14 @@ Global
 		{0F5FB984-2424-4BB4-A34E-8F376FB301E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0F5FB984-2424-4BB4-A34E-8F376FB301E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0F5FB984-2424-4BB4-A34E-8F376FB301E4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{65669CDA-34FC-4433-BDA7-D062BFF0CFF9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{65669CDA-34FC-4433-BDA7-D062BFF0CFF9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{65669CDA-34FC-4433-BDA7-D062BFF0CFF9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{65669CDA-34FC-4433-BDA7-D062BFF0CFF9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ECB022DA-F9E5-4874-8DA6-236A718CD5AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ECB022DA-F9E5-4874-8DA6-236A718CD5AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ECB022DA-F9E5-4874-8DA6-236A718CD5AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ECB022DA-F9E5-4874-8DA6-236A718CD5AA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -41,6 +53,8 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{1A2AD572-BB03-47CB-B0E7-D6FBD26AD89D} = {4C8F3F0C-B913-4AA7-8BC4-8CBEB6BF0DED}
 		{0F5FB984-2424-4BB4-A34E-8F376FB301E4} = {4C8F3F0C-B913-4AA7-8BC4-8CBEB6BF0DED}
+		{65669CDA-34FC-4433-BDA7-D062BFF0CFF9} = {DD41F26A-EC6E-4465-AE17-BA0B28D99A56}
+		{ECB022DA-F9E5-4874-8DA6-236A718CD5AA} = {DD41F26A-EC6E-4465-AE17-BA0B28D99A56}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F1F8E3AC-EC08-4D85-A0AB-BCC0D5AAAFD7}

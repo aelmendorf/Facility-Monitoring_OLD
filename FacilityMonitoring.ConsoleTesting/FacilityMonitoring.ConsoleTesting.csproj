@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.0</TargetFramework>
-    <StartupObject>FacilityMonitoring.ConsoleTesting.ProgramAsync</StartupObject>
+    <StartupObject>FacilityMonitoring.ConsoleTesting.Program2</StartupObject>
     <ApplicationIcon />
   </PropertyGroup>
 
@@ -21,6 +21,7 @@
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.0.0" />
     <PackageReference Include="NetEscapades.Extensions.Logging.RollingFile" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="3.0.0"/>
   </ItemGroup>
 
   <ItemGroup>

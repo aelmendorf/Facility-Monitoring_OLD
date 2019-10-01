@@ -241,6 +241,7 @@ namespace FacilityMonitoring.Common.Model {
         public bool Bypass { get; set; }
         public string PropertyMap { get; set; }
         public LogicType Logic { get; set; }
+        public bool Display { get; set; }
 
         public int DeviceId { get; set; }
         public virtual ModbusDevice Device { get; set; }

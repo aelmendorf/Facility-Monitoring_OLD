@@ -5,12 +5,12 @@ using System.Text;
 namespace FacilityMonitoring.Common.Server {
     public static class Strings {
 
-        //public static string HubUrl= "https://localhost:44376/hubs/monitor";
+        public static string HubUrl = "https://localhost:5001/hubs/monitor";
 
-        //public static class Events {
-        //    public static string ReadingSent => nameof(IFacilityAmmoniaReading.BroadcastReading);
-        //    public static string AllReadingSent => nameof(IFacilityAmmoniaReading.BroadcastAllTanks);
-        //    public static string GetAllTanksSent => nameof(IFacilityAmmoniaReading.GetAllTanks);
-        //}
+        public static class Events {
+            public static string ReadingSent => nameof(IMonitorBoxHub.SendMonitorBoxReading);
+            //public static string AllReadingSent => nameof(IFacilityAmmoniaReading.BroadcastAllTanks);
+            //public static string GetAllTanksSent => nameof(IFacilityAmmoniaReading.GetAllTanks);
+        }
     }
 }
