@@ -12,11 +12,11 @@ namespace FacilityMonitoring.Common.Server {
     }
 
     public interface IGeneratorHub {
-        Task SendGeneratorReading(WebData data);
+        Task SendGeneratorReading(string data);
     }
 
     public interface IMonitorBoxHub {
-        Task SendMonitorBoxReading(WebData data);
+        Task SendMonitorBoxReading(string data);
     }
 
     public interface IAmmoniaControllerHub {
@@ -24,7 +24,7 @@ namespace FacilityMonitoring.Common.Server {
     }
 
     public class MonitorBoxHub : Hub<IMonitorBoxHub> {
-        public async Task SendMonitorBoxReading(WebData data) {
+        public async Task SendMonitorBoxReading(string data) {
             await Clients.All.SendMonitorBoxReading(data);
         }
     }

@@ -203,6 +203,70 @@ namespace FacilityMonitoring.Common.DataLayer {
         }
     }
 
+    public class MonitorBoxReadingAdd : IAddMonitorBoxReading {
+
+
+        public MonitorBoxReadingAdd() {
+
+        }
+
+        public bool AddReading(GenericMonitorBox monitorBox) {
+            try {
+                using var context = new FacilityContext();
+                var device = context.ModbusDevices.Find(monitorBox.Id);
+                if (device != null) {
+                    monitorBox.LastRead.GenericMonitorBoxId = monitorBox.Id;
+                    context.GenericBoxAlerts.Add(monitorBox.LastRead.GenericMonitorBoxAlert);
+                    context.GenericBoxReadings.Add(monitorBox.LastRead);
+                    context.Entry<ModbusDevice>(device).State = EntityState.Modified;
+                    context.SaveChanges();
+
+                    return true;
+                } else {
+
+                    return false;
+                }
+
+            } catch (Exception e) {
+                StringBuilder builder = new StringBuilder();
+                builder.AppendFormat("{0} Save Failed", monitorBox.Identifier)
+                    .AppendFormat("Exception: {0}", e.Message).AppendLine();
+                if (e.InnerException != null) {
+                    builder.AppendFormat("Inner Exception: {0}", e.InnerException.Message).AppendLine();
+                }
+                return false;
+            }
+        }
+
+        public async Task<bool> AddReadingAsync(GenericMonitorBox monitorBox) {
+            try {
+                using var context = new FacilityContext();
+                var device = await context.ModbusDevices.FindAsync(monitorBox.Id);
+                if (device != null) {
+                    monitorBox.LastRead.GenericMonitorBoxId = monitorBox.Id;
+                    context.GenericBoxAlerts.Add(monitorBox.LastRead.GenericMonitorBoxAlert);
+                    context.GenericBoxReadings.Add(monitorBox.LastRead);
+                    context.Entry<ModbusDevice>(device).State = EntityState.Modified;
+                    await context.SaveChangesAsync();
+
+                    return true;
+                } else {
+
+                    return false;
+                }
+
+            } catch (Exception e) {
+                StringBuilder builder = new StringBuilder();
+                builder.AppendFormat("{0} Save Failed", monitorBox.Identifier)
+                    .AppendFormat("Exception: {0}", e.Message).AppendLine();
+                if (e.InnerException != null) {
+                    builder.AppendFormat("Inner Exception: {0}", e.InnerException.Message).AppendLine();
+                }
+                return false;
+            }
+        }
+    }
+
     public class AddGeneratorReading : IAddGeneratorReading {
         private readonly ILogger _logger;
 
