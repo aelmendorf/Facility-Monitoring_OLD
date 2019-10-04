@@ -1,27 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using FacilityMonitoring.Common.Data;
 using FacilityMonitoring.Common.Model;
 using FacilityMonitoring.Common.Converters;
-using FacilityMonitoring.Common.Services.ModbusServices;
+using FacilityMonitoring.Common.Services;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using System.Threading.Tasks.Dataflow;
-using System.Timers;
 using FacilityMonitoring.Common.DataLayer;
 
 namespace FacilityMonitoring.Common.Hardware {
-    public class AmmoniaControllerOperations : IAmmoniaOperations {
+    public class NH3Controller : IAmmoniaOperations {
         private AmmoniaController _device { get; set; }
         private IModbusOperations _modbus;
-        private IAddDeviceReading _addReading;
-        private readonly ILogger _logger;
-        private readonly BufferBlock<IDeviceOperations> _bufferBlock;
-        private Timer _timer;
+        private AddNHControllerReading _addReading;
         private TimeSpan _saveInterval;
         private DateTime _lastSave;
+
+        public string Data { get; set; }
 
         public double ReadInterval { get; set; }
         public double SaveInterval { get; set; }
@@ -31,44 +25,35 @@ namespace FacilityMonitoring.Common.Hardware {
             private set => this._device = (AmmoniaController)value;
         }
 
-        public Timer DeviceTimer {
-            get => this._timer;
-            set => this._timer = value;
-        }
-
-        public AmmoniaControllerOperations(BufferBlock<IDeviceOperations> buffer,AmmoniaController device,ILogger<AmmoniaControllerOperations> logger, IAddDeviceReading addread) {
+        public NH3Controller(AmmoniaController device) {
             this._device = device;
             this._modbus = new ModbusOperations(this._device.IpAddress, this._device.Port,this._device.SlaveAddress);
-            this._logger = logger;
-            this._bufferBlock = buffer;
-            this._addReading = addread;
-            this.ReadInterval = 2000;
-            this.SaveInterval = 10000;
-            this._saveInterval = new TimeSpan(0, 0, 10);
-            this._timer = new Timer();
+            this._addReading = new AddNHControllerReading();
+            this.ReadInterval = device.ReadInterval;
+            this.SaveInterval = device.SaveInterval;
+            this._saveInterval = new TimeSpan(0, 0, (int)this._device.SaveInterval);
+            this.Data = "";
         }
 
-        public async Task Start() {
+        public async Task StartAsync() {
             await this.ReadAsync();
             await this.SaveAsync();
-            this._lastSave = DateTime.Now;
-            this._timer.Interval = this.ReadInterval;
-            this._timer.Elapsed += this._timer_Elapsed;
-            this._timer.AutoReset = true;
-            this._timer.Start();
+            this.ResetSaveTimer();
         }
 
-        private async void _timer_Elapsed(object sender, ElapsedEventArgs e) {
-            this._timer.Enabled = false;
-            var succeeded=await this.ReadAsync();
-            if ((DateTime.Now - this._lastSave).TotalSeconds > this._saveInterval.TotalSeconds) {
-                if (succeeded) {
-                    await this.SaveAsync();
-                    this._lastSave = DateTime.Now;
-                }
-            }
-            await this._bufferBlock.SendAsync(this);
-            this._timer.Enabled = true;
+        public void Start() {
+            this.Read();
+            this.Save();
+            this.ResetSaveTimer();
+        }
+
+
+        public bool CheckSaveTime() {
+            return (DateTime.Now - this._lastSave).TotalSeconds > this._saveInterval.TotalSeconds;
+        }
+
+        public void ResetSaveTimer() {
+            this._lastSave = DateTime.Now;
         }
 
         public bool Read() {
@@ -137,10 +122,9 @@ namespace FacilityMonitoring.Common.Hardware {
                     alert.Tank4Alert = GenericAlert.NONE;
                 }
                 this._device.LastRead = reading;
-                this._logger.LogInformation("{0} Read Succeeded", this.Device.Identifier);
+                this.Data = "Tank 1 Weight: " + this._device.LastRead.Tank1Weight.ToString();
                 return true;
             } else {
-                this._logger.LogError("{0} Read Failed", this.Device.Identifier);
                 return false;
             }
         }
@@ -173,7 +157,6 @@ namespace FacilityMonitoring.Common.Hardware {
                 } else {
                     alert.Tank1Alert = GenericAlert.NONE;
                 }
-
 
                 if (this._device.Tank2AlertEnabled) {
                     if (reading.Tank2Weight <= this._device.AlarmSetPoint) {
@@ -211,10 +194,9 @@ namespace FacilityMonitoring.Common.Hardware {
                     alert.Tank4Alert = GenericAlert.NONE;
                 }
                 this._device.LastRead = reading;
-                this._logger.LogInformation("{0} Read Succeeded", this.Device.Identifier);
+                this.Data = "Tank 1 Weight: " + this._device.LastRead.Tank1Weight.ToString();
                 return true;
             } else {
-                this._logger.LogError("{0} Read Failed", this.Device.Identifier);
                 return false;
             }
         }
@@ -257,64 +239,5 @@ namespace FacilityMonitoring.Common.Hardware {
         public bool Save() {
             return  this._addReading.AddReading(this._device);
         }
-
-        //public bool Save() {
-        //    using var context = new FacilityContext();
-        //    var device = context.ModbusDevices.Find(this._device.Id);
-        //    if (device != null) {
-        //        this._device.LastRead.AmmoniaControllerId = this._device.Id;
-        //        //device.Readings.Add(this._device.LastRead);
-        //        context.Entry<ModbusDevice>(device).State = EntityState.Modified;
-        //        context.AmmoniaControllerReadings.Add(this._device.LastRead);
-        //    } else {
-        //        this._logger.LogError("{0} Device Not Found", this.Device.Identifier);
-        //        return false;
-        //    }
-        //    try {
-        //        context.SaveChanges();
-        //        this._logger.LogInformation("{0} Save Succeeded", this.Device.Identifier);
-        //        return true;
-        //    } catch (Exception e) {
-        //        StringBuilder builder = new StringBuilder();
-        //        builder.AppendFormat("{0} Save Failed", this.Device.Identifier)
-        //            .AppendFormat("Exception: {0}", e.Message).AppendLine();
-        //        if (e.InnerException != null) {
-        //            builder.AppendFormat("Inner Exception: {0}", e.InnerException.Message).AppendLine();
-        //        }
-
-        //        this._logger.LogError(builder.ToString());
-        //        return false;
-        //    }
-        //}
-
-        //public async Task<bool> SaveAsync() {
-        //    try {
-        //        using var context = new FacilityContext();
-        //        var device = await context.ModbusDevices.FindAsync(this._device.Id);
-        //        if (device != null) {
-        //            this._device.LastRead.AmmoniaControllerId = this._device.Id;
-
-        //            context.Entry<ModbusDevice>(device).State = EntityState.Modified;
-        //            context.AmmoniaControllerReadings.Add(this._device.LastRead);
-        //            context.AmmoniaControllerAlerts.Add(this._device.LastRead.AmmoniaControllerAlert);
-        //            await context.SaveChangesAsync();
-        //            this._logger.LogInformation("{0} Save Succeeded", this.Device.Identifier);
-        //            return true;
-        //        } else {
-        //            this._logger.LogError("{0} Device Not Found", this.Device.Identifier);
-        //            return false;
-        //        }
-        //    } catch(Exception e) {
-        //        StringBuilder builder = new StringBuilder();
-        //        builder.AppendFormat("{0} Save Failed", this.Device.Identifier)
-        //            .AppendFormat("Exception: {0}",e.Message).AppendLine();
-        //        if (e.InnerException != null) {
-        //            builder.AppendFormat("Inner Exception: {0}", e.InnerException.Message).AppendLine();
-        //        }
-
-        //        this._logger.LogError(builder.ToString());
-        //        return false;
-        //    }
-        //}
     }
 }

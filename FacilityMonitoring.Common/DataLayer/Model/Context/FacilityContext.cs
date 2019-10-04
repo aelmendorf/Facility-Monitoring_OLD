@@ -18,6 +18,14 @@ namespace FacilityMonitoring.Common.Model {
                     .Include(e => e.Registers)
                     .SingleOrDefault(e => e.Identifier == identifier));
 
+        private static Func<FacilityContext, string, QueryTrackingBehavior, Task<List<H2Generator>>> _getGeneratorsAsync =
+        EF.CompileAsyncQuery((FacilityContext context, string identifier, QueryTrackingBehavior tracking) =>
+            context.ModbusDevices
+            .AsNoTracking()
+            .OfType<H2Generator>()
+            .Include(e => e.Registers)
+            .ToList());
+
         private static Func<FacilityContext, string, QueryTrackingBehavior, H2Generator> _getGenerator =
                 EF.CompileQuery((FacilityContext context, string identifier, QueryTrackingBehavior tracking) =>
                     context.ModbusDevices

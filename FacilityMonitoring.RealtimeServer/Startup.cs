@@ -1,8 +1,11 @@
 ﻿using FacilityMonitoring.Common.DataLayer;
 using FacilityMonitoring.Common.Hardware;
+using FacilityMonitoring.Common.Model;
 using FacilityMonitoring.Common.Server;
+using FacilityMonitoring.Common.ServiceLayer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
@@ -13,16 +16,31 @@ using System.Threading.Tasks;
 namespace FacilityMonitoring.RealtimeServer {
     public class Startup {
         public void ConfigureServices(IServiceCollection services) {
-            // Only required if the service uses Razor Pages.
-            //services.AddRazorPages()
-            //    .AddNewtonsoftJson();
             services.AddSignalR();
-            services.AddHostedService<Worker>();
+            using var context = new FacilityContext();
+            var box = context.GetMonitorBox("GasBay", false);
+            var generator1 = context.GetGenerator("Generator 1", false);
+
+            if (box != null) {
+                MonitorBoxController controller = new MonitorBoxController(box);
+                services.AddSingleton<MonitorBoxController>(controller);
+
+            } else {
+                throw new Exception("Error: Specific Monitor Box Not Found");
+            }
+
+            if (generator1 != null) {
+                GeneratorController controller = new GeneratorController(generator1);
+                services.AddSingleton<GeneratorController>(controller);
+            } else {
+                throw new Exception("Error: Specific Generator Not Found");
+            }
+
+            services.AddHostedService<MonitorHubService>();
+            services.AddHostedService<GeneratorHubService>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env) {
-            // This pipeline is only required if the service uses Razor Pages.
-
             if (env.IsDevelopment()) {
                 app.UseDeveloperExceptionPage();
             } else {
@@ -33,7 +51,9 @@ namespace FacilityMonitoring.RealtimeServer {
             app.UseRouting();
 
             app.UseEndpoints(endpoints => {
+                //app.ApplicationServices.GetServices<>
                 endpoints.MapHub<MonitorBoxHub>("/hubs/monitor");
+                endpoints.MapHub<GeneratorHub>("/hubs/generator");
             });
         }
     }

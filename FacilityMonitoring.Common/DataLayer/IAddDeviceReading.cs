@@ -69,10 +69,8 @@ namespace FacilityMonitoring.Common.DataLayer {
     }
 
     public class AddNHControllerReading : IAddNHControllerReading {
-        private readonly ILogger _logger;
+        public AddNHControllerReading() {
 
-        public AddNHControllerReading(ILogger<IAddGeneratorReading> logger) {
-            this._logger = logger;
         }
 
         public bool AddReading(AmmoniaController controller) {
@@ -83,12 +81,11 @@ namespace FacilityMonitoring.Common.DataLayer {
                 context.Entry<ModbusDevice>(device).State = EntityState.Modified;
                 context.AmmoniaControllerReadings.Add(controller.LastRead);
             } else {
-                this._logger.LogError("{0} Device Not Found", controller.Identifier);
                 return false;
             }
             try {
                 context.SaveChanges();
-                this._logger.LogInformation("{0} Save Succeeded", controller.Identifier);
+
                 return true;
             } catch (Exception e) {
                 StringBuilder builder = new StringBuilder();
@@ -97,8 +94,6 @@ namespace FacilityMonitoring.Common.DataLayer {
                 if (e.InnerException != null) {
                     builder.AppendFormat("Inner Exception: {0}", e.InnerException.Message).AppendLine();
                 }
-
-                this._logger.LogError(builder.ToString());
                 return false;
             }
 
@@ -115,10 +110,8 @@ namespace FacilityMonitoring.Common.DataLayer {
                     context.AmmoniaControllerReadings.Add(controller.LastRead);
                     context.AmmoniaControllerAlerts.Add(controller.LastRead.AmmoniaControllerAlert);
                     await context.SaveChangesAsync();
-                    this._logger.LogInformation("{0} Save Succeeded", controller.Identifier);
                     return true;
                 } else {
-                    this._logger.LogError("{0} Device Not Found", controller.Identifier);
                     return false;
                 }
             } catch (Exception e) {
@@ -128,8 +121,6 @@ namespace FacilityMonitoring.Common.DataLayer {
                 if (e.InnerException != null) {
                     builder.AppendFormat("Inner Exception: {0}", e.InnerException.Message).AppendLine();
                 }
-
-                this._logger.LogError(builder.ToString());
                 return false;
             }
         }
@@ -268,10 +259,8 @@ namespace FacilityMonitoring.Common.DataLayer {
     }
 
     public class AddGeneratorReading : IAddGeneratorReading {
-        private readonly ILogger _logger;
 
-        public AddGeneratorReading(ILogger<IAddGeneratorReading> logger) {
-            this._logger = logger;
+        public AddGeneratorReading() {
         }
 
         public async Task<bool> AddReadingAsync(H2Generator generator) {
@@ -290,7 +279,6 @@ namespace FacilityMonitoring.Common.DataLayer {
                     context.Entry(device).State = EntityState.Modified;
                     context.H2GenReadings.Add(generator.LastRead);
                     await context.SaveChangesAsync();
-                    this._logger.LogInformation("{0} Save Succeeded, In-Memory Read: {1}", generator.Identifier, generator.H2Readings.Count);
                     //GC.Collect();
                     return true;
                 } else {
@@ -303,8 +291,6 @@ namespace FacilityMonitoring.Common.DataLayer {
                 if (e.InnerException != null) {
                     builder.AppendFormat("Inner Exception: {0}", e.InnerException.Message).AppendLine();
                 }
-
-                this._logger.LogError(builder.ToString());
                 return false;
             }
         }
@@ -322,7 +308,6 @@ namespace FacilityMonitoring.Common.DataLayer {
                     context.Entry(device).State = EntityState.Modified;
                     context.H2GenReadings.Add(generator.LastRead);
                     context.SaveChanges();
-                    this._logger.LogInformation("{0} Save Succeeded, In-Memory Read: {1}", generator.Identifier, generator.H2Readings.Count);
                     //GC.Collect();
                     return true;
                 } else {
@@ -335,7 +320,6 @@ namespace FacilityMonitoring.Common.DataLayer {
                 if (e.InnerException != null) {
                     builder.AppendFormat("Inner Exception: {0}", e.InnerException.Message).AppendLine();
                 }
-                this._logger.LogError(builder.ToString());
                 return false;
             }
         }

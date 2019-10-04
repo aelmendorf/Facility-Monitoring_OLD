@@ -1,6 +1,5 @@
 ﻿using FacilityMonitoring.Common.Hardware;
 using FacilityMonitoring.Common.Model;
-using FacilityMonitoring.Common.Services.ModbusServices;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -16,12 +15,7 @@ using FacilityMonitoring.Common.ServiceLayer;
 
 namespace FacilityMonitoring.ConsoleTesting {
     class ProgramAsync {
-        static async Task<int> Main(string[] args) {
-            DeviceController controller = new DeviceController();
-            await controller.Start();
-            await controller.Run();
-            return 0;
-        }
+
     }
 
 

@@ -41,6 +41,7 @@ namespace FacilityMonitoring.ConsoleTesting {
                 })
                 .ConfigureServices((services) => {
                     services.AddHostedService<MonitorHubClient>();
+                    services.AddHostedService<GeneratorHubClient>();
                 })
                 .Build();
 
