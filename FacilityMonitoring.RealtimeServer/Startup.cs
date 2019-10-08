@@ -2,6 +2,7 @@
 using FacilityMonitoring.Common.Hardware;
 using FacilityMonitoring.Common.Model;
 using FacilityMonitoring.Common.Server;
+using FacilityMonitoring.Common.Server.Services;
 using FacilityMonitoring.Common.ServiceLayer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -17,27 +18,10 @@ namespace FacilityMonitoring.RealtimeServer {
     public class Startup {
         public void ConfigureServices(IServiceCollection services) {
             services.AddSignalR();
-            using var context = new FacilityContext();
-            var box = context.GetMonitorBox("GasBay", false);
-            var generator1 = context.GetGenerator("Generator 1", false);
-
-            if (box != null) {
-                MonitorBoxController controller = new MonitorBoxController(box);
-                services.AddSingleton<MonitorBoxController>(controller);
-
-            } else {
-                throw new Exception("Error: Specific Monitor Box Not Found");
-            }
-
-            if (generator1 != null) {
-                GeneratorController controller = new GeneratorController(generator1);
-                services.AddSingleton<GeneratorController>(controller);
-            } else {
-                throw new Exception("Error: Specific Generator Not Found");
-            }
-
-            services.AddHostedService<MonitorHubService>();
-            services.AddHostedService<GeneratorHubService>();
+            services.AddTransient<FacilityContext>(provider=> {
+                return new FacilityContext();
+            });
+            services.AddHostedService<GeneratorsHubService>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env) {
@@ -52,9 +36,35 @@ namespace FacilityMonitoring.RealtimeServer {
 
             app.UseEndpoints(endpoints => {
                 //app.ApplicationServices.GetServices<>
-                endpoints.MapHub<MonitorBoxHub>("/hubs/monitor");
+                //endpoints.MapHub<MonitorBoxHub>("/hubs/monitor");
                 endpoints.MapHub<GeneratorHub>("/hubs/generator");
             });
         }
     }
 }
+
+
+//public void ConfigureServices(IServiceCollection services) {
+//    services.AddSignalR();
+//    using var context = new FacilityContext();
+//    var box = context.GetMonitorBox("GasBay", false);
+//    var generator1 = context.GetGenerator("Generator 1", false);
+
+//    if (box != null) {
+//        MonitorBoxController controller = new MonitorBoxController(box);
+//        services.AddSingleton<MonitorBoxController>(controller);
+
+//    } else {
+//        throw new Exception("Error: Specific Monitor Box Not Found");
+//    }
+
+//    if (generator1 != null) {
+//        GeneratorController controller = new GeneratorController(generator1);
+//        services.AddSingleton<GeneratorController>(controller);
+//    } else {
+//        throw new Exception("Error: Specific Generator Not Found");
+//    }
+
+//    services.AddHostedService<MonitorHubService>();
+//    services.AddHostedService<GeneratorHubService>();
+//}

@@ -34,7 +34,7 @@ namespace FacilityMonitoring.RealtimeServer {
         private async void TimerHandler(object state) {
             this._logger.LogInformation("{0}:MonitorBoxHub Service Read,Broadcast, and Save", DateTime.Now);
             await this._controller.ReadAsync();
-            await this._monitorHub.Clients.All.SendMonitorBoxReading(this._controller.Data);
+            await this._monitorHub.Clients.All.RecieveAutoBoxReading(this._controller.Data);
             if (this._controller.CheckSaveTime()) {
                 await this._controller.SaveAsync();
                 this._controller.ResetSaveTimer();

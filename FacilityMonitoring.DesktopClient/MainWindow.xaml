@@ -1,0 +1,14 @@
+﻿<Window x:Class="FacilityMonitoring.DesktopClient.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:FacilityMonitoring.DesktopClient"
+        mc:Ignorable="d" Title="MainWindow" Height="454" Width="549">
+    <Grid>
+        <Button x:Name="connectButton" Content="Connect" HorizontalAlignment="Left" Margin="150,124,0,0" VerticalAlignment="Top" Width="95" Height="41" Click="connectButton_Click" />
+        <Button x:Name="getReading" Content="Get Reading" HorizontalAlignment="Left" Margin="320,124,0,0" VerticalAlignment="Top" Width="94" Height="41" Click="getReading_Click" />
+        <ListBox x:Name="messagesList" HorizontalAlignment="Left" Height="247" Margin="82,170,0,0" VerticalAlignment="Top" Width="438" RenderTransformOrigin="-0.304,0.109" BorderThickness="1" BorderBrush="#FF171414"/>
+
+    </Grid>
+</Window>
