@@ -4,31 +4,42 @@ using System.Threading.Tasks;
 using FacilityMonitoring.Common.Converters;
 using FacilityMonitoring.Common.DataLayer;
 using FacilityMonitoring.Common.Model;
+using FacilityMonitoring.Common.Server;
 using FacilityMonitoring.Common.Services;
+using Microsoft.AspNetCore.SignalR;
 
 namespace FacilityMonitoring.Common.Hardware {
-    public class GeneratorController : IGeneratorOperations {
-
+    public class GeneratorOperations : IGeneratorOperations {
         private H2Generator _device { get; set; }
         private IModbusOperations _modbus;
         private AddGeneratorReading _addReading;
         private TimeSpan _saveInterval;
+        private TimeSpan _readInterval;
         private DateTime _lastSave;
+        private H2GenReading _lastReading;
         public string Data { get; set; }
 
-        public double ReadInterval { get; set; }
-        public double SaveInterval { get; set; }
+        public H2GenReading LastReading { 
+            get=>this._lastReading;
+        }
+
+        public double ReadInterval { 
+            get=>this._readInterval.TotalSeconds; 
+        }
+
+        public double SaveInterval { 
+            get=>this._saveInterval.TotalSeconds; 
+        }
 
         public ModbusDevice Device {
             get => this._device;
             private set => this._device = (H2Generator)value;
         }
 
-        public GeneratorController(H2Generator generator) {
+        public GeneratorOperations(H2Generator generator) {
             this._device = generator;
-            this.ReadInterval = generator.ReadInterval;
-            this.SaveInterval = generator.SaveInterval;
             this._saveInterval = new TimeSpan(0, 0, (int)generator.SaveInterval);
+            this._readInterval = new TimeSpan(0, 0, (int)generator.ReadInterval);
             this._modbus = new ModbusOperations(this._device.IpAddress, this._device.Port, this._device.SlaveAddress);
             this._addReading = new AddGeneratorReading();
             this.Data = "";
@@ -39,7 +50,6 @@ namespace FacilityMonitoring.Common.Hardware {
             await this.SaveAsync();
             this.ResetSaveTimer();
         }
-
 
         public void Start() {
             this.Read();
@@ -55,7 +65,7 @@ namespace FacilityMonitoring.Common.Hardware {
             this._lastSave = DateTime.Now;
         }
 
-        public bool Read() {
+        public string Read() {
             H2GenReading reading = new H2GenReading();
             reading.TimeStamp = DateTime.Now;
             foreach (var register in this._device.Registers.OfType<GeneratorRegister>()) {
@@ -66,7 +76,7 @@ namespace FacilityMonitoring.Common.Hardware {
                             reading[register.PropertyMap] = reading[register.PropertyMap] = RegisterConverters.GetH2RegisterValue(register, coilData: coils);
                         } else {
 
-                            return false;
+                            return string.Empty;
                         }
                         break;
                     }
@@ -79,7 +89,7 @@ namespace FacilityMonitoring.Common.Hardware {
                             if (value != null) {
                                 reading[register.PropertyMap] = value;
                             } else {
-                                return false;
+                                return string.Empty;
                             }
                         }
                         break;
@@ -93,11 +103,12 @@ namespace FacilityMonitoring.Common.Hardware {
                 }
             }
             this._device.LastRead = reading;
-            this.Data = this._device.Identifier + "SystemPressure: " + this._device.LastRead.SystemPressure;
-            return true;
+            this._lastReading = reading;
+            this.Data = this._device.Identifier + " SystemPressure: " + this._device.LastRead.SystemPressure;
+            return this.Data;
         }
 
-        public async Task<bool> ReadAsync() {
+        public async Task<string> ReadAsync() {
             H2GenReading reading = new H2GenReading();
             reading.TimeStamp = DateTime.Now;
             foreach (var register in this._device.Registers.OfType<GeneratorRegister>()) {
@@ -107,7 +118,7 @@ namespace FacilityMonitoring.Common.Hardware {
                         if (coils != null) {
                             reading[register.PropertyMap] = reading[register.PropertyMap] = RegisterConverters.GetH2RegisterValue(register, coilData: coils);
                         } else {
-                            return false;
+                            return string.Empty;
                         }
                         break;
                     }
@@ -120,7 +131,7 @@ namespace FacilityMonitoring.Common.Hardware {
                             if (value != null) {
                                 reading[register.PropertyMap] = value;
                             } else {
-                                return false;
+                                return string.Empty;
                             }
                         }
                         break;
@@ -136,16 +147,25 @@ namespace FacilityMonitoring.Common.Hardware {
             }
             this._device.LastRead = reading;
             this.Data = this._device.Identifier + "SystemPressure: " + this._device.LastRead.SystemPressure;
-            return true;
+            return this.Data;
         }
 
         public bool Save() {
-            return this._addReading.AddReading(this._device);
+            if (this._addReading.AddReading(this._device)) {
+                this.ResetSaveTimer();
+                return true;
+            } else {
+                return false;
+            }
         }
 
         public async Task<bool> SaveAsync() {
-            return await this._addReading.AddReadingAsync(this._device);
+            if (await this._addReading.AddReadingAsync(this._device)) {
+                this.ResetSaveTimer();
+                return true;
+            } else {
+                return false;
+            }
         }
     }
-
 }

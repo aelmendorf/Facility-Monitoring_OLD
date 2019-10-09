@@ -8,14 +8,15 @@ using System.Threading.Tasks;
 
 namespace FacilityMonitoring.Common.Services {
     public interface IDeviceOperations {
-        double ReadInterval { get; set; }
-        double SaveInterval { get; set; }
+        double ReadInterval { get; }
+        double SaveInterval { get; }
+        string Data { get; }
         Task StartAsync();
         void Start();
 
         ModbusDevice Device { get;}
-        bool Read();
-        Task<bool> ReadAsync();
+        string Read();
+        Task<string> ReadAsync();
         bool Save();
         Task<bool> SaveAsync();
         bool CheckSaveTime();
@@ -23,7 +24,7 @@ namespace FacilityMonitoring.Common.Services {
     }
 
     public interface IGenericBoxOperations : IDeviceOperations {
-
+        GenericBoxReading LastReading { get; }
         bool SetAlarm(bool on_off);
         Task<bool> SetAlarmAsync(bool on_off);
         bool SetWarning(bool on_off);
@@ -33,7 +34,7 @@ namespace FacilityMonitoring.Common.Services {
     }
 
     public interface IAmmoniaOperations:IDeviceOperations {
-
+        AmmoniaControllerReading LastReading { get; }
         bool SetCalibration(AmmoniaCalibrationData data);
         Task<bool> SetCalibrationAsync(AmmoniaCalibrationData data);
         bool SetCalibrationMode(bool on_off);
@@ -41,7 +42,7 @@ namespace FacilityMonitoring.Common.Services {
     }
 
     public interface IGeneratorOperations: IDeviceOperations {
-
+        H2GenReading LastReading { get; }
     }
 
     public interface IDeviceController {

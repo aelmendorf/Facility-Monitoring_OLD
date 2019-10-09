@@ -10,27 +10,39 @@ using FacilityMonitoring.Common.Services;
 namespace FacilityMonitoring.Common.Hardware {
 
 
-    public class MonitorBoxController:IDeviceOperations  {
+    public class MonitorBoxOperations:IGenericBoxOperations  {
         private IModbusOperations _modbus;
         private MonitorBoxReadingAdd _addReading;
         private TimeSpan _saveInterval;
+        private TimeSpan _readInterval;
         private DateTime _lastSave;
+        private GenericBoxReading _lastReading;
+
         private GenericMonitorBox _device;
 
         public string Data { get; set; }
-        public double ReadInterval { get; set; }
-        public double SaveInterval { get; set; }
+
+        public GenericBoxReading LastReading {
+            get => this._lastReading;
+        }
+
+        public double ReadInterval {
+            get => this._readInterval.TotalSeconds;
+        }
+
+        public double SaveInterval {
+            get => this._saveInterval.TotalSeconds;
+        }
 
         public ModbusDevice Device {
             get => this._device;
             private set => this._device = (GenericMonitorBox)value;
         }
 
-        public MonitorBoxController(GenericMonitorBox box) {
+        public MonitorBoxOperations(GenericMonitorBox box) {
             this._device = box;
-            this.ReadInterval = box.ReadInterval;
-            this.SaveInterval = box.SaveInterval;
             this._saveInterval = new TimeSpan(0, 0, (int)box.SaveInterval);
+            this._readInterval = new TimeSpan(0, 0, (int)box.ReadInterval);
             this._modbus = new ModbusOperations(this._device.IpAddress, this._device.Port, this._device.SlaveAddress);
             this._addReading = new MonitorBoxReadingAdd();
             this.Data = "";
@@ -56,7 +68,7 @@ namespace FacilityMonitoring.Common.Hardware {
             this._lastSave = DateTime.Now;
         }
 
-        public bool Read() {
+        public string Read() {
             int regCount = this._device.AnalogChannelCount + this._device.DigitalOutputChannelCount;
             var data = this._modbus.ReadRegistersAndCoils(0, regCount, 0, this._device.DigitalInputChannelCount);
             if (data != null) {
@@ -107,14 +119,15 @@ namespace FacilityMonitoring.Common.Hardware {
                 this._device.LastRead = reading;
                 this._device.LastRead.GenericMonitorBoxAlert = alert;
                 this._device.LastRead.GenericMonitorBoxAlert.GenericMonitorBoxReading = this._device.LastRead;
+                this._lastReading = this._device.LastRead;
                 this.Data = DateTime.Now.ToString() + ":::Reading: " + reading.AnalogCh6.ToString();
-                return true;
+                return this.Data;
             } else {
-                return false;
+                return string.Empty;
             }
         }
 
-        public async Task<bool> ReadAsync() {
+        public async Task<string> ReadAsync() {
             int regCount = this._device.AnalogChannelCount + this._device.DigitalOutputChannelCount;
             var data = await this._modbus.ReadRegistersAndCoilsAsync(0, regCount, 0, this._device.DigitalInputChannelCount);
             if (data != null) {
@@ -165,10 +178,11 @@ namespace FacilityMonitoring.Common.Hardware {
                 this._device.LastRead = reading;
                 this._device.LastRead.GenericMonitorBoxAlert = alert;
                 this._device.LastRead.GenericMonitorBoxAlert.GenericMonitorBoxReading = this._device.LastRead;
+                this._lastReading = this._device.LastRead;
                 this.Data =DateTime.Now.ToString()+":::Reading: "+reading.AnalogCh6.ToString();
-                return true;
+                return this.Data;
             } else {
-                return false;
+                return string.Empty;
             }
         }
 

@@ -35,6 +35,12 @@ namespace FacilityMonitoring.DesktopClient {
                 });
             });
 
+            this.connection.On<string>("RecieveErrorMessage", (message) => {
+                this.Dispatcher.Invoke(() => {
+                    this.messagesList.Items.Add(message);
+                });
+            });
+
             try {
                 await connection.StartAsync();
                 messagesList.Items.Add("Connection started");
@@ -47,9 +53,9 @@ namespace FacilityMonitoring.DesktopClient {
 
         private async void getReading_Click(object sender, RoutedEventArgs e) {
             try {
-                await connection.InvokeAsync("GetGeneratorReading",0);
-                await connection.InvokeAsync("GetGeneratorReading", 1);
+                await connection.InvokeAsync("GetGeneratorReading",1);
                 await connection.InvokeAsync("GetGeneratorReading", 2);
+                await connection.InvokeAsync("GetGeneratorReading", 3);
             } catch (Exception ex) {
                 messagesList.Items.Add(ex.Message);
             }

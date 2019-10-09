@@ -11,53 +11,43 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace FacilityMonitoring.Common.Server.Services {
-    public class GeneratorsHubService : IHubServicere {
+    public class GeneratorsHubService : IHubService {
         private readonly ILogger<GeneratorsHubService> _logger;
         private readonly IHubContext<GeneratorHub, IGeneratorHub> _monitorHub;
-        private List<GeneratorController> _controllers;
+        private IGeneratorCollectionController _controller;
         private readonly FacilityContext _context;
         private Timer _timer;
 
-        public GeneratorsHubService(ILogger<GeneratorsHubService> logger, IHubContext<GeneratorHub, IGeneratorHub> monitorHub,FacilityContext context) {
+        public GeneratorsHubService(ILogger<GeneratorsHubService> logger, IHubContext<GeneratorHub, IGeneratorHub> monitorHub,FacilityContext context,IGeneratorCollectionController controller) {
             this._logger = logger;
             this._context = context;
             this._monitorHub = monitorHub;
-            this._controllers = new List<GeneratorController>();
+            this._controller = controller;
         }
 
-        public List<GeneratorController> Controllers {
-            get;
-        }
 
         public async Task StartAsync(CancellationToken cancellationToken) {
-            var generators = this._context.ModbusDevices
-            .AsNoTracking()
-            .OfType<H2Generator>()
-            .Include(e => e.Registers).ToList();
-             //await this._context.GetAllGeneratorsAsync();
-            generators.ForEach(generator => {
-                var controller = (GeneratorController)DeviceOperationFactory.OperationFactory(this._context, generator);
-                if (controller != null) {
-                    this._controllers.Add(controller);
-                }
-            });
-
-            foreach(var generator in this._controllers) {
-                await generator.StartAsync();
-            }
-            this._timer = new Timer(TimerHandler, null, TimeSpan.Zero, TimeSpan.FromSeconds(this._controllers[0].ReadInterval));
+            await this._controller.StartAsync();
+            this._timer = new Timer(TimerHandler,null,TimeSpan.Zero, TimeSpan.FromSeconds(this._controller.ReadInterval));
             this._logger.LogInformation("{0}:GeneratorHubService Service Started", DateTime.Now);
         }
 
         public async void TimerHandler(object state) {
-            this._logger.LogInformation("{0}:GeneratorHubService Read,Broadcast, and Save", DateTime.Now);
-            foreach(var controller in this._controllers) {
-                await controller.ReadAsync();
-                await this._monitorHub.Clients.All.SendGeneratorReading(controller.Data);
-                if (controller.CheckSaveTime()) {
-                    await controller.SaveAsync();
-                    controller.ResetSaveTimer();
+           foreach (var operation in this._controller.Operations) {
+                List<Task> readTaskList = new List<Task>();
+                List<Task> saveTaskList = new List<Task>();
+                List<Task> broadcastTaskList = new List<Task>();
+                readTaskList.Add(operation.ReadAsync().ContinueWith(async (data) => {
+                    if (!string.IsNullOrEmpty(data.Result)) {
+                        await this._monitorHub.Clients.All.SendGeneratorReading(data.Result);
+                    }
+                }, TaskContinuationOptions.OnlyOnRanToCompletion));
+
+                if (operation.CheckSaveTime()) {
+                    saveTaskList.Add(operation.SaveAsync());
                 }
+                await Task.WhenAll(readTaskList);
+                await Task.WhenAll(saveTaskList);
             }
         }
 
@@ -65,6 +55,7 @@ namespace FacilityMonitoring.Common.Server.Services {
             await Task.Run(() => {
                 this._timer?.Change(Timeout.Infinite, 0);
             });
+            await this._controller.StopAsync();
             this._logger.LogInformation("{0}:GeneratorHubService Service Stopping", DateTime.Now);
         }
 
@@ -76,12 +67,12 @@ namespace FacilityMonitoring.Common.Server.Services {
     public class GeneratorHubService : IHubService {
         private readonly ILogger<GeneratorHubService> _logger;
         private readonly IHubContext<GeneratorHub, IGeneratorHub> _monitorHub;
-        private GeneratorController _controller;
+        private GeneratorOperations _controller;
         private Timer _timer;
 
         public IDeviceOperations Controller {
             get => this._controller;
-            private set => this._controller = value is GeneratorController ? (GeneratorController)value : null;
+            private set => this._controller = value is GeneratorOperations ? (GeneratorOperations)value : null;
         }
 
         public GeneratorHubService(ILogger<GeneratorHubService> logger, IHubContext<GeneratorHub, IGeneratorHub> monitorHub, IDeviceOperations controller) {

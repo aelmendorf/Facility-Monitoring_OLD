@@ -4,8 +4,10 @@ using FacilityMonitoring.Common.Model;
 using FacilityMonitoring.Common.Server;
 using FacilityMonitoring.Common.Server.Services;
 using FacilityMonitoring.Common.ServiceLayer;
+using FacilityMonitoring.Common.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -21,6 +23,7 @@ namespace FacilityMonitoring.RealtimeServer {
             services.AddTransient<FacilityContext>(provider=> {
                 return new FacilityContext();
             });
+            services.AddSingleton<IDeviceCollectionController,GeneratorCollectionController>();
             services.AddHostedService<GeneratorsHubService>();
         }
 

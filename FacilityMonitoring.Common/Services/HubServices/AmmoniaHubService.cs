@@ -5,6 +5,7 @@ using System.Threading.Tasks.Dataflow;
 using FacilityMonitoring.Common.Hardware;
 using FacilityMonitoring.Common.Server;
 using FacilityMonitoring.Common.ServiceLayer;
+using FacilityMonitoring.Common.Services;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -13,10 +14,10 @@ namespace FacilityMonitoring.Common.Server.Services {
     public class AmmoniaHubService:IHostedService,IDisposable {
         private readonly ILogger<AmmoniaHubService> _logger;
         private readonly IHubContext<AmmoniaControllerHub, IAmmoniaControllerHub> _monitorHub;
-        private NH3Controller _controller;
+        private AmmoniaOperations _controller;
         private Timer _timer;
 
-        public AmmoniaHubService(ILogger<AmmoniaHubService> logger, IHubContext<AmmoniaControllerHub, IAmmoniaControllerHub> monitorHub,NH3Controller controller) {
+        public AmmoniaHubService(ILogger<AmmoniaHubService> logger, IHubContext<AmmoniaControllerHub, IAmmoniaControllerHub> monitorHub,AmmoniaOperations controller) {
             this._logger = logger;
             this._controller = controller;
             _monitorHub = monitorHub;

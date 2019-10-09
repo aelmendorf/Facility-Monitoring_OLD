@@ -15,10 +15,10 @@ namespace FacilityMonitoring.RealtimeServer {
     {
         private readonly ILogger<MonitorHubService> _logger;
         private readonly IHubContext<MonitorBoxHub, IMonitorBoxHub> _monitorHub;
-        private MonitorBoxController _controller;
+        private MonitorBoxOperations _controller;
         private Timer _timer;
 
-        public MonitorHubService(ILogger<MonitorHubService> logger, IHubContext<MonitorBoxHub, IMonitorBoxHub> monitorHub, MonitorBoxController controller)
+        public MonitorHubService(ILogger<MonitorHubService> logger, IHubContext<MonitorBoxHub, IMonitorBoxHub> monitorHub, MonitorBoxOperations controller)
         {
             this._logger = logger;
             this._controller = controller;

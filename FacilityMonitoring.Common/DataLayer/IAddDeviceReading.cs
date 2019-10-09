@@ -260,25 +260,28 @@ namespace FacilityMonitoring.Common.DataLayer {
 
     public class AddGeneratorReading : IAddGeneratorReading {
 
+        private readonly FacilityContext _context;
+
         public AddGeneratorReading() {
+            this._context = new FacilityContext();
         }
 
         public async Task<bool> AddReadingAsync(H2Generator generator) {
             try {
-                using var context = new FacilityContext();
-                var device = await context.ModbusDevices.FindAsync(generator.Id) as H2Generator;
+                //using var this._context = new FacilityContext();
+                var device = await this._context.ModbusDevices.FindAsync(generator.Id) as H2Generator;
                 if (device != null) {
                     generator.LastRead.GeneratorId = generator.Id;
-                    context.GeneratorSystemErrors.Add(generator.LastRead.AllSystemErrors);
-                    context.GeneratorSystemWarnings.Add(generator.LastRead.AllSystemWarnings);
+                    this._context.GeneratorSystemErrors.Add(generator.LastRead.AllSystemErrors);
+                    this._context.GeneratorSystemWarnings.Add(generator.LastRead.AllSystemWarnings);
                     //generator.H2Readings.Add(generator.LastRead);
                     device.SystemState = generator.LastRead.SystemState;
                     device.OperationMode = generator.LastRead.OperationMode;
                     generator.SystemState = generator.LastRead.SystemState;
                     generator.OperationMode = generator.LastRead.OperationMode;
-                    context.Entry(device).State = EntityState.Modified;
-                    context.H2GenReadings.Add(generator.LastRead);
-                    await context.SaveChangesAsync();
+                    this._context.Entry(device).State = EntityState.Modified;
+                    this._context.H2GenReadings.Add(generator.LastRead);
+                    await this._context.SaveChangesAsync();
                     //GC.Collect();
                     return true;
                 } else {
@@ -297,17 +300,17 @@ namespace FacilityMonitoring.Common.DataLayer {
 
         public bool AddReading(H2Generator generator) {
             try {
-                using var context = new FacilityContext();
-                var device = context.ModbusDevices.Find(generator.Id);
+                //using var this._context = new FacilityContext();
+                var device = this._context.ModbusDevices.Find(generator.Id);
                 if (device != null) {
                     generator.LastRead.GeneratorId = generator.Id;
-                    context.GeneratorSystemErrors.Add(generator.LastRead.AllSystemErrors);
-                    context.GeneratorSystemWarnings.Add(generator.LastRead.AllSystemWarnings);
+                    this._context.GeneratorSystemErrors.Add(generator.LastRead.AllSystemErrors);
+                    this._context.GeneratorSystemWarnings.Add(generator.LastRead.AllSystemWarnings);
                     generator.SystemState = generator.LastRead.SystemState;
                     generator.OperationMode = generator.LastRead.OperationMode;
-                    context.Entry(device).State = EntityState.Modified;
-                    context.H2GenReadings.Add(generator.LastRead);
-                    context.SaveChanges();
+                    this._context.Entry(device).State = EntityState.Modified;
+                    this._context.H2GenReadings.Add(generator.LastRead);
+                    this._context.SaveChanges();
                     //GC.Collect();
                     return true;
                 } else {

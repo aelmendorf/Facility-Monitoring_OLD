@@ -13,10 +13,10 @@ namespace FacilityMonitoring.RealtimeServer {
     public class GeneratorHubService : IHostedService, IDisposable {
         private readonly ILogger<GeneratorHubService> _logger;
         private readonly IHubContext<GeneratorHub, IGeneratorHub> _monitorHub;
-        private GeneratorController _controller;
+        private GeneratorOperations _controller;
         private Timer _timer;
 
-        public GeneratorHubService(ILogger<GeneratorHubService> logger, IHubContext<GeneratorHub, IGeneratorHub> monitorHub,GeneratorController controller) {
+        public GeneratorHubService(ILogger<GeneratorHubService> logger, IHubContext<GeneratorHub, IGeneratorHub> monitorHub,GeneratorOperations controller) {
             this._logger = logger;
             this._controller = controller;
             this._monitorHub = monitorHub;

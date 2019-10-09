@@ -1,40 +1,55 @@
 ﻿using System.Threading.Tasks;
 using FacilityMonitoring.Common.Hardware;
 using FacilityMonitoring.Common.Model;
+using FacilityMonitoring.Common.Services;
 using Microsoft.AspNetCore.SignalR;
+using System.Linq;
 
 namespace FacilityMonitoring.Common.Server {
     public class MonitorBoxHub : Hub<IMonitorBoxHub> {
-        private readonly MonitorBoxController _controller;
+        private readonly IBoxCollectionController _controller;
 
-        public MonitorBoxHub(MonitorBoxController controller) {
+        public MonitorBoxHub(IBoxCollectionController controller) {
             this._controller = controller;
         }
 
-        public async Task SendMonitorBoxReading(string data) {
-            await Clients.All.RecieveAutoBoxReading(data);
+        public async Task SetMaintenance(string identifier,bool onOff) {
+            var operations=this._controller.Operations.FirstOrDefault(op=>op.Device.Identifier==identifier);
+            if (operations != null) {
+                var success=await operations.SetMaintenanceAsync(onOff);
+                await Clients.Caller.SetMaintenanceCallBack(success);
+            } else {
+                await Clients.Caller.RecieveErrorMessage("Error Switching Maintenance");
+            }
         }
 
-        [HubMethodName("SetMaintenanceOn")]
-        public async Task SetMaintenanceOn() {
-            bool success=await this._controller.SetWarningAsync(true);
-            await Clients.Caller.SwitchMaintenanceCallBack(success);
+        public async Task GetCurrentReading(string identifier) {
+            var operations = this._controller.Operations.FirstOrDefault(op => op.Device.Identifier == identifier);
+            if (operations != null) {
+                //Get last reading here
+                await Clients.Caller.RecieveReadingCallBack(operations.Data);
+            } else {
+                await Clients.Caller.RecieveErrorMessage("Error Retrieving Reading");
+            }
         }
 
-        [HubMethodName("GetCurrentReading")]
-        public async Task GetCurrentReading() {
-            //Call last reading here
-            await Clients.Caller.RecieveBoxReadingCallBack("Sent Requested");
+        public async Task GetAnalogChannelRaw(string identifier,int channel) {
+            var operations = this._controller.Operations.FirstOrDefault(op => op.Device.Identifier == identifier);
+            if (operations != null) {
+                await Clients.Caller.RecieveChannelRawCallBack("Raw Data: 4546");
+            } else {
+                await Clients.Caller.RecieveErrorMessage("Error Retrieving Raw Data");
+            }
         }
 
-        [HubMethodName("GetAnalogChannelRaw")]
-        public async Task GetAnalogChannelRaw(int channel) {
-            await Clients.Caller.RecieveChannelRawCallBack("Raw Data: 4546");
-        }
-
-        [HubMethodName("GetAnalogChannelRaw")]
-        public async Task GetBoxState() {
-            await Clients.Caller.RecieveBoxStateCallBack(DeviceState.MAINTENCE);
+        public async Task GetBoxState(string identifier) {
+            var operations = this._controller.Operations.FirstOrDefault(op => op.Device.Identifier == identifier);
+            if (operations != null) {
+                //Get last reading here
+                await Clients.Caller.RecieveStateCallBack(DeviceState.MAINTENCE);
+            } else {
+                await Clients.Caller.RecieveErrorMessage("Error Getting Device State");
+            }
         }
     }
 

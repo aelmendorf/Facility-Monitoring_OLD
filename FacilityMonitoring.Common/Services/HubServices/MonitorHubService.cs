@@ -14,12 +14,12 @@ namespace FacilityMonitoring.Common.Server.Services {
     public class MonitorHubService : IHubService{
         private readonly ILogger<MonitorHubService> _logger;
         private readonly IHubContext<MonitorBoxHub, IMonitorBoxHub> _monitorHub;
-        private MonitorBoxController _controller;
+        private MonitorBoxOperations _controller;
         private Timer _timer;
 
         public IDeviceOperations Controller {
             get => this._controller;
-            private set => this._controller =value is MonitorBoxController ? (MonitorBoxController)value:null;
+            private set => this._controller =value is MonitorBoxOperations ? (MonitorBoxOperations)value:null;
         }
 
         public MonitorHubService(ILogger<MonitorHubService> logger, IHubContext<MonitorBoxHub, IMonitorBoxHub> monitorHub, IDeviceOperations controller) {

@@ -6,32 +6,43 @@ using FacilityMonitoring.Common.Converters;
 using FacilityMonitoring.Common.Services;
 using System.Threading.Tasks;
 using FacilityMonitoring.Common.DataLayer;
+using FacilityMonitoring.Common.Hardware;
 
-namespace FacilityMonitoring.Common.Hardware {
-    public class NH3Controller : IAmmoniaOperations {
+namespace FacilityMonitoring.Common.Services {
+    public class AmmoniaOperations : IAmmoniaOperations {
         private AmmoniaController _device { get; set; }
         private IModbusOperations _modbus;
         private AddNHControllerReading _addReading;
         private TimeSpan _saveInterval;
+        private TimeSpan _readInterval;
         private DateTime _lastSave;
+        private AmmoniaControllerReading _lastReading;
 
         public string Data { get; set; }
 
-        public double ReadInterval { get; set; }
-        public double SaveInterval { get; set; }
+        public AmmoniaControllerReading LastReading { 
+            get=>this._lastReading;
+        }
+
+        public double ReadInterval {
+            get => this._readInterval.TotalSeconds;
+        }
+
+        public double SaveInterval {
+            get => this._saveInterval.TotalSeconds;
+        }
 
         public ModbusDevice Device {
             get => this._device;
             private set => this._device = (AmmoniaController)value;
         }
 
-        public NH3Controller(AmmoniaController device) {
+        public AmmoniaOperations(AmmoniaController device) {
             this._device = device;
             this._modbus = new ModbusOperations(this._device.IpAddress, this._device.Port,this._device.SlaveAddress);
             this._addReading = new AddNHControllerReading();
-            this.ReadInterval = device.ReadInterval;
-            this.SaveInterval = device.SaveInterval;
-            this._saveInterval = new TimeSpan(0, 0, (int)this._device.SaveInterval);
+            this._saveInterval = new TimeSpan(0, 0, (int)device.SaveInterval);
+            this._readInterval = new TimeSpan(0, 0, (int)device.ReadInterval);
             this.Data = "";
         }
 
@@ -56,7 +67,7 @@ namespace FacilityMonitoring.Common.Hardware {
             this._lastSave = DateTime.Now;
         }
 
-        public bool Read() {
+        public string Read() {
             var data = this._modbus.ReadRegistersAndCoils(this._device.RegisterBaseAddress, this._device.ReadRegisterLength, this._device.CoilBaseAddress, this._device.ReadCoilLength);
             if (data != null) {
                 List<int> regValues = new List<int>();
@@ -122,14 +133,15 @@ namespace FacilityMonitoring.Common.Hardware {
                     alert.Tank4Alert = GenericAlert.NONE;
                 }
                 this._device.LastRead = reading;
+                this._lastReading = reading;
                 this.Data = "Tank 1 Weight: " + this._device.LastRead.Tank1Weight.ToString();
-                return true;
+                return this.Data;
             } else {
-                return false;
+                return string.Empty;
             }
         }
 
-        public async Task<bool> ReadAsync() {
+        public async Task<string> ReadAsync() {
             var data = await this._modbus.ReadRegistersAndCoilsAsync(this._device.RegisterBaseAddress, this._device.ReadRegisterLength, this._device.CoilBaseAddress, this._device.ReadCoilLength);
             if (data != null) {
                 List<int> regValues = new List<int>();
@@ -194,10 +206,11 @@ namespace FacilityMonitoring.Common.Hardware {
                     alert.Tank4Alert = GenericAlert.NONE;
                 }
                 this._device.LastRead = reading;
+                this._lastReading = reading;
                 this.Data = "Tank 1 Weight: " + this._device.LastRead.Tank1Weight.ToString();
-                return true;
+                return this.Data;
             } else {
-                return false;
+                return string.Empty;
             }
         }
 
@@ -233,11 +246,21 @@ namespace FacilityMonitoring.Common.Hardware {
         }
 
         public async Task<bool> SaveAsync() {
-            return await this._addReading.AddReadingAsync(this._device);
+            if (await this._addReading.AddReadingAsync(this._device)) {
+                this.ResetSaveTimer();
+                return true;
+            } else {
+                return false;
+            }
         }
 
         public bool Save() {
-            return  this._addReading.AddReading(this._device);
+            if (this._addReading.AddReading(this._device)) {
+                this.ResetSaveTimer();
+                return true;
+            } else {
+                return false;
+            }
         }
     }
 }
