@@ -11,6 +11,6 @@ namespace FacilityMonitoring.Common.Server.Services {
     //}
 
     public interface IHubService : IHostedService, IDisposable {
-        void TimerHandler(object state);
+
     }
 }

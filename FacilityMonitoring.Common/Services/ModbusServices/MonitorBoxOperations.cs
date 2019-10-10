@@ -68,7 +68,7 @@ namespace FacilityMonitoring.Common.Hardware {
             this._lastSave = DateTime.Now;
         }
 
-        public string Read() {
+        public GenericBoxReading Read() {
             int regCount = this._device.AnalogChannelCount + this._device.DigitalOutputChannelCount;
             var data = this._modbus.ReadRegistersAndCoils(0, regCount, 0, this._device.DigitalInputChannelCount);
             if (data != null) {
@@ -118,16 +118,16 @@ namespace FacilityMonitoring.Common.Hardware {
                 }
                 this._device.LastRead = reading;
                 this._device.LastRead.GenericMonitorBoxAlert = alert;
-                this._device.LastRead.GenericMonitorBoxAlert.GenericMonitorBoxReading = this._device.LastRead;
+                this._device.LastRead.GenericMonitorBoxAlert.GenericBoxReadingId = this._device.LastRead.Id;
                 this._lastReading = this._device.LastRead;
                 this.Data = DateTime.Now.ToString() + ":::Reading: " + reading.AnalogCh6.ToString();
-                return this.Data;
+                return this._lastReading;
             } else {
-                return string.Empty;
+                return null;
             }
         }
 
-        public async Task<string> ReadAsync() {
+        public async Task<GenericBoxReading> ReadAsync() {
             int regCount = this._device.AnalogChannelCount + this._device.DigitalOutputChannelCount;
             var data = await this._modbus.ReadRegistersAndCoilsAsync(0, regCount, 0, this._device.DigitalInputChannelCount);
             if (data != null) {
@@ -177,12 +177,11 @@ namespace FacilityMonitoring.Common.Hardware {
                 }
                 this._device.LastRead = reading;
                 this._device.LastRead.GenericMonitorBoxAlert = alert;
-                this._device.LastRead.GenericMonitorBoxAlert.GenericMonitorBoxReading = this._device.LastRead;
+                this._device.LastRead.GenericMonitorBoxAlert.GenericBoxReadingId = this._device.LastRead.Id;
                 this._lastReading = this._device.LastRead;
-                this.Data =DateTime.Now.ToString()+":::Reading: "+reading.AnalogCh6.ToString();
-                return this.Data;
+                return this._lastReading;
             } else {
-                return string.Empty;
+                return null;
             }
         }
 
@@ -216,8 +215,70 @@ namespace FacilityMonitoring.Common.Hardware {
             return await this._modbus.WriteCoilsAsync(this._device.ModbusComAddr, com);
         }
 
-        public string GetData() {
-            return this.Data;
+        public ushort GetAnalogChannelRaw(int channel) {
+            var regCount = this._device.AnalogChannelCount;
+            if (channel < regCount && channel > 0) {
+                var data = this._modbus.ReadRegisters(channel, 1);
+                if (data.Length > 0 && data.Length < 2) {
+                    return data[1];
+                } else {
+                    return 0;
+                }
+            } else {
+                return 0;
+            }
+        }
+
+        public async Task<ushort> GetAnalogChannelRawAsync(int channel) {
+            var regCount = this._device.AnalogChannelCount;
+            if(channel<regCount && channel>0) {
+                var data=await this._modbus.ReadRegistersAsync(channel,1);
+                if(data.Length>0 && data.Length < 2) {
+                    return data[1];
+                } else {
+                    return 0;
+                }
+            } else {
+                return 0;
+            }
+        }
+
+        public double GetAnalogChannelVoltage(int channel) {
+            var register = this._device.Registers.OfType<AnalogChannel>().SingleOrDefault(a => a.RegisterIndex == channel);
+            if (register != null) {
+                var regCount = this._device.AnalogChannelCount;
+                if (channel < regCount && channel > 0) {
+                    var data = this._modbus.ReadRegisters(channel, 1);
+                    if (data.Length > 0 && data.Length < 2) {
+                        return register.Slope * data[1] + register.Offset;
+                    } else {
+                        return 0;
+                    }
+                } else {
+                    return 0;
+                }
+            } else {
+                return 0;
+            }
+        }
+
+        public async Task<double> GetAnalogChannelVoltageAsync(int channel) {
+            var register = this._device.Registers.OfType<AnalogChannel>().SingleOrDefault(a => a.RegisterIndex == channel);
+            if (register != null) {
+                var regCount = this._device.AnalogChannelCount;
+                if (channel < regCount && channel > 0) {
+                    var data = await this._modbus.ReadRegistersAsync(channel, 1);
+                    if (data.Length > 0 && data.Length < 2) {
+                        return register.Slope*data[1]+register.Offset;
+                    } else {
+                        return 0;
+                    }
+                } else {
+                    return 0;
+                }
+            } else {
+                return 0;
+            }
         }
 
         public async Task<bool> SaveAsync() {

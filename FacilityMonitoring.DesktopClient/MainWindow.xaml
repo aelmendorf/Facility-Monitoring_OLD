@@ -4,11 +4,16 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:FacilityMonitoring.DesktopClient"
-        mc:Ignorable="d" Title="MainWindow" Height="454" Width="549">
+        mc:Ignorable="d" Title="MainWindow" Height="444" Width="824">
     <Grid>
-        <Button x:Name="connectButton" Content="Connect" HorizontalAlignment="Left" Margin="150,124,0,0" VerticalAlignment="Top" Width="95" Height="41" Click="connectButton_Click" />
-        <Button x:Name="getReading" Content="Get Reading" HorizontalAlignment="Left" Margin="320,124,0,0" VerticalAlignment="Top" Width="94" Height="41" Click="getReading_Click" />
-        <ListBox x:Name="messagesList" HorizontalAlignment="Left" Height="247" Margin="82,170,0,0" VerticalAlignment="Top" Width="438" RenderTransformOrigin="-0.304,0.109" BorderThickness="1" BorderBrush="#FF171414"/>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Button x:Name="connectButton" Content="Connect" HorizontalAlignment="Left" Margin="317,36,0,0" VerticalAlignment="Top" Width="95" Height="41" Click="connectButton_Click" />
+        <Button x:Name="getReading" Content="Get Reading" HorizontalAlignment="Left" Margin="430,36,0,0" VerticalAlignment="Top" Width="94" Height="41" Click="getReading_Click" />
+        <ListBox x:Name="messagesList" HorizontalAlignment="Left" Margin="10,82,0,0" Width="259" RenderTransformOrigin="-0.304,0.109" BorderThickness="1" BorderBrush="#FF171414" Height="324" VerticalAlignment="Top"/>
+        <ListBox x:Name="monitorBoxList" HorizontalAlignment="Left" Height="324" Margin="274,82,0,0" VerticalAlignment="Top" Width="265" RenderTransformOrigin="-0.304,0.109" BorderThickness="1" BorderBrush="#FF171414"/>
+        <ListBox x:Name="nhBoxList" Margin="0,82,15,0" RenderTransformOrigin="-0.304,0.109" BorderThickness="1" BorderBrush="#FF171414" HorizontalAlignment="Right" Width="265" Height="324" VerticalAlignment="Top"/>
 
     </Grid>
 </Window>

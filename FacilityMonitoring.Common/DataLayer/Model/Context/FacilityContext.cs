@@ -161,6 +161,8 @@ namespace FacilityMonitoring.Common.Model {
                     context.ModbusDevices
                     .AsNoTracking()
                     .OfType<GenericMonitorBox>()
+                        .Include(e=>e.Registers)
+                            .ThenInclude(x=>x.SensorType)
                     .SingleOrDefault(e => e.Identifier == identifier));
 
 

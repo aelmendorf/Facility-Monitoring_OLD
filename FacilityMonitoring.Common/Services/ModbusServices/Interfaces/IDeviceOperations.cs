@@ -13,25 +13,35 @@ namespace FacilityMonitoring.Common.Services {
         string Data { get; }
         Task StartAsync();
         void Start();
-
         ModbusDevice Device { get;}
-
+        bool Save();
+        Task<bool> SaveAsync();
         bool CheckSaveTime();
         void ResetSaveTimer();
     }
 
     public interface IGenericBoxOperations : IDeviceOperations {
         GenericBoxReading LastReading { get; }
+        GenericBoxReading Read();
+        Task<GenericBoxReading> ReadAsync();
         bool SetAlarm(bool on_off);
         Task<bool> SetAlarmAsync(bool on_off);
         bool SetWarning(bool on_off);
         Task<bool> SetWarningAsync(bool on_off);
         bool SetMaintenance(bool on_off);
         Task<bool> SetMaintenanceAsync(bool on_off);
+
+        Task<ushort> GetAnalogChannelRawAsync(int channel);
+        Task<double> GetAnalogChannelVoltageAsync(int channel);
+        ushort GetAnalogChannelRaw(int channel);
+        double GetAnalogChannelVoltage(int channel);
     }
 
     public interface IAmmoniaOperations:IDeviceOperations {
         AmmoniaControllerReading LastReading { get; }
+        AmmoniaControllerReading Read();
+        Task<AmmoniaControllerReading> ReadAsync();
+
         bool SetCalibration(AmmoniaCalibrationData data);
         Task<bool> SetCalibrationAsync(AmmoniaCalibrationData data);
         bool SetCalibrationMode(bool on_off);
@@ -42,13 +52,5 @@ namespace FacilityMonitoring.Common.Services {
         H2GenReading LastReading { get; }
         H2GenReading Read();
         Task<H2GenReading> ReadAsync();
-        bool Save();
-        Task<bool> SaveAsync();
-    }
-
-    public interface IDeviceController {
-        List<ModbusDevice> Devices { get; set; }
-        bool ReadAll();
-        bool Read(ModbusDevice device);
     }
 }

@@ -1,20 +1,25 @@
 ﻿using FacilityMonitoring.Common.Model;
+using FacilityMonitoring.Common.Server;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace FacilityMonitoring.Common.Services.ModbusServices {
+namespace FacilityMonitoring.Common.Services {
     public class AmmoniaCollectionController : IAmmoniaCollectionController {
         private IAmmoniaOperations _ammoniaOperations;
         private readonly FacilityContext _context;
         private readonly ILogger<IAmmoniaCollectionController> _logger;
+        private readonly IHubContext<AmmoniaControllerHub, IAmmoniaControllerHub> _ammoniaHub;
         private double _readInterval = 10.0;
 
 
-        public AmmoniaCollectionController(FacilityContext context, ILogger<IAmmoniaCollectionController> logger) {
+        public AmmoniaCollectionController(FacilityContext context, ILogger<IAmmoniaCollectionController> logger, IHubContext<AmmoniaControllerHub, IAmmoniaControllerHub> ammoniaHub) {
             this._context = context;
             this._logger = logger;
+            this._ammoniaHub = ammoniaHub;
         }
 
         public IAmmoniaOperations Operations {
@@ -46,6 +51,18 @@ namespace FacilityMonitoring.Common.Services.ModbusServices {
                     this._ammoniaOperations = operations;
                     await this._ammoniaOperations.StartAsync();
                     this._readInterval = this._ammoniaOperations.ReadInterval;
+                }
+            }
+        }
+
+        public async void TimeHandler(object state) {
+            this._logger.LogInformation("{0}: NH3 Controller Service Read,Broadcast, and Save", DateTime.Now);
+            var reading=await this._ammoniaOperations.ReadAsync();
+            if (reading != null) {
+                await this._ammoniaHub.Clients.All.RecieveAutoReading(reading.TimeStamp + ": " + "Tank2 Weight: " + reading.Tank2Weight);
+                if (this._ammoniaOperations.CheckSaveTime()) {
+                    await this._ammoniaOperations.SaveAsync();
+                    this._ammoniaOperations.ResetSaveTimer();
                 }
             }
         }

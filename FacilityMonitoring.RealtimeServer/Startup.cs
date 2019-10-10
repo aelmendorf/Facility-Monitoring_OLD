@@ -23,9 +23,12 @@ namespace FacilityMonitoring.RealtimeServer {
             services.AddTransient<FacilityContext>(provider => {
                 return new FacilityContext();
             });
-            //services.AddDbContext<FacilityContext>(ServiceLifetime.Transient);
             services.AddSingleton<IGeneratorCollectionController,GeneratorCollectionController>();
+            services.AddSingleton<IBoxCollectionController, BoxCollectionController>();
+            services.AddSingleton<IAmmoniaCollectionController, AmmoniaCollectionController>();
             services.AddHostedService<GeneratorsHubService>();
+            services.AddHostedService<MonitorHubService>();
+            services.AddHostedService<AmmoniaHubService>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env) {
@@ -39,8 +42,9 @@ namespace FacilityMonitoring.RealtimeServer {
 
             app.UseEndpoints(endpoints => {
                 //app.ApplicationServices.GetServices<>
-                //endpoints.MapHub<MonitorBoxHub>("/hubs/monitor");
+                endpoints.MapHub<MonitorBoxHub>("/hubs/monitor");
                 endpoints.MapHub<GeneratorHub>("/hubs/generator");
+                endpoints.MapHub<AmmoniaControllerHub>("/hubs/controller");
             });
         }
     }

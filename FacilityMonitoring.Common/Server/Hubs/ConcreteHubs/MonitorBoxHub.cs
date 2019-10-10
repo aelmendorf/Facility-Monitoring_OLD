@@ -4,6 +4,7 @@ using FacilityMonitoring.Common.Model;
 using FacilityMonitoring.Common.Services;
 using Microsoft.AspNetCore.SignalR;
 using System.Linq;
+using System;
 
 namespace FacilityMonitoring.Common.Server {
     public class MonitorBoxHub : Hub<IMonitorBoxHub> {
@@ -14,43 +15,37 @@ namespace FacilityMonitoring.Common.Server {
         }
 
         public async Task SetMaintenance(string identifier,bool onOff) {
-            var operations=this._controller.Operations.FirstOrDefault(op=>op.Device.Identifier==identifier);
-            if (operations != null) {
-                var success=await operations.SetMaintenanceAsync(onOff);
-                await Clients.Caller.SetMaintenanceCallBack(success);
-            } else {
-                await Clients.Caller.RecieveErrorMessage("Error Switching Maintenance");
-            }
+            var success=await this._controller.SetMaintenanceAsync(identifier, onOff);
+            await Clients.Caller.SetMaintenanceCallBack(success);
         }
 
         public async Task GetCurrentReading(string identifier) {
-            var operations = this._controller.Operations.FirstOrDefault(op => op.Device.Identifier == identifier);
-            if (operations != null) {
-                //Get last reading here
-                await Clients.Caller.RecieveReadingCallBack(operations.Data);
+            var reading = this._controller.GetLastReading(identifier);
+            if (reading != null) {
+                await Clients.Caller.RecieveReadingCallBack(reading.TimeStamp + "A6: " + reading.AnalogCh6);
             } else {
-                await Clients.Caller.RecieveErrorMessage("Error Retrieving Reading");
+
             }
         }
 
         public async Task GetAnalogChannelRaw(string identifier,int channel) {
-            var operations = this._controller.Operations.FirstOrDefault(op => op.Device.Identifier == identifier);
-            if (operations != null) {
-                await Clients.Caller.RecieveChannelRawCallBack("Raw Data: 4546");
-            } else {
-                await Clients.Caller.RecieveErrorMessage("Error Retrieving Raw Data");
-            }
+            var value = await this._controller.GetAnalogChannelRawAsync(identifier, channel);
+            await Clients.Caller.RecieveChannelRawCallBack(value);
+        }
+
+        public async Task GetAnalogChannelVoltage(string identifier, int channel) {
+            var value = await this._controller.GetAnalogChannelVoltageAsync(identifier, channel);
+            await Clients.Caller.RecieveChannelVoltageCallBack(value);
         }
 
         public async Task GetBoxState(string identifier) {
-            var operations = this._controller.Operations.FirstOrDefault(op => op.Device.Identifier == identifier);
-            if (operations != null) {
-                //Get last reading here
-                await Clients.Caller.RecieveStateCallBack(DeviceState.MAINTENCE);
+            DeviceState state;
+            var success = this._controller.GetDeviceState(identifier, out state);
+            if (success) {
+                await Clients.Caller.RecieveStateCallBack(state);
             } else {
-                await Clients.Caller.RecieveErrorMessage("Error Getting Device State");
+                await Clients.Caller.RecieveErrorMessage("Error Retrieving Requested Device");
             }
         }
     }
-
 }

@@ -13,30 +13,20 @@ using Microsoft.Extensions.Logging;
 namespace FacilityMonitoring.Common.Server.Services {
     public class AmmoniaHubService:IHostedService,IDisposable {
         private readonly ILogger<AmmoniaHubService> _logger;
-        private readonly IHubContext<AmmoniaControllerHub, IAmmoniaControllerHub> _monitorHub;
-        private AmmoniaOperations _controller;
+        private readonly IHubContext<AmmoniaControllerHub, IAmmoniaControllerHub> _ammoniaHub;
+        private IAmmoniaCollectionController _controller;
         private Timer _timer;
 
-        public AmmoniaHubService(ILogger<AmmoniaHubService> logger, IHubContext<AmmoniaControllerHub, IAmmoniaControllerHub> monitorHub,AmmoniaOperations controller) {
+        public AmmoniaHubService(ILogger<AmmoniaHubService> logger, IHubContext<AmmoniaControllerHub, IAmmoniaControllerHub> ammoniaHub, IAmmoniaCollectionController controller) {
             this._logger = logger;
             this._controller = controller;
-            _monitorHub = monitorHub;
+            this._ammoniaHub = ammoniaHub;
         }
 
         public async Task StartAsync(CancellationToken cancellationToken) {
             await this._controller.StartAsync();
-            this._timer = new Timer(TimerHandler, null, TimeSpan.Zero, TimeSpan.FromSeconds(this._controller.ReadInterval));
+            this._timer = new Timer(this._controller.TimeHandler, null, TimeSpan.Zero, TimeSpan.FromSeconds(this._controller.ReadInterval));
             this._logger.LogInformation("{0}: NH3 Controller Service Started", DateTime.Now);
-        }
-
-        private async void TimerHandler(object state) {
-
-            this._logger.LogInformation("{0}: NH3 Controller Service Read,Broadcast, and Save", DateTime.Now);
-            await this._controller.ReadAsync();
-            if (this._controller.CheckSaveTime()) {
-                await this._controller.SaveAsync();
-                this._controller.ResetSaveTimer();
-            }
         }
 
         public async Task StopAsync(CancellationToken cancellationToken) {

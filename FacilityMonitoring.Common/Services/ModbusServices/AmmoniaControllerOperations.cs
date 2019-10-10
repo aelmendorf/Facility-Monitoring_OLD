@@ -67,7 +67,7 @@ namespace FacilityMonitoring.Common.Services {
             this._lastSave = DateTime.Now;
         }
 
-        public string Read() {
+        public AmmoniaControllerReading Read() {
             var data = this._modbus.ReadRegistersAndCoils(this._device.RegisterBaseAddress, this._device.ReadRegisterLength, this._device.CoilBaseAddress, this._device.ReadCoilLength);
             if (data != null) {
                 List<int> regValues = new List<int>();
@@ -135,13 +135,13 @@ namespace FacilityMonitoring.Common.Services {
                 this._device.LastRead = reading;
                 this._lastReading = reading;
                 this.Data = "Tank 1 Weight: " + this._device.LastRead.Tank1Weight.ToString();
-                return this.Data;
+                return this._lastReading;
             } else {
-                return string.Empty;
+                return null;
             }
         }
 
-        public async Task<string> ReadAsync() {
+        public async Task<AmmoniaControllerReading> ReadAsync() {
             var data = await this._modbus.ReadRegistersAndCoilsAsync(this._device.RegisterBaseAddress, this._device.ReadRegisterLength, this._device.CoilBaseAddress, this._device.ReadCoilLength);
             if (data != null) {
                 List<int> regValues = new List<int>();
@@ -208,9 +208,9 @@ namespace FacilityMonitoring.Common.Services {
                 this._device.LastRead = reading;
                 this._lastReading = reading;
                 this.Data = "Tank 1 Weight: " + this._device.LastRead.Tank1Weight.ToString();
-                return this.Data;
+                return this._lastReading;
             } else {
-                return string.Empty;
+                return null;
             }
         }
 

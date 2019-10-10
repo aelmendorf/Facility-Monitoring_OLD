@@ -26,18 +26,8 @@ namespace FacilityMonitoring.Common.Server.Services {
 
         public async Task StartAsync(CancellationToken cancellationToken) {
             await this._controller.StartAsync();
-            this._timer = new Timer(TimerHandler, null, TimeSpan.Zero, TimeSpan.FromSeconds(this._controller.ReadInterval));
+            this._timer = new Timer(this._controller.TimeHandler, null, TimeSpan.Zero, TimeSpan.FromSeconds(this._controller.ReadInterval));
             this._logger.LogInformation("{0}:MonitorBoxHub Service Started", DateTime.Now);
-        }
-
-        public async void TimerHandler(object state) {
-            foreach(var operation in this._controller.Operations) {
-                
-            }
-
-
-            this._logger.LogInformation("{0}:MonitorBoxHub Service Read,Broadcast, and Save", DateTime.Now);
-            
         }
 
         public async Task StopAsync(CancellationToken cancellationToken) {

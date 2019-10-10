@@ -8,7 +8,8 @@ namespace FacilityMonitoring.Common.Server {
         Task RecieveReadingCallBack(string data);
         Task SetMaintenanceCallBack(bool success);
         Task RecieveStateCallBack(DeviceState state);
-        Task RecieveChannelRawCallBack(string data);
+        Task RecieveChannelRawCallBack(ushort data);
+        Task RecieveChannelVoltageCallBack(double data);
     }
 
 }
