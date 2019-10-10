@@ -67,6 +67,8 @@ namespace FacilityMonitoring.Common.Services {
             }
         }
 
+
+
         public async Task StopAsync() {
             await Task.Run(() => this._logger.LogInformation("Ammonia Controller Stopping"));
         }

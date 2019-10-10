@@ -20,6 +20,7 @@ namespace FacilityMonitoring.Common.Services {
     }
     public interface IAmmoniaCollectionController : IDeviceCollectionController {
         IAmmoniaOperations Operations { get; }
+
     }
 
     public interface IBoxCollectionController : IDeviceCollectionController {

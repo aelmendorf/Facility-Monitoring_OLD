@@ -15,11 +15,11 @@ namespace FacilityMonitoring.Common.Services {
         private static GeneratorCollectionController _instance = null;
         private ConcurrentDictionary<IGeneratorOperations,H2GenReading> _generatorOperations;
         private readonly FacilityContext _context;
-        private readonly ILogger<GeneratorCollectionController> _logger;
+        private readonly ILogger<IGeneratorCollectionController> _logger;
         private readonly IHubContext<GeneratorHub, IGeneratorHub> _generatorHub;
         private double _readInterval=10.0;
 
-        public GeneratorCollectionController(FacilityContext context, ILogger<GeneratorCollectionController> logger, IHubContext<GeneratorHub, IGeneratorHub> generatorHub) {
+        public GeneratorCollectionController(FacilityContext context, ILogger<IGeneratorCollectionController> logger, IHubContext<GeneratorHub, IGeneratorHub> generatorHub) {
             this._context = context;
             this._logger = logger;
             this._generatorHub = generatorHub;
@@ -92,6 +92,9 @@ namespace FacilityMonitoring.Common.Services {
                     if (data.Result!=null) {
                         await this._generatorHub.Clients.All.SendGeneratorReading(data.Result.TimeStamp+": "+data.Result.Identifier+" SystemPressure: " + data.Result.SystemPressure);
                         this.Operations[operation] = data.Result;
+                        this._logger.LogInformation(data.Result.Identifier+" Read Success");
+                    } else {
+                        this._logger.LogError("Read Error");
                     }
                 }, TaskContinuationOptions.OnlyOnRanToCompletion));
 

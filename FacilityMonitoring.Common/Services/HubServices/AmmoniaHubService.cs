@@ -17,10 +17,15 @@ namespace FacilityMonitoring.Common.Server.Services {
         private IAmmoniaCollectionController _controller;
         private Timer _timer;
 
-        public AmmoniaHubService(ILogger<AmmoniaHubService> logger, IHubContext<AmmoniaControllerHub, IAmmoniaControllerHub> ammoniaHub, IAmmoniaCollectionController controller) {
+        //public AmmoniaHubService(ILogger<AmmoniaHubService> logger, IHubContext<AmmoniaControllerHub, IAmmoniaControllerHub> ammoniaHub, IAmmoniaCollectionController controller) {
+        //    this._logger = logger;
+        //    this._controller = controller;
+        //    this._ammoniaHub = ammoniaHub;
+        //}
+
+        public AmmoniaHubService(ILogger<AmmoniaHubService> logger, IAmmoniaCollectionController controller) {
             this._logger = logger;
             this._controller = controller;
-            this._ammoniaHub = ammoniaHub;
         }
 
         public async Task StartAsync(CancellationToken cancellationToken) {

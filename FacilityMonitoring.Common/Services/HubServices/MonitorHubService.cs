@@ -13,15 +13,20 @@ using Microsoft.Extensions.Logging;
 namespace FacilityMonitoring.Common.Server.Services {
     public class MonitorHubService : IHubService{
         private readonly ILogger<MonitorHubService> _logger;
-        private readonly IHubContext<MonitorBoxHub, IMonitorBoxHub> _monitorHub;
+        //private readonly IHubContext<MonitorBoxHub, IMonitorBoxHub> _monitorHub;
         private IBoxCollectionController _controller;
         private Timer _timer;
 
 
-        public MonitorHubService(ILogger<MonitorHubService> logger, IHubContext<MonitorBoxHub, IMonitorBoxHub> monitorHub, IBoxCollectionController controller) {
+        //public MonitorHubService(ILogger<MonitorHubService> logger, IHubContext<MonitorBoxHub, IMonitorBoxHub> monitorHub, IBoxCollectionController controller) {
+        //    this._logger = logger;
+        //    this._controller = controller;
+        //    _monitorHub = monitorHub;
+        //}
+
+        public MonitorHubService(ILogger<MonitorHubService> logger, IBoxCollectionController controller) {
             this._logger = logger;
             this._controller = controller;
-            _monitorHub = monitorHub;
         }
 
         public async Task StartAsync(CancellationToken cancellationToken) {
