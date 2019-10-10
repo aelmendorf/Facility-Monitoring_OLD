@@ -11,19 +11,21 @@ namespace FacilityMonitoring.Common.Server {
             this._generatorsService = generatorsService;
         }
 
-        public async Task SendGeneratorReading(int genId) {
-            if ((genId - 1) > this._generatorsService.Operations.Count - 1 || (genId - 1) < 0) {
-                await Clients.All.RecieveErrorMessage("Error: Index Out Of Bounds");
+        public async Task SendGeneratorReading(string genId) {
+            var reading=this._generatorsService.GetLastReading(genId);
+            if (reading != null) {
+                await Clients.All.SendGeneratorReading(reading.Identifier+" SystemPressure: "+reading.SystemPressure);
             } else {
-                await Clients.All.SendGeneratorReading(this._generatorsService.Operations[genId-1].Data);
+                await Clients.All.RecieveErrorMessage("Error: Could Not Find Requested Generator");
             }
         }
 
-        public async Task  GetGeneratorReading(int i) {
-            if ((i-1) > this._generatorsService.Operations.Count - 1  || (i - 1) < 0) {
-                await Clients.All.RecieveErrorMessage("Error: Index Out Of Bounds");
+        public async Task  GetGeneratorReading(string genId) {
+            var reading = this._generatorsService.GetLastReading(genId);
+            if (reading != null) {
+                await Clients.All.SendGeneratorReading(reading.TimeStamp+": "+reading.Identifier + " SystemPressure: " + reading.SystemPressure);
             } else {
-                await Clients.All.RecieveMessage(this._generatorsService.Operations[i-1].Data);
+                await Clients.All.RecieveErrorMessage("Error: Could Not Find Requested Generator");
             }
         }
     }

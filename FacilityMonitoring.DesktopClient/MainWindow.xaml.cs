@@ -53,9 +53,9 @@ namespace FacilityMonitoring.DesktopClient {
 
         private async void getReading_Click(object sender, RoutedEventArgs e) {
             try {
-                await connection.InvokeAsync("GetGeneratorReading",1);
-                await connection.InvokeAsync("GetGeneratorReading", 2);
-                await connection.InvokeAsync("GetGeneratorReading", 3);
+                await connection.InvokeAsync("GetGeneratorReading", "Generator 1");
+                await connection.InvokeAsync("GetGeneratorReading", "Generator 2");
+                await connection.InvokeAsync("GetGeneratorReading", "Generator 3");
             } catch (Exception ex) {
                 messagesList.Items.Add(ex.Message);
             }

@@ -12,7 +12,7 @@ namespace FacilityMonitoring.Common.Services.ModbusServices {
         private double _readInterval = 10.0;
 
 
-        public GeneratorCollectionController(FacilityContext context, ILogger<IAmmoniaCollectionController> logger) {
+        public AmmoniaCollectionController(FacilityContext context, ILogger<IAmmoniaCollectionController> logger) {
             this._context = context;
             this._logger = logger;
         }

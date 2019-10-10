@@ -65,7 +65,7 @@ namespace FacilityMonitoring.Common.Hardware {
             this._lastSave = DateTime.Now;
         }
 
-        public string Read() {
+        public H2GenReading Read() {
             H2GenReading reading = new H2GenReading();
             reading.TimeStamp = DateTime.Now;
             foreach (var register in this._device.Registers.OfType<GeneratorRegister>()) {
@@ -73,10 +73,10 @@ namespace FacilityMonitoring.Common.Hardware {
                     case FunctionCode.ReadCoil: {
                         var coils = this._modbus.ReadCoils(register.RegisterIndex, register.RegisterLength);
                         if (coils != null) {
-                            reading[register.PropertyMap] = reading[register.PropertyMap] = RegisterConverters.GetH2RegisterValue(register, coilData: coils);
+                            reading[register.PropertyMap]=RegisterConverters.GetH2RegisterValue(register, coilData: coils);
                         } else {
 
-                            return string.Empty;
+                            return null;
                         }
                         break;
                     }
@@ -89,7 +89,7 @@ namespace FacilityMonitoring.Common.Hardware {
                             if (value != null) {
                                 reading[register.PropertyMap] = value;
                             } else {
-                                return string.Empty;
+                                return null;
                             }
                         }
                         break;
@@ -102,13 +102,14 @@ namespace FacilityMonitoring.Common.Hardware {
                     case FunctionCode.WriteMultipleHoldingRegisters: { break; }
                 }
             }
+            reading.Identifier = this._device.Identifier;
             this._device.LastRead = reading;
             this._lastReading = reading;
-            this.Data = this._device.Identifier + " SystemPressure: " + this._device.LastRead.SystemPressure;
-            return this.Data;
+            this.Data = this._device.Identifier + "SystemPressure: " + this._device.LastRead.SystemPressure;
+            return this._lastReading;
         }
 
-        public async Task<string> ReadAsync() {
+        public async Task<H2GenReading> ReadAsync() {
             H2GenReading reading = new H2GenReading();
             reading.TimeStamp = DateTime.Now;
             foreach (var register in this._device.Registers.OfType<GeneratorRegister>()) {
@@ -116,9 +117,9 @@ namespace FacilityMonitoring.Common.Hardware {
                     case FunctionCode.ReadCoil: {
                         var coils = await this._modbus.ReadCoilsAsync(register.RegisterIndex, register.RegisterLength);
                         if (coils != null) {
-                            reading[register.PropertyMap] = reading[register.PropertyMap] = RegisterConverters.GetH2RegisterValue(register, coilData: coils);
+                            reading[register.PropertyMap] = RegisterConverters.GetH2RegisterValue(register, coilData: coils);
                         } else {
-                            return string.Empty;
+                            return null;
                         }
                         break;
                     }
@@ -131,7 +132,7 @@ namespace FacilityMonitoring.Common.Hardware {
                             if (value != null) {
                                 reading[register.PropertyMap] = value;
                             } else {
-                                return string.Empty;
+                                return null;
                             }
                         }
                         break;
@@ -145,9 +146,11 @@ namespace FacilityMonitoring.Common.Hardware {
                 }
 
             }
+            reading.Identifier = this._device.Identifier;
             this._device.LastRead = reading;
+            this._lastReading = reading;           
             this.Data = this._device.Identifier + "SystemPressure: " + this._device.LastRead.SystemPressure;
-            return this.Data;
+            return this._lastReading;
         }
 
         public bool Save() {

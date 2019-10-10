@@ -33,7 +33,6 @@ namespace FacilityMonitoring.Common.Server.Services {
 
             this._logger.LogInformation("{0}: NH3 Controller Service Read,Broadcast, and Save", DateTime.Now);
             await this._controller.ReadAsync();
-            await this._monitorHub.Clients.All.SendAmmoniaReading(this._controller.Data);
             if (this._controller.CheckSaveTime()) {
                 await this._controller.SaveAsync();
                 this._controller.ResetSaveTimer();

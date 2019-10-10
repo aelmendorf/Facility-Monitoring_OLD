@@ -28,28 +28,29 @@ namespace FacilityMonitoring.Common.Server.Services {
 
         public async Task StartAsync(CancellationToken cancellationToken) {
             await this._controller.StartAsync();
-            this._timer = new Timer(TimerHandler,null,TimeSpan.Zero, TimeSpan.FromSeconds(this._controller.ReadInterval));
+            this._timer = new Timer(this._controller.TimeHandler,null,TimeSpan.Zero, TimeSpan.FromSeconds(this._controller.ReadInterval));
             this._logger.LogInformation("{0}:GeneratorHubService Service Started", DateTime.Now);
         }
+        ////TODO:  Check This
+        //public async void TimerHandler(object state) {
+        //    List<Task> readTaskList = new List<Task>();
+        //    List<Task> saveTaskList = new List<Task>();
+        //    List<Task> broadcastTaskList = new List<Task>();
+        //    foreach (var operation in this._controller.Operations.Key) {
 
-        public async void TimerHandler(object state) {
-           foreach (var operation in this._controller.Operations) {
-                List<Task> readTaskList = new List<Task>();
-                List<Task> saveTaskList = new List<Task>();
-                List<Task> broadcastTaskList = new List<Task>();
-                readTaskList.Add(operation.ReadAsync().ContinueWith(async (data) => {
-                    if (!string.IsNullOrEmpty(data.Result)) {
-                        await this._monitorHub.Clients.All.SendGeneratorReading(data.Result);
-                    }
-                }, TaskContinuationOptions.OnlyOnRanToCompletion));
+        //        readTaskList.Add(operation.ReadAsync().ContinueWith(async (data) => {
+        //            if (!string.IsNullOrEmpty(data.Result)) {
+        //                await this._monitorHub.Clients.All.SendGeneratorReading(data.Result);
+        //            }
+        //        }, TaskContinuationOptions.OnlyOnRanToCompletion));
 
-                if (operation.CheckSaveTime()) {
-                    saveTaskList.Add(operation.SaveAsync());
-                }
-                await Task.WhenAll(readTaskList);
-                await Task.WhenAll(saveTaskList);
-            }
-        }
+        //        if (operation.CheckSaveTime()) {
+        //            saveTaskList.Add(operation.SaveAsync());
+        //        }
+        //    }
+        //    await Task.WhenAll(readTaskList);
+        //    await Task.WhenAll(saveTaskList);
+        //}
 
         public async Task StopAsync(CancellationToken cancellationToken) {
             await Task.Run(() => {
@@ -62,6 +63,8 @@ namespace FacilityMonitoring.Common.Server.Services {
         public void Dispose() {
             this._timer?.Dispose();
         }
+
+        public void TimerHandler(object state) => throw new NotImplementedException();
     }
 
     public class GeneratorHubService : IHubService {

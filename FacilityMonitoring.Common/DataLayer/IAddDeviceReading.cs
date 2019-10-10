@@ -268,20 +268,22 @@ namespace FacilityMonitoring.Common.DataLayer {
 
         public async Task<bool> AddReadingAsync(H2Generator generator) {
             try {
-                //using var this._context = new FacilityContext();
+                this._context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+                this._context.ChangeTracker.LazyLoadingEnabled = false;
+                this._context.ChangeTracker.AutoDetectChangesEnabled = false;
                 var device = await this._context.ModbusDevices.FindAsync(generator.Id) as H2Generator;
                 if (device != null) {
                     generator.LastRead.GeneratorId = generator.Id;
+                    this._context.H2GenReadings.Add(generator.LastRead);
                     this._context.GeneratorSystemErrors.Add(generator.LastRead.AllSystemErrors);
                     this._context.GeneratorSystemWarnings.Add(generator.LastRead.AllSystemWarnings);
-                    //generator.H2Readings.Add(generator.LastRead);
                     device.SystemState = generator.LastRead.SystemState;
                     device.OperationMode = generator.LastRead.OperationMode;
                     generator.SystemState = generator.LastRead.SystemState;
                     generator.OperationMode = generator.LastRead.OperationMode;
                     this._context.Entry(device).State = EntityState.Modified;
-                    this._context.H2GenReadings.Add(generator.LastRead);
                     await this._context.SaveChangesAsync();
+                    this._context.Entry(generator).State = EntityState.Detached;
                     //GC.Collect();
                     return true;
                 } else {

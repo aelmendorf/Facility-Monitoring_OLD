@@ -20,10 +20,11 @@ namespace FacilityMonitoring.RealtimeServer {
     public class Startup {
         public void ConfigureServices(IServiceCollection services) {
             services.AddSignalR();
-            services.AddTransient<FacilityContext>(provider=> {
+            services.AddTransient<FacilityContext>(provider => {
                 return new FacilityContext();
             });
-            services.AddSingleton<IDeviceCollectionController,GeneratorCollectionController>();
+            //services.AddDbContext<FacilityContext>(ServiceLifetime.Transient);
+            services.AddSingleton<IGeneratorCollectionController,GeneratorCollectionController>();
             services.AddHostedService<GeneratorsHubService>();
         }
 
@@ -34,7 +35,6 @@ namespace FacilityMonitoring.RealtimeServer {
                 app.UseExceptionHandler("/Error");
             }
 
-            //app.UseStaticFiles();
             app.UseRouting();
 
             app.UseEndpoints(endpoints => {

@@ -15,10 +15,7 @@ namespace FacilityMonitoring.Common.Services {
         void Start();
 
         ModbusDevice Device { get;}
-        string Read();
-        Task<string> ReadAsync();
-        bool Save();
-        Task<bool> SaveAsync();
+
         bool CheckSaveTime();
         void ResetSaveTimer();
     }
@@ -43,6 +40,10 @@ namespace FacilityMonitoring.Common.Services {
 
     public interface IGeneratorOperations: IDeviceOperations {
         H2GenReading LastReading { get; }
+        H2GenReading Read();
+        Task<H2GenReading> ReadAsync();
+        bool Save();
+        Task<bool> SaveAsync();
     }
 
     public interface IDeviceController {

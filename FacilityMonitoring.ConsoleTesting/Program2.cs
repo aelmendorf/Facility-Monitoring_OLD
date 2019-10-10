@@ -35,17 +35,17 @@ namespace FacilityMonitoring.ConsoleTesting {
             //Console.WriteLine("Client One listening. Hit Ctrl-C to quit.");
             //Console.ReadLine();
 
-            var host = new HostBuilder()
-                .ConfigureLogging(logging => {
-                    logging.AddConsole();
-                })
-                .ConfigureServices((services) => {
-                    services.AddHostedService<MonitorHubClient>();
-                    services.AddHostedService<GeneratorHubClient>();
-                })
-                .Build();
+            //var host = new HostBuilder()
+            //    .ConfigureLogging(logging => {
+            //        logging.AddConsole();
+            //    })
+            //    .ConfigureServices((services) => {
+            //        services.AddHostedService<MonitorHubClient>();
+            //        services.AddHostedService<GeneratorHubClient>();
+            //    })
+            //    .Build();
 
-            await host.RunAsync();
+            //await host.RunAsync();
         }
     }
 }
