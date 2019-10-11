@@ -8,6 +8,9 @@ using FacilityMonitoring.Common.Model;
 namespace FacilityMonitoring.Common.Converters {
     public static class RegisterConverters {
 
+        public static float BAR_TO_PSI = 14.5037738f;
+        public static float KGHR_TO_SLM = 199.656f;
+
         public static int ToInt32(ushort first,ushort second) {
             return BitConverter.ToInt32(BitConverter.GetBytes(second).Concat(BitConverter.GetBytes(first)).ToArray(),0);
         }

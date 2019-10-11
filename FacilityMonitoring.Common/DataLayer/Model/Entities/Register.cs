@@ -50,10 +50,10 @@ namespace FacilityMonitoring.Common.Model {
     }
 
     public enum SystemMode {
-        Normal=0,
-        Service,
-        Installation,
-        Maintenance
+        NORMAL=0,
+        SERVICE,
+        INSTALLATION,
+        MAINTENANCE
     }
 
     public enum SystemError {
