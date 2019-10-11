@@ -1,4 +1,5 @@
-﻿using FacilityMonitoring.Common.Model;
+﻿using FacilityMonitoring.Common.DataLayer;
+using FacilityMonitoring.Common.Model;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -15,8 +16,8 @@ namespace FacilityMonitoring.Common.Services {
 
     public interface IGeneratorCollectionController:IDeviceCollectionController {
         ConcurrentDictionary<IGeneratorOperations,H2GenReading> Operations { get; }
-        H2GenReading GetLastReading(string genId);
-
+        GeneratorReadingDTO GetLastReading(string genId);
+        IEnumerable<GeneratorReadingDTO> GetAllGenerators();
     }
     public interface IAmmoniaCollectionController : IDeviceCollectionController {
         IAmmoniaOperations Operations { get; }

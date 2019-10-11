@@ -19,6 +19,7 @@ using System.Threading.Tasks;
 namespace FacilityMonitoring.RealtimeServer {
     public class Startup {
         public void ConfigureServices(IServiceCollection services) {
+            services.AddCors();
             services.AddSignalR();
             services.AddTransient<FacilityContext>(provider => {
                 return new FacilityContext();
@@ -39,6 +40,13 @@ namespace FacilityMonitoring.RealtimeServer {
             }
 
             app.UseRouting();
+            app.UseCors(builder => {
+                //builder.WithOrigins("http://localhost:51864")
+                    builder.WithOrigins("http://172.20.4.202")
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials();
+            });
 
             app.UseEndpoints(endpoints => {
                 //app.ApplicationServices.GetServices<>

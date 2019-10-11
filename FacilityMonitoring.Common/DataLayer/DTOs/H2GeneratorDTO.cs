@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace FacilityMonitoring.Common.DataLayer.DTOs {
+namespace FacilityMonitoring.Common.DataLayer {
     public class H2GeneratorDTO {
         public int Id { get; set; }
         public string Identifier { get; set; }

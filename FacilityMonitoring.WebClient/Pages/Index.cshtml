@@ -1,0 +1,76 @@
+@page
+@using FacilityMonitoring.Common.DataLayer
+
+
+
+<h2 class="content-block">H2 Generators</h2>
+
+@(Html.DevExtreme().DataGrid<GeneratorReadingDTO>()
+    .ID("genReadings")
+    .Visible(false)
+    .ShowBorders(true)
+    .RepaintChangesOnly(true)
+    .HighlightChanges(true)
+    .AllowColumnResizing(true)
+    .Columns(columns => {
+        //columns.AddFor(d => d.Identifier).DataField("id");
+        //columns.AddFor(d => d.OperationMode).DataField("operationMode");
+        //columns.AddFor(d => d.SystemState).DataField("systemState");
+        //columns.AddFor(d => d.SystemPressure).DataField("systemPressure");
+        //columns.AddFor(d => d.ProductPressure).DataField("productPressure");
+        //columns.AddFor(d => d.HydrogenFlow).DataField("h2Flow");
+    })
+)
+
+
+<script src="~/js/signalr/dist/browser/signalr.js"></script>
+<script>
+    var connection = new signalR.HubConnectionBuilder()
+        .withUrl("http://172.20.4.209:443/hubs/generator")
+        .configureLogging(signalR.LogLevel.Information)
+        .build();
+
+    $(function () {
+        connection.start()
+            .then(function () {
+
+                    var store = new DevExpress.data.CustomStore({
+                        load: function () {
+                            return connection.invoke("GetAllGenerators");
+                        },key: "Identifier"});
+                    $("#genReadings").dxDataGrid({
+                        dataSource: store,
+                        visible: true
+                    });
+
+                connection.on("SendGeneratorReading", function (data) {
+                    console.log(data.Identifier);
+                    store.push([{ type: "update", key: data.Identifier, data: data }]);
+                });
+            });
+    });
+</script>
+
+@*@(Html.DevExtreme().DataGrid<Order>()
+    .ElementAttr(new { @class = "dx-card wide-card" })
+    .DataSource(d => d.Mvc().Controller("Orders").LoadAction("Get").Key("OrderID"))
+    .ShowBorders(false)
+    .FilterRow(f => f.Visible(true))
+    .FocusedRowEnabled(true)
+    .FocusedRowIndex(0)
+    .ColumnAutoWidth(true)
+    .ColumnHidingEnabled(true)
+    .Columns(columns => {
+        columns.AddFor(m => m.OrderID);
+        columns.AddFor(m => m.OrderDate);
+        columns.AddFor(m => m.CustomerName);
+        columns.AddFor(m => m.ShipCountry);
+        columns.AddFor(m => m.ShipCity);
+    })
+    .Paging(p => p.PageSize(10))
+    .Pager(p => p
+        .ShowPageSizeSelector(true)
+        .AllowedPageSizes(new[] { 5, 10, 20 })
+        .ShowInfo(true)
+    )
+)*@

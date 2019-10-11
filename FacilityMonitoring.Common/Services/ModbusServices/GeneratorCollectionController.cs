@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Collections.Concurrent;
 using Microsoft.AspNetCore.SignalR;
 using FacilityMonitoring.Common.Server;
+using FacilityMonitoring.Common.DataLayer;
 
 namespace FacilityMonitoring.Common.Services {
     public class GeneratorCollectionController : IGeneratorCollectionController {
@@ -39,7 +40,7 @@ namespace FacilityMonitoring.Common.Services {
             get=>this._readInterval;
         }
 
-        public H2GenReading GetLastReading(string genId) {
+        public GeneratorReadingDTO GetLastReading(string genId) {
 
             var key = this._generatorOperations.Keys.SingleOrDefault(op => op.Device.Identifier == genId);
             if (key == null)
@@ -47,7 +48,11 @@ namespace FacilityMonitoring.Common.Services {
 
             H2GenReading temp = new H2GenReading();
             this._generatorOperations.TryGetValue(key,out temp);
-            return temp;
+            if(temp!=null) {
+                return new GeneratorReadingDTO(temp);
+            } else {
+                return null;
+            }
         }
 
         public void Start() {
@@ -63,6 +68,7 @@ namespace FacilityMonitoring.Common.Services {
                 }
             }
             this._readInterval = this.Operations.Min(gen => gen.Key.ReadInterval);
+
         }
 
         public async Task StartAsync() {
@@ -70,6 +76,7 @@ namespace FacilityMonitoring.Common.Services {
                 .AsNoTracking()
                 .OfType<H2Generator>()
                 .Include(e => e.Registers).ToListAsync();
+
             List<Task> taskList = new List<Task>();
             foreach (var generator in generators) {
                 var controller = (GeneratorOperations)DeviceOperationFactory.OperationFactory(this._context, generator);
@@ -90,7 +97,7 @@ namespace FacilityMonitoring.Common.Services {
 
                 readTaskList.Add(operation.ReadAsync().ContinueWith(async (data) => {
                     if (data.Result!=null) {
-                        await this._generatorHub.Clients.All.SendGeneratorReading(data.Result.TimeStamp+": "+data.Result.Identifier+" SystemPressure: " + data.Result.SystemPressure);
+                        await this._generatorHub.Clients.All.SendGeneratorReading(new GeneratorReadingDTO(data.Result));
                         this.Operations[operation] = data.Result;
                         this._logger.LogInformation(data.Result.Identifier+" Read Success");
                     } else {
@@ -112,6 +119,14 @@ namespace FacilityMonitoring.Common.Services {
 
         public void Stop() {
             this._logger.LogInformation("GeneratorController Stopping");
+        }
+
+        public IEnumerable<GeneratorReadingDTO> GetAllGenerators() {
+            List<GeneratorReadingDTO> generators = new List<GeneratorReadingDTO>();
+            foreach(var pair in this._generatorOperations) {
+                generators.Add(new GeneratorReadingDTO(pair.Value));
+            }
+            return generators.AsEnumerable();
         }
     }
 }
