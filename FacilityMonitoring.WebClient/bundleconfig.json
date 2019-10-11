@@ -1,17 +1,20 @@
 [
     {
         "outputFileName": "wwwroot/css/vendor.css",
-        "inputFiles": [
-            // Uncomment to use the Diagram control
-            //"wwwroot/css/devextreme/dx-diagram.css",
+      "inputFiles": [
+        // Uncomment to use the Diagram control
+        //"wwwroot/css/devextreme/dx-diagram.css",
 
-            "wwwroot/css/devextreme/dx.common.css",
+        "wwwroot/css/devextreme/dx.common.css",
 
-            // Custom theme with a color swatch
-            // Docs: https://js.devexpress.com/DevExtreme/Guide/Themes_and_Styles/Predefined_Themes/#Color_Swatches
-            "wwwroot/css/devextreme/theme.base.css",
-            "wwwroot/css/devextreme/theme.additional.css"
-        ],
+        // Custom theme with a color swatch
+        // Docs: https://js.devexpress.com/DevExtreme/Guide/Themes_and_Styles/Predefined_Themes/#Color_Swatches
+         "wwwroot/css/devextreme/theme.base.css",
+        //"wwwroot/css/devextreme/dx.darkmoon.css",
+        //"wwwroot/css/devextreme/dx.material.blue.dark.css",
+        //"wwwroot/css/devextreme/dx.material.teal.dark.css",
+        "wwwroot/css/devextreme/theme.additional.css"
+      ],
         "minify": {
             "enabled": false
         }
