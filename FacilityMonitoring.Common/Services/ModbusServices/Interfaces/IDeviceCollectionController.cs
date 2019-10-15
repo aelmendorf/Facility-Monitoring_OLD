@@ -1,4 +1,5 @@
 ﻿using FacilityMonitoring.Common.DataLayer;
+using FacilityMonitoring.Common.DataLayer.DTOs;
 using FacilityMonitoring.Common.Model;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -25,8 +26,8 @@ namespace FacilityMonitoring.Common.Services {
     }
 
     public interface IBoxCollectionController : IDeviceCollectionController {
-        ConcurrentDictionary<IGenericBoxOperations, GenericBoxReading> Operations { get; }
-        GenericBoxReading GetLastReading(string id);
+        ConcurrentDictionary<IGenericBoxOperations, BoxReadingDTO> Operations { get; }
+        BoxReadingDTO GetLastReading(string id);
 
         bool SetAlarm(string id,bool on_off);
         Task<bool> SetAlarmAsync(string id, bool on_off);

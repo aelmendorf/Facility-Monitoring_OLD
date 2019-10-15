@@ -6,10 +6,9 @@ using FacilityMonitoring.Common.DataLayer;
 using Microsoft.AspNetCore.SignalR;
 using FacilityMonitoring.Common.Server;
 using FacilityMonitoring.Common.Services;
+using FacilityMonitoring.Common.DataLayer.DTOs;
 
 namespace FacilityMonitoring.Common.Hardware {
-
-
     public class MonitorBoxOperations:IGenericBoxOperations  {
         private IModbusOperations _modbus;
         private MonitorBoxReadingAdd _addReading;
@@ -17,13 +16,11 @@ namespace FacilityMonitoring.Common.Hardware {
         private TimeSpan _readInterval;
         private DateTime _lastSave;
         private GenericBoxReading _lastReading;
-
         private GenericMonitorBox _device;
+        private BoxReadingDTO _readingDTO;
 
-        public string Data { get; set; }
-
-        public GenericBoxReading LastReading {
-            get => this._lastReading;
+        public BoxReadingDTO LastReading {
+            get => this._readingDTO;
         }
 
         public double ReadInterval {
@@ -45,19 +42,29 @@ namespace FacilityMonitoring.Common.Hardware {
             this._readInterval = new TimeSpan(0, 0, (int)box.ReadInterval);
             this._modbus = new ModbusOperations(this._device.IpAddress, this._device.Port, this._device.SlaveAddress);
             this._addReading = new MonitorBoxReadingAdd();
-            this.Data = "";
         }
 
         public async Task StartAsync() {
             await this.ReadAsync();
             await this.SaveAsync();
+            this.GenerateTable();
             this.ResetSaveTimer();       
         }
 
         public void Start() {
             this.Read();
             this.Save();
+            this.GenerateTable();
             this.ResetSaveTimer();
+        }
+
+        private void GenerateTable() {
+            BoxReadingDTO reading = new BoxReadingDTO();
+            var columns = this._device.Registers.Where(r => r.Display).ToList();
+            columns.ForEach(read => {
+                reading.Columns.Add(new Column() { ColumnName = read.PropertyMap, Header = read.Name });
+            });
+            reading.Rows.Add(this._lastReading);
         }
 
         public bool CheckSaveTime() {
@@ -68,7 +75,7 @@ namespace FacilityMonitoring.Common.Hardware {
             this._lastSave = DateTime.Now;
         }
 
-        public GenericBoxReading Read() {
+        public BoxReadingDTO Read() {
             int regCount = this._device.AnalogChannelCount + this._device.DigitalOutputChannelCount;
             var data = this._modbus.ReadRegistersAndCoils(0, regCount, 0, this._device.DigitalInputChannelCount);
             if (data != null) {
@@ -120,14 +127,15 @@ namespace FacilityMonitoring.Common.Hardware {
                 this._device.LastRead.GenericMonitorBoxAlert = alert;
                 this._device.LastRead.GenericMonitorBoxAlert.GenericBoxReadingId = this._device.LastRead.Id;
                 this._lastReading = this._device.LastRead;
+                this._readingDTO.Rows[0] = reading;
                 this.Data = DateTime.Now.ToString() + ":::Reading: " + reading.AnalogCh6.ToString();
-                return this._lastReading;
+                return this._readingDTO;
             } else {
                 return null;
             }
         }
 
-        public async Task<GenericBoxReading> ReadAsync() {
+        public async Task<BoxReadingDTO> ReadAsync() {
             int regCount = this._device.AnalogChannelCount + this._device.DigitalOutputChannelCount;
             var data = await this._modbus.ReadRegistersAndCoilsAsync(0, regCount, 0, this._device.DigitalInputChannelCount);
             if (data != null) {
@@ -179,7 +187,8 @@ namespace FacilityMonitoring.Common.Hardware {
                 this._device.LastRead.GenericMonitorBoxAlert = alert;
                 this._device.LastRead.GenericMonitorBoxAlert.GenericBoxReadingId = this._device.LastRead.Id;
                 this._lastReading = this._device.LastRead;
-                return this._lastReading;
+                this._readingDTO.Rows[0] = this._device.LastRead;
+                return this._readingDTO;
             } else {
                 return null;
             }

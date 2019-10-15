@@ -3,6 +3,7 @@ using FacilityMonitoring.Common.Hardware;
 using FacilityMonitoring.Common.Model;
 using FacilityMonitoring.Common.Services;
 using Microsoft.AspNetCore.SignalR;
+using FacilityMonitoring.Common.DataLayer;
 using System.Linq;
 using System;
 
@@ -22,9 +23,9 @@ namespace FacilityMonitoring.Common.Server {
         public async Task GetCurrentReading(string identifier) {
             var reading = this._controller.GetLastReading(identifier);
             if (reading != null) {
-                await Clients.Caller.RecieveReadingCallBack(reading.TimeStamp + "A6: " + reading.AnalogCh6);
+                await Clients.Caller.RecieveReadingCallBack(reading);
             } else {
-
+                await Clients.Caller.RecieveErrorMessage("Error retrieving box");
             }
         }
 

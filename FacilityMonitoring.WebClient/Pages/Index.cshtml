@@ -1,9 +1,9 @@
 @page
 @using FacilityMonitoring.Common.DataLayer
+@model BoxReadingDTO
 
 
-
-<h2 class=>H2 Generators</h2>
+<h2>H2 Generators</h2>
 
 @(Html.DevExtreme().DataGrid<GeneratorReadingDTO>()
     .ID("genReadings")
@@ -24,20 +24,76 @@
     })
 )
 
+<h2>Gas Bay</h2>
+
+@*@(Html.DevExtreme().DataGrid<BoxReadingDTO>()
+        .DataSource(Model.Rows)
+        .Visible(false)
+        .ShowBorders(true)
+        .HighlightChanges(true)
+        .AllowColumnResizing(true)
+        .ColumnAutoWidth(true)
+        .Columns(columns => {
+            foreach (var column in Model.Columns) {
+                columns.Add().DataField(column.ColumnName).Caption(column.Header);
+            }
+        })
+    )*@
+
+@(Html.DevExtreme().DataGrid<BoxReadingDTO>()
+    .DataSource(new JS("boxData"))
+    .Visible(false)
+    .ShowBorders(true)
+    .HighlightChanges(true)
+    .AllowColumnResizing(true)
+    .ColumnAutoWidth(true)
+)
+
 <script src="~/js/signalr/dist/browser/signalr.js"></script>
 <script>
-    var connection = new signalR.HubConnectionBuilder()
+    var boxdata = [];
+    var boxStore = new DevExpress.data.ArrayStore({
+        key: "identifier",
+        data: boxdata
+    });
+
+    function generateTable(dto) {
+        var columns = dto.Columns;
+        var rows = dto.Rows;
+
+    }
+
+    var genconnection = new signalR.HubConnectionBuilder()
         .withUrl("http://172.20.4.209:443/hubs/generator")
         .configureLogging(signalR.LogLevel.Information)
         .build();
 
+    var boxConnection = new signalR.HubConnectionBuilder()
+        .withUrl("http://172.20.4.209:443/hubs/monitor")
+        .configureLogging(signalR.LogLevel.Information)
+        .build();
+
     $(function () {
-        connection.start()
+
+        boxConnection.start().then(function () {
+            var store = new DevExpress.data.CustomStore({
+                load: function () {
+                    var ret = genconnection.invoke("GetCurrentReading");
+                    for
+                }, key: "identifier"
+                
+            });
+            
+        });
+    });
+
+    $(function () {
+        genconnection.start()
             .then(function () {
 
                 var store = new DevExpress.data.CustomStore({
                     load: function () {
-                        return connection.invoke("GetAllGenerators");
+                        return genconnection.invoke("GetAllGenerators");
                     }, key: "identifier"
                 });
                 $("#genReadings").dxDataGrid({
@@ -45,11 +101,13 @@
                     visible: true
                 });
 
-                connection.on("SendGeneratorReading", function (data) {
+                genconnection.on("SendGeneratorReading", function (data) {
                     store.push([{ type: "update", key: data.identifier, data: data }]);
                 });
             });
     });
+
+
 </script>
 
 @*@(Html.DevExtreme().DataGrid<Order>()

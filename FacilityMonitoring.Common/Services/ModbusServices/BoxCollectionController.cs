@@ -9,23 +9,26 @@ using System.Threading.Tasks;
 using System.Collections.Concurrent;
 using Microsoft.AspNetCore.SignalR;
 using FacilityMonitoring.Common.Server;
+using FacilityMonitoring.Common.DataLayer.DTOs;
+using FacilityMonitoring.Common.DataLayer;
 
 namespace FacilityMonitoring.Common.Services {
     public class BoxCollectionController : IBoxCollectionController {
-        private ConcurrentDictionary<IGenericBoxOperations,GenericBoxReading> _boxOperations;
+        private ConcurrentDictionary<IGenericBoxOperations, BoxReadingDTO> _boxOperations;
         private readonly FacilityContext _context;
         private readonly ILogger<IBoxCollectionController> _logger;
         private readonly IHubContext<MonitorBoxHub, IMonitorBoxHub> _boxHub;
+
         private double _readInterval = 10.0;
 
         public BoxCollectionController(FacilityContext context,ILogger<IBoxCollectionController> logger, IHubContext<MonitorBoxHub, IMonitorBoxHub> boxHub) {
             this._context = context;
             this._logger = logger;
             this._boxHub = boxHub;
-            this._boxOperations = new ConcurrentDictionary<IGenericBoxOperations, GenericBoxReading>();
+            this._boxOperations = new ConcurrentDictionary<IGenericBoxOperations, BoxReadingDTO>();
         }
 
-        public ConcurrentDictionary<IGenericBoxOperations, GenericBoxReading> Operations {
+        public ConcurrentDictionary<IGenericBoxOperations, BoxReadingDTO> Operations {
             get => this._boxOperations;
         }
 
@@ -42,7 +45,7 @@ namespace FacilityMonitoring.Common.Services {
             foreach (var box in boxes) {
                 var controller = (IGenericBoxOperations)DeviceOperationFactory.OperationFactory(this._context,box);
                 if (controller != null) {
-                    this._boxOperations.TryAdd(controller,new GenericBoxReading());
+                    this._boxOperations.TryAdd(controller,new BoxReadingDTO());
                     controller.Start();
                 }
             }
@@ -60,7 +63,7 @@ namespace FacilityMonitoring.Common.Services {
             foreach (var box in boxes) {
                 var controller = (IGenericBoxOperations)DeviceOperationFactory.OperationFactory(this._context, box);
                 if (controller != null) {
-                    this._boxOperations.TryAdd(controller, new GenericBoxReading());
+                    this._boxOperations.TryAdd(controller, new BoxReadingDTO());
                     taskList.Add(controller.StartAsync());
                 }
             }
@@ -75,7 +78,7 @@ namespace FacilityMonitoring.Common.Services {
                 readTasks.Add(operation.ReadAsync().ContinueWith(async (data) => {
                     if (data.Result != null) {
                         this._boxOperations[operation] = data.Result;
-                        await this._boxHub.Clients.All.RecieveAutoReading(data.Result.TimeStamp+": "+"A6: "+data.Result.AnalogCh5);   
+                        await this._boxHub.Clients.All.RecieveAutoReading("");   
                     }
                 }));
                 if (operation.CheckSaveTime()) {
@@ -96,12 +99,12 @@ namespace FacilityMonitoring.Common.Services {
             this._logger.LogInformation("MonitorBox Controller Stopping");
         }
 
-        public GenericBoxReading GetLastReading(string id) {
+        public BoxReadingDTO GetLastReading(string id) {
             var key = this._boxOperations.Keys.SingleOrDefault(op => op.Device.Identifier == id);
             if (key == null)
                 return null;
 
-            GenericBoxReading temp = new GenericBoxReading();
+            BoxReadingDTO temp = new BoxReadingDTO();
             this._boxOperations.TryGetValue(key, out temp);
             return temp;
         }

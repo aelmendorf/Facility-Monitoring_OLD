@@ -23,17 +23,10 @@ namespace FacilityMonitoring_WebClient
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            //services.AddCors(options => {
-            //    options.AddDefaultPolicy(builder => {
-            //        builder.AllowAnyOrigin();
-            //    });
-            //});
-
             // Add framework services.
             services.AddMvc()
                 .AddNewtonsoftJson(options => options.SerializerSettings.ContractResolver = new DefaultContractResolver())
                 .SetCompatibilityVersion(Microsoft.AspNetCore.Mvc.CompatibilityVersion.Version_3_0);
-                //.AddJsonOptions(options => options.SerializerSettings.ContractResolver = new DefaultContractResolver());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -45,7 +38,6 @@ namespace FacilityMonitoring_WebClient
                 app.UseDeveloperExceptionPage();
             }else{
                 app.UseExceptionHandler("/Home/Error");
-                //app.UseHsts();
             }
             app.UseRouting();
             app.UseStaticFiles();
@@ -56,13 +48,6 @@ namespace FacilityMonitoring_WebClient
                     pattern: "{controller=Home}/{action=Index}/{id?}");
                 endpoints.MapRazorPages();
             });
-
-            //app.UseMvc(routes =>
-            //{
-            //    routes.MapRoute(
-            //        name: "default",
-            //        template: "{controller=Home}/{action=Index}/{id?}");
-            //});
         }
     }
 }

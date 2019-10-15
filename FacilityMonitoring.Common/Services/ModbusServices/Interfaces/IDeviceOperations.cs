@@ -1,4 +1,5 @@
 ﻿using FacilityMonitoring.Common.Data;
+using FacilityMonitoring.Common.DataLayer.DTOs;
 using FacilityMonitoring.Common.Model;
 using System;
 using System.Collections.Generic;
@@ -21,9 +22,9 @@ namespace FacilityMonitoring.Common.Services {
     }
 
     public interface IGenericBoxOperations : IDeviceOperations {
-        GenericBoxReading LastReading { get; }
-        GenericBoxReading Read();
-        Task<GenericBoxReading> ReadAsync();
+        BoxReadingDTO LastReading { get; }
+        BoxReadingDTO Read();
+        Task<BoxReadingDTO> ReadAsync();
         bool SetAlarm(bool on_off);
         Task<bool> SetAlarmAsync(bool on_off);
         bool SetWarning(bool on_off);

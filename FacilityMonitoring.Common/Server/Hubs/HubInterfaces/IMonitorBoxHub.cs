@@ -1,11 +1,12 @@
 ﻿using System.Threading.Tasks;
+using FacilityMonitoring.Common.DataLayer;
 using FacilityMonitoring.Common.Model;
 using FacilityMonitoring.Common.Server.Hubs.HubInterfaces;
 
 namespace FacilityMonitoring.Common.Server {
     public interface IMonitorBoxHub: IDeviceHub {
-        Task RecieveAutoReading(string data);
-        Task RecieveReadingCallBack(string data);
+        Task RecieveAutoReading(BoxReadingDTO data);
+        Task RecieveReadingCallBack(BoxReadingDTO data);
         Task SetMaintenanceCallBack(bool success);
         Task RecieveStateCallBack(DeviceState state);
         Task RecieveChannelRawCallBack(ushort data);
