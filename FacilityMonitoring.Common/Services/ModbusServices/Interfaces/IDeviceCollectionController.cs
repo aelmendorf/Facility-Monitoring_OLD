@@ -26,8 +26,9 @@ namespace FacilityMonitoring.Common.Services {
     }
 
     public interface IBoxCollectionController : IDeviceCollectionController {
-        ConcurrentDictionary<IGenericBoxOperations, BoxReadingDTO> Operations { get; }
-        BoxReadingDTO GetLastReading(string id);
+        ConcurrentDictionary<IGenericBoxOperations, GenericBoxReading> Operations { get; }
+        GenericBoxReading GetCurrentReading(string id);
+        BoxReadingDTO GetDeviceTable(string id);
 
         bool SetAlarm(string id,bool on_off);
         Task<bool> SetAlarmAsync(string id, bool on_off);

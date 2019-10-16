@@ -10,12 +10,11 @@ namespace FacilityMonitoring.Common.DataLayer {
     }
 
     public class BoxReadingDTO {
-        public List<Column> Columns { get; set; }
-        public List<GenericBoxReading> Rows { get; set; }
+        public IEnumerable<Column> Columns { get; set; }
+        public GenericBoxReading Row { get; set; }
 
         public BoxReadingDTO() {
-            this.Columns = new List<Column>();
-            this.Rows = new List<GenericBoxReading>();
+
         }
     }
 }

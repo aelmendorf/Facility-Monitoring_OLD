@@ -33,7 +33,7 @@
                         .Location(ToolbarItemLocation.Before)
                         .CssClass("menu-button");
                     items.Add()
-                        .Html("<div>FacilityMonitoring_WebClient</div>")
+                        .Html("<div>Facility Monitoring Web Client</div>")
                         .Location(ToolbarItemLocation.Before)
                         .CssClass("header-title");
                 })
@@ -74,13 +74,83 @@
                 }
             }
 
-            @(Html.DevExtreme().TreeView()
+            @(Html.DevExtreme().TreeView().Width(250)
                 .Items(items => {
                     items.Add()
                         .Text("Home")
                         .Icon("home")
                         .Option("path", Url.Page("Index"))
-                        .Selected(IsCurrentPage("Index"));
+                        .Selected(IsCurrentPage("Index"))
+
+                        .Items(other=> {
+                            other.Add()
+                                .Text("Alert Managment")
+                                .Icon("toolbox");
+
+                            other.Add()
+                                .Text("All Device Stats")
+                                .Icon("formula");
+                        });
+
+                    items.Add().Text("Custom SETi Box").Icon("box")
+                    .Items(items => { 
+                        items.Add()
+                        .Text("GasBay Box Mngt")
+                        .Icon("box")
+                        .Items(bayItems=> {
+
+                            bayItems.Add()
+                            .Text("Register/Channels")
+                            .Icon("fieldchooser")
+                            .Option("path", Url.Page("Registers"))
+                            .Selected(IsCurrentPage("Registers"));
+
+                            bayItems.Add()
+                            .Text("Stats")
+                            .Icon("columnfield");
+                        });
+                    });
+
+                    items.Add()
+                    .Text("Ammonia Controller")
+                    .Icon("box")
+                    .Items(bayItems=> {
+                        bayItems.Add()
+                        .Text("Scale Calibration")
+                        .Icon("square");
+
+                        bayItems.Add()
+                        .Text("Stats")
+                        .Icon("formula");
+
+                        bayItems.Add()
+                        .Text("Register Mngt")
+                        .Icon("fieldchooser");
+                    });
+
+                    items.Add()
+                    .Text("H2 Generators")
+                    .Icon("trash")
+                    .Items(bayItems=> {
+
+                        bayItems.Add()
+                        .Text("Stats")
+                        .Icon("formula");
+
+                        bayItems.Add()
+                        .Text("Register Mngt")
+                        .Icon("fieldchooser");
+                    });
+
+
+                    items.Add()
+                    .Text("User")
+                    .Icon("trash")
+                    .Items(bayItems=> {
+                        bayItems.Add()
+                        .Text("Custom Alerts")
+                        .Icon("fieldchooser");
+                    });
 
                     items.Add()
                         .Text("About")

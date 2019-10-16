@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.SignalR;
 using FacilityMonitoring.Common.Server;
 using FacilityMonitoring.Common.Services;
 using FacilityMonitoring.Common.DataLayer.DTOs;
+using System.Collections.Generic;
 
 namespace FacilityMonitoring.Common.Hardware {
     public class MonitorBoxOperations:IGenericBoxOperations  {
@@ -19,8 +20,12 @@ namespace FacilityMonitoring.Common.Hardware {
         private GenericMonitorBox _device;
         private BoxReadingDTO _readingDTO;
 
-        public BoxReadingDTO LastReading {
+        public BoxReadingDTO DeviceTable {
             get => this._readingDTO;
+        }
+
+        public GenericBoxReading LastReading {
+            get => this._lastReading;
         }
 
         public double ReadInterval {
@@ -42,6 +47,7 @@ namespace FacilityMonitoring.Common.Hardware {
             this._readInterval = new TimeSpan(0, 0, (int)box.ReadInterval);
             this._modbus = new ModbusOperations(this._device.IpAddress, this._device.Port, this._device.SlaveAddress);
             this._addReading = new MonitorBoxReadingAdd();
+            this._readingDTO = new BoxReadingDTO();
         }
 
         public async Task StartAsync() {
@@ -60,11 +66,15 @@ namespace FacilityMonitoring.Common.Hardware {
 
         private void GenerateTable() {
             BoxReadingDTO reading = new BoxReadingDTO();
+            List<Column> cols = new List<Column>();
             var columns = this._device.Registers.Where(r => r.Display).ToList();
+
             columns.ForEach(read => {
-                reading.Columns.Add(new Column() { ColumnName = read.PropertyMap, Header = read.Name });
+                cols.Add(new Column() { ColumnName = Char.ToLowerInvariant(read.PropertyMap[0]) + read.PropertyMap.Substring(1), Header = read.Name });
             });
-            reading.Rows.Add(this._lastReading);
+            reading.Columns = cols;
+            reading.Row=this._lastReading;
+            this._readingDTO = reading;
         }
 
         public bool CheckSaveTime() {
@@ -75,7 +85,7 @@ namespace FacilityMonitoring.Common.Hardware {
             this._lastSave = DateTime.Now;
         }
 
-        public BoxReadingDTO Read() {
+        public GenericBoxReading Read() {
             int regCount = this._device.AnalogChannelCount + this._device.DigitalOutputChannelCount;
             var data = this._modbus.ReadRegistersAndCoils(0, regCount, 0, this._device.DigitalInputChannelCount);
             if (data != null) {
@@ -127,15 +137,14 @@ namespace FacilityMonitoring.Common.Hardware {
                 this._device.LastRead.GenericMonitorBoxAlert = alert;
                 this._device.LastRead.GenericMonitorBoxAlert.GenericBoxReadingId = this._device.LastRead.Id;
                 this._lastReading = this._device.LastRead;
-                this._readingDTO.Rows[0] = reading;
-                this.Data = DateTime.Now.ToString() + ":::Reading: " + reading.AnalogCh6.ToString();
-                return this._readingDTO;
+                this._readingDTO.Row=reading;
+                return this._lastReading;
             } else {
                 return null;
             }
         }
 
-        public async Task<BoxReadingDTO> ReadAsync() {
+        public async Task<GenericBoxReading> ReadAsync() {
             int regCount = this._device.AnalogChannelCount + this._device.DigitalOutputChannelCount;
             var data = await this._modbus.ReadRegistersAndCoilsAsync(0, regCount, 0, this._device.DigitalInputChannelCount);
             if (data != null) {
@@ -187,8 +196,9 @@ namespace FacilityMonitoring.Common.Hardware {
                 this._device.LastRead.GenericMonitorBoxAlert = alert;
                 this._device.LastRead.GenericMonitorBoxAlert.GenericBoxReadingId = this._device.LastRead.Id;
                 this._lastReading = this._device.LastRead;
-                this._readingDTO.Rows[0] = this._device.LastRead;
-                return this._readingDTO;
+                this._lastReading.Identifier = this._device.Identifier;
+                this._readingDTO.Row = this._device.LastRead;
+                return this._lastReading;
             } else {
                 return null;
             }

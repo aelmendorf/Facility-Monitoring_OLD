@@ -1,6 +1,5 @@
 @page
 @using FacilityMonitoring.Common.DataLayer
-@model BoxReadingDTO
 
 
 <h2>H2 Generators</h2>
@@ -26,22 +25,8 @@
 
 <h2>Gas Bay</h2>
 
-@*@(Html.DevExtreme().DataGrid<BoxReadingDTO>()
-        .DataSource(Model.Rows)
-        .Visible(false)
-        .ShowBorders(true)
-        .HighlightChanges(true)
-        .AllowColumnResizing(true)
-        .ColumnAutoWidth(true)
-        .Columns(columns => {
-            foreach (var column in Model.Columns) {
-                columns.Add().DataField(column.ColumnName).Caption(column.Header);
-            }
-        })
-    )*@
-
-@(Html.DevExtreme().DataGrid<BoxReadingDTO>()
-    .DataSource(new JS("boxData"))
+@(Html.DevExtreme().DataGrid()
+    .ID("boxReadings")
     .Visible(false)
     .ShowBorders(true)
     .HighlightChanges(true)
@@ -51,39 +36,58 @@
 
 <script src="~/js/signalr/dist/browser/signalr.js"></script>
 <script>
-    var boxdata = [];
-    var boxStore = new DevExpress.data.ArrayStore({
-        key: "identifier",
-        data: boxdata
-    });
-
-    function generateTable(dto) {
-        var columns = dto.Columns;
-        var rows = dto.Rows;
-
-    }
-
+    var boxReadingData = [{
+        "Identifier":"GasBay"
+    }];
     var genconnection = new signalR.HubConnectionBuilder()
-        .withUrl("http://172.20.4.209:443/hubs/generator")
+        //.withUrl("http://172.20.4.209:443/hubs/generator")
+        .withUrl("http://localhost:5000/hubs/generator")
         .configureLogging(signalR.LogLevel.Information)
         .build();
 
     var boxConnection = new signalR.HubConnectionBuilder()
-        .withUrl("http://172.20.4.209:443/hubs/monitor")
+        //.withUrl("http://172.20.4.209:443/hubs/monitor")
+        .withUrl("http://localhost:5000/hubs/monitor")
         .configureLogging(signalR.LogLevel.Information)
         .build();
 
     $(function () {
+        function successCallback(result) {
+            console.log("Should be a object: " + result.columns[0]);
+        }
+
+        function failureCallback(error) {
+          console.error("Error: " + error);
+        }
+
+        function generateData(dto) {
+            for (var x = 0; x < dto.columns.length; x++){
+                boxReadingData.map((d) => d[dto.columns[x].header] = dto.row[dto.columns[x].columnName])
+            }    
+        } 
+
+        var boxStore = {};
 
         boxConnection.start().then(function () {
-            var store = new DevExpress.data.CustomStore({
-                load: function () {
-                    var ret = genconnection.invoke("GetCurrentReading");
-                    for
-                }, key: "identifier"
-                
+                boxStore = new DevExpress.data.CustomStore({
+                        load: function () {
+                        return boxReadingData;
+                    },key: "Identifier"
+                });
+            boxConnection.invoke("GetDeviceTable","GasBay").then(generateData, failureCallback).then(function () {
+                $("#boxReadings").dxDataGrid({
+                    dataSource: boxStore,
+                    visible: true
+                });
             });
-            
+
+            //boxConnection.on("RecieveAutoReading", function (data) {
+            //    var obj = boxReadingData[0];
+            //    Object.keys(obj).forEach(function (key, index) {
+            //        obj[key] = data[key];
+            //    });
+            //    boxStore.push([{ type: "update", key: obj.Identifier, data: obj }]);
+            //});
         });
     });
 
@@ -109,27 +113,3 @@
 
 
 </script>
-
-@*@(Html.DevExtreme().DataGrid<Order>()
-        .ElementAttr(new { @class = "dx-card wide-card" })
-        .DataSource(d => d.Mvc().Controller("Orders").LoadAction("Get").Key("OrderID"))
-        .ShowBorders(false)
-        .FilterRow(f => f.Visible(true))
-        .FocusedRowEnabled(true)
-        .FocusedRowIndex(0)
-        .ColumnAutoWidth(true)
-        .ColumnHidingEnabled(true)
-        .Columns(columns => {
-            columns.AddFor(m => m.OrderID);
-            columns.AddFor(m => m.OrderDate);
-            columns.AddFor(m => m.CustomerName);
-            columns.AddFor(m => m.ShipCountry);
-            columns.AddFor(m => m.ShipCity);
-        })
-        .Paging(p => p.PageSize(10))
-        .Pager(p => p
-            .ShowPageSizeSelector(true)
-            .AllowedPageSizes(new[] { 5, 10, 20 })
-            .ShowInfo(true)
-        )
-    )*@

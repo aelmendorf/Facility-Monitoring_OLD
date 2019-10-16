@@ -24,7 +24,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FacilityMonitoring.Realtime
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FacilityMonitoring.DesktopClient", "FacilityMonitoring.DesktopClient\FacilityMonitoring.DesktopClient.csproj", "{5526E003-9040-43AA-849C-9D246A2CCC77}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FacilityMonitoring.WebClient", "FacilityMonitoring.WebClient\FacilityMonitoring.WebClient.csproj", "{E6AA3AA5-7DE5-47AB-8A4E-A0A791318CC9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FacilityMonitoring.WebClient", "FacilityMonitoring.WebClient\FacilityMonitoring.WebClient.csproj", "{E6AA3AA5-7DE5-47AB-8A4E-A0A791318CC9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

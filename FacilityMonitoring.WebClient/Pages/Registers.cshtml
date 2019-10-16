@@ -1,0 +1,135 @@
+﻿@page
+@using FacilityMonitoring.Common.DataLayer
+@using FacilityMonitoring.Common.Model;
+
+<h2>Registers View</h2>
+
+@(Html.DevExtreme().DataGrid<AnalogChannel>
+    ()
+    .ID("analogChannels")
+    .ElementAttr(new { @class = "dx-card wide-card" })
+    .DataSource(d => d.Mvc()
+    .Controller("MonitorBoxRegister")
+    .LoadAction("Registers")
+    .Key("Id"))
+    .Visible(true)
+    .ShowBorders(true)
+    .FocusedRowEnabled(true)
+    .Pager(p => p
+    .AllowedPageSizes(new[] { 2, 4, 6, 8,10,12,14,16 })
+    .ShowInfo(true)
+    .ShowNavigationButtons(true)
+    .ShowPageSizeSelector(true)
+    .Visible(true))
+    .Paging(p => p.PageSize(8))
+    .ColumnChooser(c => c
+    .Enabled(true)
+    .Mode(GridColumnChooserMode.Select))
+    .AllowColumnResizing(true)
+    .ColumnAutoWidth(true)
+    .Editing(e => e.Mode(GridEditMode.Popup)
+    .AllowUpdating(true)
+    .Popup(p => p
+    .Title("Register Info")
+    .ShowTitle(true)
+    .Position(pos => pos
+    .My(HorizontalAlignment.Center, VerticalAlignment.Top)
+    .At(HorizontalAlignment.Center, VerticalAlignment.Top)
+    .Of(new JS("window"))
+    )
+    )
+    .Form(f => f.Items(items => {
+        items.AddGroup()
+        .ColCount(4)
+        .ColSpan(4)
+        .Items(groupItems => {
+            groupItems.AddSimpleFor(m => m.Name);
+            groupItems.AddSimpleFor(m => m.Connected);
+            groupItems.AddSimpleFor(m => m.Bypass);
+            groupItems.AddSimpleFor(m => m.Logic);
+            groupItems.AddSimpleFor(m => m.Display);
+            groupItems.AddSimpleFor(m => m.ValueDivisor);
+        });
+        items.AddGroup()
+        .Caption("Alert Settings")
+        .ColCount(3)
+        .ColSpan(3)
+        .Items(groupItems => {
+            groupItems.AddSimpleFor(m => m.Alarm1SetPoint);
+            groupItems.AddSimpleFor(m => m.Alarm1Action);
+            groupItems.AddSimpleFor(m => m.Alarm1Enabled);
+
+            groupItems.AddSimpleFor(m => m.Alarm2SetPoint);
+            groupItems.AddSimpleFor(m => m.Alarm2Action);
+            groupItems.AddSimpleFor(m => m.Alarm2Enabled);
+
+            groupItems.AddSimpleFor(m => m.Alarm3SetPoint);
+            groupItems.AddSimpleFor(m => m.Alarm3Action);
+            groupItems.AddSimpleFor(m => m.Alarm3Enabled);
+        });
+
+        items.AddGroup()
+        .Caption("Detector Setup")
+        .ColCount(3)
+        .ColSpan(3)
+        .Items(groupItems => {
+            groupItems.AddSimpleFor(m => m.SensorTypeId);
+            groupItems.AddSimpleFor(m => m.Slope);
+            groupItems.AddSimpleFor(m => m.Offset);
+            groupItems.AddSimpleFor(m => m.ZeroValue);
+            groupItems.AddSimpleFor(m => m.MaxValue);
+        });
+    }))
+    )
+    .Columns(columns => {
+        columns.AddFor(d => d.Id).DataField("Id").Caption("RegisterId");
+        columns.AddFor(d => d.Name).DataField("Name").Caption("Name");
+        columns.AddFor(d => d.RegisterIndex).DataField("RegisterIndex").Caption("Register Index");
+        columns.AddFor(d => d.RegisterLength).DataField("RegisterLength").Caption("Register Length");
+        columns.AddFor(d => d.Connected).DataField("Connected").Caption("Connected").DataType(GridColumnDataType.Boolean);
+        columns.AddFor(d => d.Bypass).DataField("Bypass").Caption("ByPass?").AllowEditing(true);
+        columns.AddFor(d => d.PropertyMap).DataField("PropertMap").Caption("Property Name").AllowEditing(false);
+        columns.AddFor(d => d.Logic).DataField("Logic").Caption("Logic Type(High/Low)");
+        columns.AddFor(d => d.Display).DataField("Display").Caption("Display?");
+        columns.AddFor(d => d.SensorTypeId).Lookup(lookup => {
+            lookup.DataSource(d => d.Mvc().Controller("SensorType")
+            .LoadAction("SensorTypes").Key("Id"))
+                .DisplayExpr("Name")
+                .ValueExpr("Id");
+        });
+
+        columns.Add().Caption("Equation Parameters").Columns(sub => {
+            sub.Add().Caption("Current Equation Param").Columns(subSub => {
+                subSub.AddFor(d => d.Slope).DataField("Slope").Caption("Slope");
+                subSub.AddFor(d => d.Offset).DataField("Offset").Caption("Offset");
+            });
+            sub.Add().Caption("Detector Equation Param").Columns(d => {
+                d.AddFor(d => d.ZeroValue).DataField("ZeroValue").Caption("Zero Value");
+                d.AddFor(d => d.MaxValue).DataField("MaxValue").Caption("Max Value");
+            });
+        });
+        columns.Add().Caption("Alert Settings").Columns(col => {
+            col.Add().Caption("Alarm 1").Columns(col1 => {
+                col1.AddFor(d => d.Alarm1SetPoint).DataField("Alarm1SetPoint").Caption("Alarm1SetPoint");
+                col1.AddFor(d => d.Alarm1Action).DataField("Alarm1Action").Caption("Alarm1Action");
+                col1.AddFor(d => d.Alarm1Enabled).DataField("Alarm1Enabled").Caption("Alarm1Enabled");
+            });
+            col.Add().Caption("Alarm 2").Columns(col2 => {
+                col2.AddFor(d => d.Alarm2SetPoint).DataField("Alarm2SetPoint").Caption("Alarm 2 SetPoint");
+                col2.AddFor(d => d.Alarm2Action).DataField("Alarm2Action").Caption("Alarm 2 Action");
+                col2.AddFor(d => d.Alarm2Enabled).DataField("Alarm2Enabled").Caption("Alarm 2 Enabled");
+            });
+            col.Add().Caption("Alarm 3").Columns(col3 => {
+                col3.AddFor(d => d.Alarm3SetPoint).DataField("Alarm3SetPoint").Caption("Alarm 3 Set Point");
+                col3.AddFor(d => d.Alarm3Action).DataField("Alarm3Action").Caption("Alarm 3 Action");
+                col3.AddFor(d => d.Alarm3Enabled).DataField("Alarm3Enabled").Caption("Alarm 3 Enabled");
+            });
+        });
+        columns.AddFor(d => d.ValueDivisor).DataField("ValueDivisor").Caption("Divisor");
+
+    })
+    )
+
+    <script>
+
+    </script>

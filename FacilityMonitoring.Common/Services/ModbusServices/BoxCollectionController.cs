@@ -14,7 +14,7 @@ using FacilityMonitoring.Common.DataLayer;
 
 namespace FacilityMonitoring.Common.Services {
     public class BoxCollectionController : IBoxCollectionController {
-        private ConcurrentDictionary<IGenericBoxOperations, BoxReadingDTO> _boxOperations;
+        private ConcurrentDictionary<IGenericBoxOperations, GenericBoxReading> _boxOperations;
         private readonly FacilityContext _context;
         private readonly ILogger<IBoxCollectionController> _logger;
         private readonly IHubContext<MonitorBoxHub, IMonitorBoxHub> _boxHub;
@@ -25,10 +25,10 @@ namespace FacilityMonitoring.Common.Services {
             this._context = context;
             this._logger = logger;
             this._boxHub = boxHub;
-            this._boxOperations = new ConcurrentDictionary<IGenericBoxOperations, BoxReadingDTO>();
+            this._boxOperations = new ConcurrentDictionary<IGenericBoxOperations, GenericBoxReading>();
         }
 
-        public ConcurrentDictionary<IGenericBoxOperations, BoxReadingDTO> Operations {
+        public ConcurrentDictionary<IGenericBoxOperations, GenericBoxReading> Operations {
             get => this._boxOperations;
         }
 
@@ -45,7 +45,7 @@ namespace FacilityMonitoring.Common.Services {
             foreach (var box in boxes) {
                 var controller = (IGenericBoxOperations)DeviceOperationFactory.OperationFactory(this._context,box);
                 if (controller != null) {
-                    this._boxOperations.TryAdd(controller,new BoxReadingDTO());
+                    this._boxOperations.TryAdd(controller,new GenericBoxReading());
                     controller.Start();
                 }
             }
@@ -63,7 +63,7 @@ namespace FacilityMonitoring.Common.Services {
             foreach (var box in boxes) {
                 var controller = (IGenericBoxOperations)DeviceOperationFactory.OperationFactory(this._context, box);
                 if (controller != null) {
-                    this._boxOperations.TryAdd(controller, new BoxReadingDTO());
+                    this._boxOperations.TryAdd(controller, new GenericBoxReading());
                     taskList.Add(controller.StartAsync());
                 }
             }
@@ -78,7 +78,7 @@ namespace FacilityMonitoring.Common.Services {
                 readTasks.Add(operation.ReadAsync().ContinueWith(async (data) => {
                     if (data.Result != null) {
                         this._boxOperations[operation] = data.Result;
-                        await this._boxHub.Clients.All.RecieveAutoReading("");   
+                        await this._boxHub.Clients.All.RecieveAutoReading(data.Result);   
                     }
                 }));
                 if (operation.CheckSaveTime()) {
@@ -97,16 +97,6 @@ namespace FacilityMonitoring.Common.Services {
 
         public void Stop() {
             this._logger.LogInformation("MonitorBox Controller Stopping");
-        }
-
-        public BoxReadingDTO GetLastReading(string id) {
-            var key = this._boxOperations.Keys.SingleOrDefault(op => op.Device.Identifier == id);
-            if (key == null)
-                return null;
-
-            BoxReadingDTO temp = new BoxReadingDTO();
-            this._boxOperations.TryGetValue(key, out temp);
-            return temp;
         }
 
         public bool SetAlarm(string id, bool on_off) {
@@ -197,6 +187,24 @@ namespace FacilityMonitoring.Common.Services {
                 return 0;
 
             return boxOperation.GetAnalogChannelVoltage(channel);
+        }
+
+        public BoxReadingDTO GetDeviceTable(string id) {
+            var boxOperation = this._boxOperations.Keys.SingleOrDefault(op => op.Device.Identifier == id);
+            if (boxOperation == null)
+                return null;
+
+            return boxOperation.DeviceTable;
+        }
+
+        public GenericBoxReading GetCurrentReading(string id) {
+            var key = this._boxOperations.Keys.SingleOrDefault(op => op.Device.Identifier == id);
+            if (key == null)
+                return null;
+
+            GenericBoxReading temp = new GenericBoxReading();
+            this._boxOperations.TryGetValue(key, out temp);
+            return temp;
         }
     }
 }

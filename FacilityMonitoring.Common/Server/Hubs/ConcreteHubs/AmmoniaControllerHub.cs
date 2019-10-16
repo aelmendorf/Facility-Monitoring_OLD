@@ -12,7 +12,7 @@ namespace FacilityMonitoring.Common.Server {
         }
 
         public async Task GetLastReading() {
-            await Clients.Caller.RecieveReadingCallBack(this._controller.Operations.Data);
+            await Clients.Caller.RecieveReadingCallBack("");
         }
 
         public async Task SetCalibrationMode(bool onOff) {

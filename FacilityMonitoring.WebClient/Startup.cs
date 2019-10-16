@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using FacilityMonitoring.Common.Model;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -24,8 +25,14 @@ namespace FacilityMonitoring_WebClient
         public void ConfigureServices(IServiceCollection services)
         {
             // Add framework services.
+            services.AddTransient<FacilityContext>(provider => {
+                return new FacilityContext();
+            });
             services.AddMvc()
-                .AddNewtonsoftJson(options => options.SerializerSettings.ContractResolver = new DefaultContractResolver())
+                .AddNewtonsoftJson(options => { 
+                    options.SerializerSettings.ContractResolver = new DefaultContractResolver();
+                    options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+                })
                 .SetCompatibilityVersion(Microsoft.AspNetCore.Mvc.CompatibilityVersion.Version_3_0);
         }
 

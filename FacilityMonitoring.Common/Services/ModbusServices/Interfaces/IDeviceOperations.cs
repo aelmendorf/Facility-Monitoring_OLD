@@ -1,4 +1,5 @@
 ﻿using FacilityMonitoring.Common.Data;
+using FacilityMonitoring.Common.DataLayer;
 using FacilityMonitoring.Common.DataLayer.DTOs;
 using FacilityMonitoring.Common.Model;
 using System;
@@ -11,7 +12,6 @@ namespace FacilityMonitoring.Common.Services {
     public interface IDeviceOperations {
         double ReadInterval { get; }
         double SaveInterval { get; }
-        string Data { get; }
         Task StartAsync();
         void Start();
         ModbusDevice Device { get;}
@@ -22,9 +22,10 @@ namespace FacilityMonitoring.Common.Services {
     }
 
     public interface IGenericBoxOperations : IDeviceOperations {
-        BoxReadingDTO LastReading { get; }
-        BoxReadingDTO Read();
-        Task<BoxReadingDTO> ReadAsync();
+        BoxReadingDTO DeviceTable { get; }
+        GenericBoxReading LastReading { get; }
+        GenericBoxReading Read();
+        Task<GenericBoxReading> ReadAsync();
         bool SetAlarm(bool on_off);
         Task<bool> SetAlarmAsync(bool on_off);
         bool SetWarning(bool on_off);

@@ -20,13 +20,21 @@ namespace FacilityMonitoring.Common.Server {
             await Clients.Caller.SetMaintenanceCallBack(success);
         }
 
-        public async Task GetCurrentReading(string identifier) {
-            var reading = this._controller.GetLastReading(identifier);
-            if (reading != null) {
-                await Clients.Caller.RecieveReadingCallBack(reading);
-            } else {
-                await Clients.Caller.RecieveErrorMessage("Error retrieving box");
-            }
+        //public async Task GetCurrentReading(string identifier) {
+        //    var reading = this._controller.GetLastReading(identifier);
+        //    if (reading != null) {
+        //        await Clients.Caller.RecieveReadingCallBack(reading);
+        //    } else {
+        //        await Clients.Caller.RecieveErrorMessage("Error retrieving box");
+        //    }
+        //}
+
+        public GenericBoxReading GetCurrentReading(string id) {
+            return this._controller.GetCurrentReading(id);
+        }
+
+        public BoxReadingDTO GetDeviceTable(string id) {
+            return this._controller.GetDeviceTable(id);
         }
 
         public async Task GetAnalogChannelRaw(string identifier,int channel) {

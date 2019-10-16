@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
+using FacilityMonitoring.Common.DataLayer;
 using FacilityMonitoring.Common.Hardware;
 using FacilityMonitoring.Common.Server;
 using FacilityMonitoring.Common.ServiceLayer;
