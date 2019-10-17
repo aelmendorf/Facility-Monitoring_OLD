@@ -208,10 +208,6 @@ namespace FacilityMonitoring.Common.Model {
         NO_STATE_YET=30
     }
 
-
-
-
-
     public enum H2Type {
         WATERLEVEL,
         WATERFLOW,

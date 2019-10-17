@@ -9,11 +9,8 @@
 
         // Custom theme with a color swatch
         // Docs: https://js.devexpress.com/DevExtreme/Guide/Themes_and_Styles/Predefined_Themes/#Color_Swatches
-         "wwwroot/css/devextreme/theme.base.css",
-        //"wwwroot/css/devextreme/dx.darkmoon.css",
-        //"wwwroot/css/devextreme/dx.material.blue.dark.css",
-        //"wwwroot/css/devextreme/dx.material.teal.dark.css",
-        "wwwroot/css/devextreme/theme.additional.css"
+        "wwwroot/css/devextreme/dx.material.setdark.css",
+        "wwwroot/css/devextreme/dx.material.setdark-additional"
       ],
         "minify": {
             "enabled": false
