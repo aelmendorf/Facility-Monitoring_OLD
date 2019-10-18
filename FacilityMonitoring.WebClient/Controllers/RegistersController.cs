@@ -23,14 +23,18 @@ namespace FacilityMonitoring_WebClient.Controllers
         }
 
         [HttpGet]
-        public object AnalogRegisters(DataSourceLoadOptions loadOptions) {
-            return DataSourceLoader.Load(this._context.Registers.OfType<AnalogChannel>().Include(e=>e.SensorType), loadOptions);
+        public async Task<object> AnalogRegisters(DataSourceLoadOptions loadOptions) {
+            var result = await Task.Run(() => {
+
+                return DataSourceLoader.Load(this._context.Registers.OfType<AnalogChannel>().Include(e => e.SensorType).OrderBy(e => e.RegisterIndex), loadOptions);
+            });
+            return result;
         }
 
 
         [HttpPut]
         public async Task<IActionResult> AnalogChannelUpdate(int key,string values) {
-            var register = this._context.Registers.OfType<AnalogChannel>().Include(e=>e.SensorType).SingleOrDefault(e => e.Id == key);
+            var register = await this._context.Registers.OfType<AnalogChannel>().Include(e=>e.SensorType).SingleOrDefaultAsync(e => e.Id == key);
             JsonConvert.PopulateObject(values, register);
             this._context.Entry<AnalogChannel>(register).State=EntityState.Modified;
             await this._context.SaveChangesAsync();

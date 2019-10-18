@@ -41,8 +41,8 @@ namespace FacilityMonitoring.RealtimeServer {
 
             app.UseRouting();
             app.UseCors(builder => {
-                builder.WithOrigins("http://localhost:51864")
-                //builder.WithOrigins("http://172.20.4.202")
+                //builder.WithOrigins("http://localhost:51864")
+                builder.WithOrigins("http://172.20.4.202")
                     .AllowAnyHeader()
                     .AllowAnyMethod()
                     .AllowCredentials();
@@ -57,29 +57,3 @@ namespace FacilityMonitoring.RealtimeServer {
         }
     }
 }
-
-
-//public void ConfigureServices(IServiceCollection services) {
-//    services.AddSignalR();
-//    using var context = new FacilityContext();
-//    var box = context.GetMonitorBox("GasBay", false);
-//    var generator1 = context.GetGenerator("Generator 1", false);
-
-//    if (box != null) {
-//        MonitorBoxController controller = new MonitorBoxController(box);
-//        services.AddSingleton<MonitorBoxController>(controller);
-
-//    } else {
-//        throw new Exception("Error: Specific Monitor Box Not Found");
-//    }
-
-//    if (generator1 != null) {
-//        GeneratorController controller = new GeneratorController(generator1);
-//        services.AddSingleton<GeneratorController>(controller);
-//    } else {
-//        throw new Exception("Error: Specific Generator Not Found");
-//    }
-
-//    services.AddHostedService<MonitorHubService>();
-//    services.AddHostedService<GeneratorHubService>();
-//}

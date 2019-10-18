@@ -19,6 +19,11 @@ body, html {
     z-index: 1501;
 }
 
+.header{
+    position:center;
+    text-align:center;
+}
+
 .dx-toolbar .dx-toolbar-item.menu-button {
     width: 100px;
     text-align: center;
@@ -63,7 +68,7 @@ body, html {
 
 .layout-body .menu-container {
     height: 100%;
-    width: 250px;
+    width: 300px;
 }
 
     .layout-body .content {
@@ -79,11 +84,11 @@ body, html {
     letter-spacing: -.5px;
 }
 
-.layout-body .content-block {
-    margin-left: 20px;
-    margin-right: 20px;
-    margin-top: 20px;
-}
+    .layout-body .content-block {
+        margin-left: 20px;
+        margin-right: 20px;
+        margin-top: 20px;
+    }
 
 .layout-body .content-footer {
     display: block;

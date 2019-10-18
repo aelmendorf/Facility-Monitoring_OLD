@@ -42,8 +42,8 @@
         </div>
         <div class="layout-body">
             @(Html.DevExtreme().Drawer()
-                .ID("layout-drawer")
-                .Position(DrawerPosition.Left)
+        .ID("layout-drawer")
+        .Position(DrawerPosition.Left)
                 .Opened(new JS("FacilityMonitoring_WebClient.restoreDrawerOpened()"))
                 .Content(@<text>
                     <div id="layout-drawer-scrollview" class="with-footer">
@@ -65,7 +65,7 @@
     </div>
 
     @using(Html.DevExtreme().NamedTemplate("navigation-menu")) {
-        <div class="menu-container dx-swatch-setdark-additional">
+        <div class="menu-container dx-swatch-setdark-additional" style="width:300px">
 
             @functions{
                 bool IsCurrentPage(string pageName) {
@@ -74,7 +74,7 @@
                     return pageUrl == currentPageUrl;
                 }
             }
-            @(Html.DevExtreme().TreeView().Width(250)
+            @(Html.DevExtreme().TreeView()
                 .Items(items => {
                     items.Add()
                         .Text("Home")
@@ -162,7 +162,7 @@
                 .SelectionMode(NavSelectionMode.Single)
                 .SelectedExpr("selected")
                 .FocusStateEnabled(false)
-                .Width(250)
+                .Width(300)
                 .OnItemClick("FacilityMonitoring_WebClient.onTreeViewItemClick")
             )
         </div>

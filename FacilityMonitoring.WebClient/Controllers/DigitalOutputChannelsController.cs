@@ -13,7 +13,6 @@ using Newtonsoft.Json;
 namespace FacilityMonitoring.WebClient.Controllers
 {
     [Route("api/[controller]")]
-    [ApiController]
     public class DigitalOutputChannelsController : ControllerBase
     {
 
@@ -26,14 +25,16 @@ namespace FacilityMonitoring.WebClient.Controllers
 
 
         [HttpGet]
-        public object DigitalOutputRegisters(DataSourceLoadOptions loadOptions) {
-            return DataSourceLoader.Load(this._context.Registers.OfType<DigitalOutputChannel>().Include(e => e.SensorType), loadOptions);
+        public async Task<object> DigitalOutputRegisters(DataSourceLoadOptions loadOptions) {
+            var result = await Task.Run(
+                () => DataSourceLoader.Load(this._context.Registers.OfType<DigitalOutputChannel>().Include(e => e.SensorType).OrderBy(e => e.RegisterIndex), loadOptions));
+            return result;
         }
 
 
         [HttpPut]
         public async Task<IActionResult> OutputChannelUpdate(int key, string values) {
-            var register = this._context.Registers.OfType<DigitalOutputChannel>().Include(e => e.SensorType).SingleOrDefault(e => e.Id == key);
+            var register = await this._context.Registers.OfType<DigitalOutputChannel>().Include(e => e.SensorType).SingleOrDefaultAsync(e => e.Id == key);
             JsonConvert.PopulateObject(values, register);
             this._context.Entry<DigitalOutputChannel>(register).State = EntityState.Modified;
             await this._context.SaveChangesAsync();

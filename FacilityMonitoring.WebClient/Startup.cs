@@ -25,9 +25,10 @@ namespace FacilityMonitoring_WebClient
         public void ConfigureServices(IServiceCollection services)
         {
             // Add framework services.
-            services.AddTransient<FacilityContext>(provider => {
-                return new FacilityContext();
-            });
+            //services.AddTransient<FacilityContext>(provider => {
+            //    return new FacilityContext();
+            //});
+            services.AddDbContext<FacilityContext>();
             services.AddMvc()
                 .AddNewtonsoftJson(options => { 
                     options.SerializerSettings.ContractResolver = new DefaultContractResolver();

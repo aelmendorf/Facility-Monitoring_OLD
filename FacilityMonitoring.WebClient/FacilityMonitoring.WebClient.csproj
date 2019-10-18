@@ -30,6 +30,10 @@
     </ProjectReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Models\" />
+  </ItemGroup>
+
   <ProjectExtensions><VisualStudio><UserProperties TemplateFeatures="NETCORE CS RESPONSIVE" /></VisualStudio></ProjectExtensions>
 
 </Project>

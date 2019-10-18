@@ -20,6 +20,16 @@ namespace FacilityMonitoring.Common.Server {
             await Clients.Caller.SetMaintenanceCallBack(success);
         }
 
+        public async Task SetAlarmDebug(string identifier,bool onOff) {
+            var success = await this._controller.SetAlarmAsync(identifier, onOff);
+            await Clients.Caller.SetAlarmCallBack(success);
+        }
+
+        public async Task SetWarnDebug(string identifier, bool onOff) {
+            var success = await this._controller.SetWarningAsync(identifier, onOff);
+            await Clients.Caller.SetWarnCallBack(success);
+        }
+
         //public async Task GetCurrentReading(string identifier) {
         //    var reading = this._controller.GetLastReading(identifier);
         //    if (reading != null) {
