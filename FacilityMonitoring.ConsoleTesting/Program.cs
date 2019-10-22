@@ -30,7 +30,7 @@ namespace FacilityMonitoring.ConsoleTesting {
 
             //ExportH2ReadingParam();
             //ExportNH3ReadingParam();
-            ExportH2SystemErrorParam();
+            //ExportH2SystemErrorParam();
             //ImportModbusH2("Generator 1", "172.21.100.25", 1);
             //ImportModbusH2("Generator 2", "172.21.100.26", 1);
             //ImportModbusH2("Generator 3", "172.21.100.27", 1);
@@ -38,6 +38,10 @@ namespace FacilityMonitoring.ConsoleTesting {
             //TestGeneratorRead("Generator 1");
             //TestGeneratorRead("Generator 2");
             //TestGeneratorRead("Generator 3");
+        }
+
+        public static void TestEmail() {
+
         }
 
         public static void TestingNewLinq() {

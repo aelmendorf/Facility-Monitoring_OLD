@@ -15,6 +15,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Clients", "Clients", "{9BFA
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Assemblies", "Assemblies", "{BB24FE97-76C9-4464-9D98-CE86CCFE012B}"
 	ProjectSection(SolutionItems) = preProject
+		Assembiles\Microsoft.Exchange.WebServices.NETStandard.deps.json = Assembiles\Microsoft.Exchange.WebServices.NETStandard.deps.json
+		Assembiles\Microsoft.Exchange.WebServices.NETStandard.dll = Assembiles\Microsoft.Exchange.WebServices.NETStandard.dll
+		Assembiles\Microsoft.Exchange.WebServices.NETStandard.pdb = Assembiles\Microsoft.Exchange.WebServices.NETStandard.pdb
 		Assembiles\NModbus4.deps.json = Assembiles\NModbus4.deps.json
 		Assembiles\NModbus4.dll = Assembiles\NModbus4.dll
 		Assembiles\NModbus4.pdb = Assembiles\NModbus4.pdb

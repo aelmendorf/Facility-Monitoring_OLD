@@ -7,7 +7,6 @@ namespace FacilityMonitoring.Common.Model {
     public enum AnalogAlert { ALARM1, ALARM2, ALARM3, NONE }   
     public enum GenericAlert { WARNING=1, ALARM=2, NONE=0 }
 
-
     public partial class GenericMonitorBoxAlert {
         public int Id { get; set; }
         public int GenericBoxReadingId { get; set; }

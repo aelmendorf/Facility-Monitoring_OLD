@@ -59,7 +59,7 @@ namespace FacilityMonitoring.Common.Services {
             this._logger.LogInformation("{0}: NH3 Controller Service Read,Broadcast, and Save", DateTime.Now);
             var reading=await this._ammoniaOperations.ReadAsync();
             if (reading != null) {
-                await this._ammoniaHub.Clients.All.RecieveAutoReading(reading.TimeStamp + ": " + "Tank2 Weight: " + reading.Tank2Weight);
+                await this._ammoniaHub.Clients.All.RecieveAutoReading(reading.GetDataTransfer());
                 if (this._ammoniaOperations.CheckSaveTime()) {
                     await this._ammoniaOperations.SaveAsync();
                     this._ammoniaOperations.ResetSaveTimer();

@@ -24,8 +24,8 @@ namespace FacilityMonitoring.Common.Services {
     public interface IGenericBoxOperations : IDeviceOperations {
         BoxReadingDTO DeviceTable { get; }
         GenericBoxReading LastReading { get; }
-        GenericBoxReading Read();
-        Task<GenericBoxReading> ReadAsync();
+        BoxReadingDTO Read();
+        Task<BoxReadingDTO> ReadAsync();
         bool SetAlarm(bool on_off);
         Task<bool> SetAlarmAsync(bool on_off);
         bool SetWarning(bool on_off);

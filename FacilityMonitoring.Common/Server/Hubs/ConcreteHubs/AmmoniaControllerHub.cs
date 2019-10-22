@@ -1,5 +1,7 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using FacilityMonitoring.Common.Data;
+using FacilityMonitoring.Common.DataLayer;
 using FacilityMonitoring.Common.Services;
 using Microsoft.AspNetCore.SignalR;
 
@@ -12,7 +14,11 @@ namespace FacilityMonitoring.Common.Server {
         }
 
         public async Task GetLastReading() {
-            await Clients.Caller.RecieveReadingCallBack("");
+            await Clients.Caller.RecieveReadingCallBack(this._controller.Operations.LastReading.GetDataTransfer());
+        }
+
+        public IEnumerable<Tank> GetData() {
+            return this._controller.Operations.LastReading.GetDataTransfer();
         }
 
         public async Task SetCalibrationMode(bool onOff) {

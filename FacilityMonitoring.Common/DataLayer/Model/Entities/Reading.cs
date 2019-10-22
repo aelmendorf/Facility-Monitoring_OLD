@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using FacilityMonitoring.Common.Converters;
 using FacilityMonitoring.Common.Data;
+using FacilityMonitoring.Common.DataLayer;
 
 namespace FacilityMonitoring.Common.Model {
 
@@ -694,6 +695,7 @@ namespace FacilityMonitoring.Common.Model {
 
         public AmmoniaControllerReading(DateTime timestamp, AmmoniaController device) {
             this.TimeStamp = timestamp;
+            this.AmmoniaControllerId = device.Id;
         }
 
         public int Tank1Weight { get; set; }
@@ -872,6 +874,34 @@ namespace FacilityMonitoring.Common.Model {
                 }
                 default: return null;
             }
+        }
+
+        public IEnumerable<Tank> GetDataTransfer() {
+
+            Tank tank1 = new Tank();
+            tank1.Identifier = "Tank 1";
+            tank1.Weight = this.Tank1Weight;
+            tank1.Temperature = this.Tank1Temperature;
+            tank1.DutyCycle = this.Heater1DutyCycle;
+
+            Tank tank2 = new Tank();
+            tank2.Identifier = "Tank 2";
+            tank2.Weight = this.Tank2Weight;
+            tank2.Temperature = this.Tank2Temperature;
+            tank2.DutyCycle = this.Heater2DutyCycle;
+
+            Tank tank3 = new Tank();
+            tank3.Identifier = "Tank 3";
+            tank3.Weight = this.Tank3Weight;
+            tank3.Temperature = this.Tank3Temperature;
+            tank3.DutyCycle = this.Heater3DutyCycle;
+
+            Tank tank4 = new Tank();
+            tank4.Identifier = "Tank 4";
+            tank4.Weight = this.Tank4Weight;
+            tank4.Temperature = this.Tank4Temperature;
+            tank4.DutyCycle = this.Heater4DutyCycle;
+            return new List<Tank>() { tank1,tank2,tank3,tank4};
         }
     }
 }

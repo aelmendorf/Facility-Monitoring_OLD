@@ -85,7 +85,7 @@ namespace FacilityMonitoring.Common.Hardware {
             this._lastSave = DateTime.Now;
         }
 
-        public GenericBoxReading Read() {
+        public BoxReadingDTO Read() {
             int regCount = this._device.AnalogChannelCount + this._device.DigitalOutputChannelCount;
             var data = this._modbus.ReadRegistersAndCoils(0, regCount, 0, this._device.DigitalInputChannelCount);
             if (data != null) {
@@ -138,13 +138,13 @@ namespace FacilityMonitoring.Common.Hardware {
                 this._device.LastRead.GenericMonitorBoxAlert.GenericBoxReadingId = this._device.LastRead.Id;
                 this._lastReading = this._device.LastRead;
                 this._readingDTO.Row=reading;
-                return this._lastReading;
+                return this._readingDTO;
             } else {
                 return null;
             }
         }
 
-        public async Task<GenericBoxReading> ReadAsync() {
+        public async Task<BoxReadingDTO> ReadAsync() {
             int regCount = this._device.AnalogChannelCount + this._device.DigitalOutputChannelCount;
             var data = await this._modbus.ReadRegistersAndCoilsAsync(0, regCount, 0, this._device.DigitalInputChannelCount);
             if (data != null) {
@@ -198,7 +198,7 @@ namespace FacilityMonitoring.Common.Hardware {
                 this._lastReading = this._device.LastRead;
                 this._lastReading.Identifier = this._device.Identifier;
                 this._readingDTO.Row = this._device.LastRead;
-                return this._lastReading;
+                return this._readingDTO;
             } else {
                 return null;
             }

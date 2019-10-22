@@ -3,16 +3,27 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using Console_Table;
-using FacilityMonitoring.Common.Server;
-using Microsoft.AspNetCore.SignalR.Client;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+
+using Microsoft.Exchange.WebServices.Data;
 
 namespace FacilityMonitoring.ConsoleTesting {
     class Program2 {
-        static async Task Main(string[] args) {
+        public static async Task<int> Main(string[] args) {
+            ExchangeService service=new ExchangeService(ExchangeVersion.Exchange2007_SP1);
+            WebCredentials credentials = new WebCredentials("facilityalerts", "Facility!1sskv", "sskep.com");
+            service.Credentials = credentials;
+            service.Url = new Uri(@"https://email.seoulsemicon.com/EWS/Exchange.asmx");
+            EmailMessage message = new EmailMessage(service);
+            message.ToRecipients.Add("aelmendorf@s-et.com");
+            message.ToRecipients.Add("bmurdaugh@s-et.com");
+            message.Subject = "Inventory Stock Alert";
+            MessageBody body = new MessageBody();
+            body.Text = "Everything is broken!";
+            message.Body = body;
+            await message.SendAndSaveCopy().ContinueWith(ret=>Console.WriteLine("Done!"));
+            Console.ReadKey();
 
+            return 1;
             //var connection = new HubConnectionBuilder()
             //    .WithUrl("http://localhost:5000/hubs/monitor")
             //    .Build();

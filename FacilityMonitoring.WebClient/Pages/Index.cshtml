@@ -20,8 +20,7 @@
                     columns.AddFor(d => d.SystemPressure).DataField("systemPressure").Caption("System Pressure,PSI");
                     columns.AddFor(d => d.WaterTemperature).DataField("waterTemperature").Caption("Water Temp, C");
                     columns.AddFor(d => d.HydrogenFlow).DataField("hydrogenFlow").Caption("H2 Flow,SPI");
-                })
-                )
+                }))
             </div>
         </div>
 
@@ -29,16 +28,30 @@
             <div class="dx-area-caption">Gas Bay Box</div>
             <div style="margin: 20px 20px 30px 20px">
                 @(Html.DevExtreme().DataGrid()
-            .ID("boxReadings")
-            .Visible(false)
-            .ShowBorders(true)
-            .HighlightChanges(true)
-            .AllowColumnResizing(true)
-            .ColumnAutoWidth(true)
-                )
+                .ID("boxReadings")
+                .Visible(false)
+                .ShowBorders(true)
+                .HighlightChanges(true)
+                .AllowColumnResizing(true)
+                .ColumnAutoWidth(true))
             </div>
 
         </div>
+
+        <div class="content-block">
+            <div class="dx-area-caption">Ammonia Tank Data</div>
+            <div style="margin: 20px 20px 30px 20px">
+                @(Html.DevExtreme().DataGrid<Tank>()
+                .ID("tankReadings")
+                .Visible(false)
+                .ShowBorders(true)
+                .HighlightChanges(true)
+                .AllowColumnResizing(true)
+                .ColumnAutoWidth(true))
+            </div>
+        </div>
+
+
         <div class="content-block" style="width:350px">
             <div class="dx-form">
                 <div class="dx-fieldset">
@@ -85,6 +98,24 @@
 <script src="~/js/signalr/dist/browser/signalr.js"></script>
 <script>
 
+    var genconnection = new signalR.HubConnectionBuilder()
+        //.withUrl("http://172.20.4.209:443/hubs/generator")
+        .withUrl("http://localhost:5000/hubs/generator")
+        .configureLogging(signalR.LogLevel.Information)
+        .build();
+
+    var gasBayConnection = new signalR.HubConnectionBuilder()
+        //.withUrl("http://172.20.4.209:443/hubs/gasbay")
+        .withUrl("http://localhost:5000/hubs/gasbay")
+        .configureLogging(signalR.LogLevel.Information)
+        .build();
+
+    var nhConnection = new signalR.HubConnectionBuilder()
+        //.withUrl("http://172.20.4.209:443/hubs/ammonia")
+        .withUrl("http://localhost:5000/hubs/ammonia")
+        .configureLogging(signalR.LogLevel.Information)
+        .build();
+
     function maint_switched(data) {
         switchMaint(data);
         $("#maintSwitch").dxSwitch("instance").option("value", data.value)
@@ -106,18 +137,6 @@
         "Identifier": "GasBay"
     }];
 
-    var genconnection = new signalR.HubConnectionBuilder()
-        .withUrl("http://172.20.4.209:443/hubs/generator")
-        //.withUrl("http://localhost:5000/hubs/generator")
-        .configureLogging(signalR.LogLevel.Information)
-        .build();
-
-    var boxConnection = new signalR.HubConnectionBuilder()
-        .withUrl("http://172.20.4.209:443/hubs/monitor")
-        //.withUrl("http://localhost:5000/hubs/monitor")
-        .configureLogging(signalR.LogLevel.Information)
-        .build();
-
     $(function () {
         function successCallback(result) {
             console.log("Should be a object: " + result.columns[0]);
@@ -133,9 +152,15 @@
             }
         }
 
+        function updateData(dto) {
+             for (var x = 0; x < dto.columns.length; x++) {
+                boxReadingData.map((d) => d[dto.columns[x].header] = dto.row[dto.columns[x].columnName])
+            }
+        }
+
         var boxStore = {};
 
-        boxConnection.start().then(function () {
+        gasBayConnection.start().then(function () {
             const li = document.createElement("li");
             li.textContent = "Connected";
             document.getElementById("messagesList").appendChild(li);
@@ -144,14 +169,14 @@
                     return boxReadingData;
                 }, key: "Identifier"
             });
-            boxConnection.invoke("GetDeviceTable", "GasBay").then(generateData, failureCallback).then(function () {
+            gasBayConnection.invoke("GetDeviceTable").then(generateData, failureCallback).then(function () {
                 $("#boxReadings").dxDataGrid({
                     dataSource: boxStore,
                     visible: true
                 });
             });
 
-            boxConnection.on("SetMaintenanceCallBack", (result)=> {
+            gasBayConnection.on("SetMaintenanceCallBack", (result)=> {
                 const li = document.createElement("li");
                 if (result == true) {
                     li.textContent = "Switched to Maintenance";
@@ -161,13 +186,10 @@
                 document.getElementById("messagesList").appendChild(li);
             });
 
-            //boxConnection.on("RecieveAutoReading", function (data) {
-            //    var obj = boxReadingData[0];
-            //    Object.keys(obj).forEach(function (key, index) {
-            //        obj[key] = data[key];
-            //    });
-            //    boxStore.push([{ type: "update", key: obj.Identifier, data: obj }]);
-            //});
+            gasBayConnection.on("RecieveAutoReading", function (data) {
+                updateData(data);
+                boxStore.push([{ type: "update", key: data.Identifier, data: boxReadingData }]);
+            });
         });
     });
 
@@ -190,4 +212,24 @@
                 });
             });
     });
+
+    $(function () {
+            nhConnection.start()
+                .then(function () {
+
+                    var store = new DevExpress.data.CustomStore({
+                        load: function () {
+                            return nhConnection.invoke("GetData");
+                        }, key: "identifier"
+                    });
+                    $("#tankReadings").dxDataGrid({
+                        dataSource: store,
+                        visible: true
+                    });
+
+                    nhConnection.on("RecieveAutoReading", function (data) {
+                        store.push([{ type: "update", key: data.identifier, data: data }]);
+                    });
+                });
+        });
 </script>

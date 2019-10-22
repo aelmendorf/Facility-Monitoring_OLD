@@ -5,8 +5,8 @@ using FacilityMonitoring.Common.Server.Hubs.HubInterfaces;
 
 namespace FacilityMonitoring.Common.Server {
     public interface IMonitorBoxHub: IDeviceHub {
-        Task RecieveAutoReading(GenericBoxReading data);
-        Task RecieveReadingCallBack(GenericBoxReading data);
+        Task RecieveAutoReading(BoxReadingDTO data);
+        Task RecieveReadingCallBack(BoxReadingDTO data);
         Task SetMaintenanceCallBack(bool success);
         Task SetAlarmCallBack(bool success);
         Task SetWarnCallBack(bool success);

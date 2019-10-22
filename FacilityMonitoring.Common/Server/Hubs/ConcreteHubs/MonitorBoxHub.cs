@@ -8,25 +8,25 @@ using System.Linq;
 using System;
 
 namespace FacilityMonitoring.Common.Server {
-    public class MonitorBoxHub : Hub<IMonitorBoxHub> {
-        private readonly IBoxCollectionController _controller;
+    public class GasBayHub : Hub<IMonitorBoxHub> {
+        private readonly IGenericBoxController _controller;
 
-        public MonitorBoxHub(IBoxCollectionController controller) {
+        public GasBayHub(IGenericBoxController controller) {
             this._controller = controller;
         }
 
-        public async Task SetMaintenance(string identifier,bool onOff) {
-            var success=await this._controller.SetMaintenanceAsync(identifier, onOff);
+        public async Task SetMaintenance(bool onOff) {
+            var success=await this._controller.SetMaintenanceAsync(onOff);
             await Clients.Caller.SetMaintenanceCallBack(success);
         }
 
-        public async Task SetAlarmDebug(string identifier,bool onOff) {
-            var success = await this._controller.SetAlarmAsync(identifier, onOff);
+        public async Task SetAlarmDebug(bool onOff) {
+            var success = await this._controller.SetAlarmAsync(onOff);
             await Clients.Caller.SetAlarmCallBack(success);
         }
 
         public async Task SetWarnDebug(string identifier, bool onOff) {
-            var success = await this._controller.SetWarningAsync(identifier, onOff);
+            var success = await this._controller.SetWarningAsync(onOff);
             await Clients.Caller.SetWarnCallBack(success);
         }
 
@@ -39,27 +39,27 @@ namespace FacilityMonitoring.Common.Server {
         //    }
         //}
 
-        public GenericBoxReading GetCurrentReading(string id) {
-            return this._controller.GetCurrentReading(id);
+        public GenericBoxReading GetCurrentReading() {
+            return this._controller.GetCurrentReading();
         }
 
-        public BoxReadingDTO GetDeviceTable(string id) {
-            return this._controller.GetDeviceTable(id);
+        public BoxReadingDTO GetDeviceTable() {
+            return this._controller.GetDeviceTable();
         }
 
-        public async Task GetAnalogChannelRaw(string identifier,int channel) {
-            var value = await this._controller.GetAnalogChannelRawAsync(identifier, channel);
+        public async Task GetAnalogChannelRaw(int channel) {
+            var value = await this._controller.GetAnalogChannelRawAsync(channel);
             await Clients.Caller.RecieveChannelRawCallBack(value);
         }
 
-        public async Task GetAnalogChannelVoltage(string identifier, int channel) {
-            var value = await this._controller.GetAnalogChannelVoltageAsync(identifier, channel);
+        public async Task GetAnalogChannelVoltage(int channel) {
+            var value = await this._controller.GetAnalogChannelVoltageAsync( channel);
             await Clients.Caller.RecieveChannelVoltageCallBack(value);
         }
 
         public async Task GetBoxState(string identifier) {
             DeviceState state;
-            var success = this._controller.GetDeviceState(identifier, out state);
+            var success = this._controller.GetDeviceState(out state);
             if (success) {
                 await Clients.Caller.RecieveStateCallBack(state);
             } else {

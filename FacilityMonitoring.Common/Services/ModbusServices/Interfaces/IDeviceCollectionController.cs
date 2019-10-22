@@ -44,4 +44,24 @@ namespace FacilityMonitoring.Common.Services {
         ushort GetAnalogChannelRaw(string id, int channel);
         double GetAnalogChannelVoltage(string id, int channel);
     }
+
+    public interface IGenericBoxController : IDeviceCollectionController {
+        IGenericBoxOperations Operations { get; }
+        GenericBoxReading GetCurrentReading();
+        BoxReadingDTO GetDeviceTable();
+
+        bool SetAlarm(bool on_off);
+        Task<bool> SetAlarmAsync( bool on_off);
+        bool SetWarning(bool on_off);
+        Task<bool> SetWarningAsync(bool on_off);
+        bool SetMaintenance(bool on_off);
+        Task<bool> SetMaintenanceAsync(bool on_off);
+
+        bool GetDeviceState(out DeviceState state);
+
+        Task<ushort> GetAnalogChannelRawAsync(int channel);
+        Task<double> GetAnalogChannelVoltageAsync(int channel);
+        ushort GetAnalogChannelRaw(int channel);
+        double GetAnalogChannelVoltage(int channel);
+    }
 }

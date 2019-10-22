@@ -25,7 +25,7 @@ namespace FacilityMonitoring.RealtimeServer {
                 return new FacilityContext();
             });
             services.AddSingleton<IGeneratorCollectionController,GeneratorCollectionController>();
-            services.AddSingleton<IBoxCollectionController, BoxCollectionController>();
+            services.AddSingleton<IGenericBoxController, GasBayController>();
             services.AddSingleton<IAmmoniaCollectionController, AmmoniaCollectionController>();
             services.AddHostedService<GeneratorsHubService>();
             services.AddHostedService<MonitorHubService>();
@@ -41,8 +41,8 @@ namespace FacilityMonitoring.RealtimeServer {
 
             app.UseRouting();
             app.UseCors(builder => {
-                //builder.WithOrigins("http://localhost:51864")
-                builder.WithOrigins("http://172.20.4.202")
+                builder.WithOrigins("http://localhost:51864")
+                //builder.WithOrigins("http://172.20.4.202")
                     .AllowAnyHeader()
                     .AllowAnyMethod()
                     .AllowCredentials();
@@ -50,9 +50,9 @@ namespace FacilityMonitoring.RealtimeServer {
 
             app.UseEndpoints(endpoints => {
                 //app.ApplicationServices.GetServices<>
-                endpoints.MapHub<MonitorBoxHub>("/hubs/monitor");
+                endpoints.MapHub<GasBayHub>("/hubs/gasbay");
                 endpoints.MapHub<GeneratorHub>("/hubs/generator");
-                endpoints.MapHub<AmmoniaControllerHub>("/hubs/controller");
+                endpoints.MapHub<AmmoniaControllerHub>("/hubs/ammonia");
             });
         }
     }
