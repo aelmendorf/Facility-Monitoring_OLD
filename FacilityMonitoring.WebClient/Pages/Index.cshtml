@@ -1,235 +1,100 @@
 @page
 @using FacilityMonitoring.Common.DataLayer
 
-    <div class="content-block">
-        <div class="dx-area-caption">H2 Generators</div>
-            <div style="margin: 20px 20px 30px 20px">
-                @(Html.DevExtreme().DataGrid<GeneratorReadingDTO>()
-                .ID("genReadings")
-                .Visible(false)
-                .ShowBorders(true)
-                .HighlightChanges(true)
-                .AllowColumnResizing(true)
-                .ColumnAutoWidth(true)
-                .Columns(columns => {
-                    columns.AddFor(d => d.TimeStamp).DataField("timeStamp");
-                    columns.AddFor(d => d.Identifier).DataField("identifier");
-                    columns.AddFor(d => d.SystemMode).DataField("systemMode");
-                    columns.AddFor(d => d.OperationMode).DataField("operationMode");
-                    columns.AddFor(d => d.SystemState).DataField("systemState");
-                    columns.AddFor(d => d.SystemPressure).DataField("systemPressure").Caption("System Pressure,PSI");
-                    columns.AddFor(d => d.WaterTemperature).DataField("waterTemperature").Caption("Water Temp, C");
-                    columns.AddFor(d => d.HydrogenFlow).DataField("hydrogenFlow").Caption("H2 Flow,SPI");
-                }))
+
+<div class="content-block">
+    <div class="dx-area-caption">H2 Generators</div>
+    <div style="margin: 20px 20px 30px 20px">
+        @(Html.DevExtreme().DataGrid<GeneratorReadingDTO>()
+        .ID("genReadings")
+        .Visible(false)
+        .ShowBorders(true)
+        .HighlightChanges(true)
+        .AllowColumnResizing(true)
+        .ColumnAutoWidth(true)
+        .Columns(columns => {
+            columns.AddFor(d => d.TimeStamp).DataField("timeStamp");
+            columns.AddFor(d => d.Identifier).DataField("identifier");
+            columns.AddFor(d => d.SystemMode).DataField("systemMode");
+            columns.AddFor(d => d.OperationMode).DataField("operationMode");
+            columns.AddFor(d => d.SystemState).DataField("systemState");
+            columns.AddFor(d => d.SystemPressure).DataField("systemPressure").Caption("System Pressure,PSI");
+            columns.AddFor(d => d.WaterTemperature).DataField("waterTemperature").Caption("Water Temp, C");
+            columns.AddFor(d => d.HydrogenFlow).DataField("hydrogenFlow").Caption("H2 Flow,SPI");
+        }))
+    </div>
+</div>
+
+<div class="content-block">
+    <div class="dx-area-caption">Gas Bay Box</div>
+    <div style="margin: 20px 20px 30px 20px">
+        @(Html.DevExtreme().DataGrid()
+        .ID("boxReadings")
+        .Visible(false)
+        .ShowBorders(true)
+        .HighlightChanges(true)
+        .AllowColumnResizing(true)
+        .ColumnAutoWidth(true))
+    </div>
+
+</div>
+
+<div class="content-block">
+    <div class="dx-area-caption">Ammonia Tank Data</div>
+    <div style="margin: 20px 20px 30px 20px">
+        @(Html.DevExtreme().DataGrid<Tank>()
+        .ID("tankReadings")
+        .Visible(true)
+        .ShowBorders(true)
+        .HighlightChanges(true)
+        .AllowColumnResizing(true)
+        .ColumnAutoWidth(true))
+    </div>
+</div>
+
+
+<div class="content-block" style="width:350px">
+    <div class="dx-form">
+        <div class="dx-fieldset">
+            <div class="dx-field">
+                <div class="dx-field-label">Switch Maintenance On/Off</div>
+                <div class="dx-field-value">
+                    @(Html.DevExtreme().Switch().ID("maintSwitch")
+                        .Value(false)
+                    //.OnValueChanged("maint_switched")
+                    )
+                </div>
             </div>
-        </div>
-
-        <div class="content-block">
-            <div class="dx-area-caption">Gas Bay Box</div>
-            <div style="margin: 20px 20px 30px 20px">
-                @(Html.DevExtreme().DataGrid()
-                .ID("boxReadings")
-                .Visible(false)
-                .ShowBorders(true)
-                .HighlightChanges(true)
-                .AllowColumnResizing(true)
-                .ColumnAutoWidth(true))
+            <div class="dx-field">
+                <div class="dx-field-label">Switch Alarm On/Of</div>
+                <div class="dx-field-value">
+                    @(Html.DevExtreme().Switch().ID("alarmSwitch")
+                        .Value(false)
+                    //.OnValueChanged("alarm_switched")
+                    )
+                </div>
             </div>
-
-        </div>
-
-        <div class="content-block">
-            <div class="dx-area-caption">Ammonia Tank Data</div>
-            <div style="margin: 20px 20px 30px 20px">
-                @(Html.DevExtreme().DataGrid<Tank>()
-                .ID("tankReadings")
-                .Visible(false)
-                .ShowBorders(true)
-                .HighlightChanges(true)
-                .AllowColumnResizing(true)
-                .ColumnAutoWidth(true))
+            <div class="dx-field">
+                <div class="dx-field-label">Switch Warning On/Off</div>
+                <div class="dx-field-value">
+                    @(Html.DevExtreme().Switch().ID("warningSwitch")
+                        .Value(false)
+                    )
+                </div>
             </div>
-        </div>
-
-
-        <div class="content-block" style="width:350px">
-            <div class="dx-form">
-                <div class="dx-fieldset">
-                    <div class="dx-field">
-                        <div class="dx-field-label">Switch Maintenance On/Off</div>
-                        <div class="dx-field-value">
-                            @(Html.DevExtreme().Switch().ID("maintSwitch")
-                                .Value(false)
-                                .OnValueChanged("maint_switched")
-                            )
-                        </div>
-                    </div>
-                    <div class="dx-field">
-                        <div class="dx-field-label">Switch Alarm On/Of</div>
-                        <div class="dx-field-value">
-                            @(Html.DevExtreme().Switch().ID("alarmSwitch")
-                                .Value(false)
-                                .OnValueChanged("alarm_switched")
-                            )
-                        </div>
-                    </div>
-                    <div class="dx-field">
-                        <div class="dx-field-label">Switch Warning On/Off</div>
-                        <div class="dx-field-value">
-                            @(Html.DevExtreme().Switch().ID("warningSwitch")
-                                .Value(false)
-                                .OnValueChanged("warning_switched")
-                            )
-                        </div>
-                    </div>
-                    <div class="dx-field">
-                        <div id="" class="dx-field-label">Responce</div>
-                        <div class="dx-field-value">
-                            <div class="col-6">&nbsp;</div>
-                            <div class="col-6">
-                                <ul id="messagesList"></ul>
-                            </div>
-                        </div>
+            <div class="dx-field">
+                <div id="" class="dx-field-label">Responce</div>
+                <div class="dx-field-value">
+                    <div class="col-6">&nbsp;</div>
+                    <div class="col-6">
+                        <ul id="messagesList"></ul>
                     </div>
                 </div>
             </div>
         </div>
-
+    </div>
+</div>
 <script src="~/js/signalr/dist/browser/signalr.js"></script>
-<script>
-
-    var genconnection = new signalR.HubConnectionBuilder()
-        //.withUrl("http://172.20.4.209:443/hubs/generator")
-        .withUrl("http://localhost:5000/hubs/generator")
-        .configureLogging(signalR.LogLevel.Information)
-        .build();
-
-    var gasBayConnection = new signalR.HubConnectionBuilder()
-        //.withUrl("http://172.20.4.209:443/hubs/gasbay")
-        .withUrl("http://localhost:5000/hubs/gasbay")
-        .configureLogging(signalR.LogLevel.Information)
-        .build();
-
-    var nhConnection = new signalR.HubConnectionBuilder()
-        //.withUrl("http://172.20.4.209:443/hubs/ammonia")
-        .withUrl("http://localhost:5000/hubs/ammonia")
-        .configureLogging(signalR.LogLevel.Information)
-        .build();
-
-    function maint_switched(data) {
-        switchMaint(data);
-        $("#maintSwitch").dxSwitch("instance").option("value", data.value)
-    }
-
-    function alarm_switched(data) {
-        $("#alarmSwitch").dxSwitch("instance").option("value", data.value)
-    }
-
-    function warning_switched(data) {
-        $("#warningSwitch").dxSwitch("instance").option("value", data.value)
-    }
-
-    function switchMaint(data) {
-        boxConnection.invoke("SetMaintenance", "GasBay", data.value);
-    }
-
-    var boxReadingData = [{
-        "Identifier": "GasBay"
-    }];
-
-    $(function () {
-        function successCallback(result) {
-            console.log("Should be a object: " + result.columns[0]);
-        }
-
-        function failureCallback(error) {
-            console.error("Error: " + error);
-        }
-
-        function generateData(dto) {
-            for (var x = 0; x < dto.columns.length; x++) {
-                boxReadingData.map((d) => d[dto.columns[x].header] = dto.row[dto.columns[x].columnName])
-            }
-        }
-
-        function updateData(dto) {
-             for (var x = 0; x < dto.columns.length; x++) {
-                boxReadingData.map((d) => d[dto.columns[x].header] = dto.row[dto.columns[x].columnName])
-            }
-        }
-
-        var boxStore = {};
-
-        gasBayConnection.start().then(function () {
-            const li = document.createElement("li");
-            li.textContent = "Connected";
-            document.getElementById("messagesList").appendChild(li);
-            boxStore = new DevExpress.data.CustomStore({
-                load: function () {
-                    return boxReadingData;
-                }, key: "Identifier"
-            });
-            gasBayConnection.invoke("GetDeviceTable").then(generateData, failureCallback).then(function () {
-                $("#boxReadings").dxDataGrid({
-                    dataSource: boxStore,
-                    visible: true
-                });
-            });
-
-            gasBayConnection.on("SetMaintenanceCallBack", (result)=> {
-                const li = document.createElement("li");
-                if (result == true) {
-                    li.textContent = "Switched to Maintenance";
-                } else {
-                     li.textContent = "Error Switching to Maintenance";
-                }
-                document.getElementById("messagesList").appendChild(li);
-            });
-
-            gasBayConnection.on("RecieveAutoReading", function (data) {
-                updateData(data);
-                boxStore.push([{ type: "update", key: data.Identifier, data: boxReadingData }]);
-            });
-        });
-    });
-
-    $(function () {
-        genconnection.start()
-            .then(function () {
-
-                var store = new DevExpress.data.CustomStore({
-                    load: function () {
-                        return genconnection.invoke("GetAllGenerators");
-                    }, key: "identifier"
-                });
-                $("#genReadings").dxDataGrid({
-                    dataSource: store,
-                    visible: true
-                });
-
-                genconnection.on("SendGeneratorReading", function (data) {
-                    store.push([{ type: "update", key: data.identifier, data: data }]);
-                });
-            });
-    });
-
-    $(function () {
-            nhConnection.start()
-                .then(function () {
-
-                    var store = new DevExpress.data.CustomStore({
-                        load: function () {
-                            return nhConnection.invoke("GetData");
-                        }, key: "identifier"
-                    });
-                    $("#tankReadings").dxDataGrid({
-                        dataSource: store,
-                        visible: true
-                    });
-
-                    nhConnection.on("RecieveAutoReading", function (data) {
-                        store.push([{ type: "update", key: data.identifier, data: data }]);
-                    });
-                });
-        });
-</script>
+<script src="~/js/ammoniastream.js"></script>
+<script src="~/js/generatorstream.js"></script>
+<script src="~/js/gasbaystream.js"></script>

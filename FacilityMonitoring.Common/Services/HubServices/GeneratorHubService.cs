@@ -18,19 +18,11 @@ namespace FacilityMonitoring.Common.Server.Services {
         private readonly FacilityContext _context;
         private Timer _timer;
 
-        //public GeneratorsHubService(ILogger<GeneratorsHubService> logger, IHubContext<GeneratorHub, IGeneratorHub> monitorHub,FacilityContext context,IGeneratorCollectionController controller) {
-        //    this._logger = logger;
-        //    this._context = context;
-        //    this._monitorHub = monitorHub;
-        //    this._controller = controller;
-        //}
-
         public GeneratorsHubService(ILogger<GeneratorsHubService> logger, FacilityContext context, IGeneratorCollectionController controller) {
             this._logger = logger;
             this._context = context;
             this._controller = controller;
         }
-
 
         public async Task StartAsync(CancellationToken cancellationToken) {
             await this._controller.StartAsync();
@@ -49,8 +41,6 @@ namespace FacilityMonitoring.Common.Server.Services {
         public void Dispose() {
             this._timer?.Dispose();
         }
-
-        public void TimerHandler(object state) => throw new NotImplementedException();
     }
 
 }

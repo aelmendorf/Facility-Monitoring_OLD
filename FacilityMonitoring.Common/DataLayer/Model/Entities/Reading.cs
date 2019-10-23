@@ -769,7 +769,7 @@ namespace FacilityMonitoring.Common.Model {
                         this.Tank1Total = tankData[4];
                         this.Tank1Gas = tankData[5];
                         this.Tank1Tare = regData[28];
-                        this.Tank1Temperature = regData[32];
+                        this.Tank1Temperature = regData[32]/100;
                         this.Heater1DutyCycle = regData[38];
                         this.Tank1Warning = coilData[2];
                         this.Tank1Alarm = coilData[6];
@@ -785,7 +785,7 @@ namespace FacilityMonitoring.Common.Model {
                         this.Tank2Total = tank2Data[4];
                         this.Tank2Gas = tank2Data[5];
                         this.Tank2Tare = regData[29];
-                        this.Tank2Temperature = regData[33];
+                        this.Tank2Temperature = regData[33] / 100;
                         this.Heater2DutyCycle = regData[39];
                         this.Tank2Warning = coilData[3];
                         this.Tank2Alarm = coilData[7];
@@ -801,7 +801,7 @@ namespace FacilityMonitoring.Common.Model {
                         this.Tank3Total = tank3Data[4];
                         this.Tank3Gas = tank3Data[5];
                         this.Tank3Tare = regData[30];
-                        this.Tank3Temperature = regData[34];
+                        this.Tank3Temperature = regData[34] / 100;
                         this.Heater3DutyCycle = regData[40];
                         this.Tank3Warning = coilData[4];
                         this.Tank3Alarm = coilData[8];
@@ -817,7 +817,7 @@ namespace FacilityMonitoring.Common.Model {
                         this.Tank4Total = tank4Data[4];
                         this.Tank4Gas = tank4Data[5];
                         this.Tank4Tare = regData[31];
-                        this.Tank4Temperature = regData[35];
+                        this.Tank4Temperature = regData[35] / 100;
                         this.Heater4DutyCycle = regData[41];
                         this.Tank4Warning = coilData[5];
                         this.Tank4Alarm = coilData[9];

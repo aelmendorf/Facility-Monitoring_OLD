@@ -19,6 +19,7 @@ namespace FacilityMonitoring.Common.Hardware {
         private GenericBoxReading _lastReading;
         private GenericMonitorBox _device;
         private BoxReadingDTO _readingDTO;
+        private readonly object sync = new object();
 
         public BoxReadingDTO DeviceTable {
             get => this._readingDTO;
@@ -137,7 +138,9 @@ namespace FacilityMonitoring.Common.Hardware {
                 this._device.LastRead.GenericMonitorBoxAlert = alert;
                 this._device.LastRead.GenericMonitorBoxAlert.GenericBoxReadingId = this._device.LastRead.Id;
                 this._lastReading = this._device.LastRead;
-                this._readingDTO.Row=reading;
+                lock (sync) {
+                    this._readingDTO.Row = reading;
+                }
                 return this._readingDTO;
             } else {
                 return null;
@@ -307,6 +310,5 @@ namespace FacilityMonitoring.Common.Hardware {
         public bool Save() {
             return this._addReading.AddReading(this._device);
         }
-
     }
 }

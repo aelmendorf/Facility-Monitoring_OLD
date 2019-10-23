@@ -20,24 +20,17 @@ namespace FacilityMonitoring.Common.Server {
             await Clients.Caller.SetMaintenanceCallBack(success);
         }
 
-        public async Task SetAlarmDebug(bool onOff) {
-            var success = await this._controller.SetAlarmAsync(onOff);
-            await Clients.Caller.SetAlarmCallBack(success);
+        public async Task<bool> SetMaint(bool onOff) {
+            return await this._controller.SetMaintenanceAsync(onOff);
         }
 
-        public async Task SetWarnDebug(string identifier, bool onOff) {
-            var success = await this._controller.SetWarningAsync(onOff);
-            await Clients.Caller.SetWarnCallBack(success);
+        public async Task<bool> SetAlarmDebug(bool onOff) {
+            return await this._controller.SetAlarmAsync(onOff);
         }
 
-        //public async Task GetCurrentReading(string identifier) {
-        //    var reading = this._controller.GetLastReading(identifier);
-        //    if (reading != null) {
-        //        await Clients.Caller.RecieveReadingCallBack(reading);
-        //    } else {
-        //        await Clients.Caller.RecieveErrorMessage("Error retrieving box");
-        //    }
-        //}
+        public async Task<bool> SetWarnDebug(bool onOff) {
+            return await this._controller.SetWarningAsync(onOff);
+        }
 
         public GenericBoxReading GetCurrentReading() {
             return this._controller.GetCurrentReading();
@@ -56,6 +49,10 @@ namespace FacilityMonitoring.Common.Server {
             var value = await this._controller.GetAnalogChannelVoltageAsync( channel);
             await Clients.Caller.RecieveChannelVoltageCallBack(value);
         }
+
+        //public async Task<bool> GetMaintState() {
+        //    return this._controller.Operations.LastReading.
+        //}
 
         public async Task GetBoxState(string identifier) {
             DeviceState state;
