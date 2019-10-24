@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using FacilityMonitoring.Common.Data;
-using FacilityMonitoring.Common.Model;
+using FacilityMonitoring.Common.Data.Entities;
 
 namespace FacilityMonitoring.Common.Converters {
     public static class RegisterConverters {
