@@ -13,23 +13,24 @@ using FacilityMonitoring.Common.Data.DTO;
 using FacilityMonitoring.Common.Services;
 
 namespace FacilityMonitoring.Common.ModbusServices.Controllers {
-    public class GeneratorsController : IGeneratorController {
-        private static GeneratorsController _instance = null;
+    public class GeneratorController : IGeneratorController {
+        private static GeneratorController _instance = null;
         private ConcurrentDictionary<IGeneratorOperations,H2GenReading> _generatorOperations;
         private readonly FacilityContext _context;
+        private readonly DeviceOperationsFactory _operationsFactory;
         private readonly ILogger<IGeneratorController> _logger;
         private readonly IHubContext<GeneratorHub, IGeneratorHub> _generatorHub;
         private double _readInterval=10.0;
 
-        public GeneratorsController(FacilityContext context, ILogger<IGeneratorController> logger, IHubContext<GeneratorHub, IGeneratorHub> generatorHub) {
+        public GeneratorController(FacilityContext context,DeviceOperationsFactory operationsFactory, ILogger<IGeneratorController> logger, IHubContext<GeneratorHub, IGeneratorHub> generatorHub) {
             this._context = context;
             this._logger = logger;
             this._generatorHub = generatorHub;
-            this._generatorOperations = new ConcurrentDictionary<IGeneratorOperations, H2GenReading>();
-            
+            this._operationsFactory = operationsFactory;
+            this._generatorOperations = new ConcurrentDictionary<IGeneratorOperations,H2GenReading>();
         }
 
-        public static GeneratorsController Instance {
+        public static GeneratorController Instance {
             get => _instance;
         }
 
@@ -62,10 +63,11 @@ namespace FacilityMonitoring.Common.ModbusServices.Controllers {
                 .OfType<H2Generator>()
                 .Include(e => e.Registers).ToList();
             foreach (var generator in generators) {
-                var controller = (GeneratorOperations)DeviceOperationFactory.OperationFactory(this._context, generator);
-                if (controller != null) {
-                    this._generatorOperations.TryAdd(controller,new H2GenReading());
-                    controller.Start();
+                //var controller = (GeneratorOperations)DeviceOperationFactory.OperationFactory(this._context, generator);
+                var operations = (GeneratorOperations)this._operationsFactory.GetOperations(generator);
+                if (operations != null) {
+                    this._generatorOperations.TryAdd(operations, new H2GenReading());
+                    operations.Start();
                 }
             }
             this._readInterval = this.Operations.Min(gen => gen.Key.ReadInterval);
@@ -80,10 +82,10 @@ namespace FacilityMonitoring.Common.ModbusServices.Controllers {
 
             List<Task> taskList = new List<Task>();
             foreach (var generator in generators) {
-                var controller = (GeneratorOperations)DeviceOperationFactory.OperationFactory(this._context, generator);
-                if (controller != null) {
-                    taskList.Add(controller.StartAsync());
-                    this._generatorOperations.TryAdd(controller, new H2GenReading());
+                var operations = (GeneratorOperations)this._operationsFactory.GetOperations(generator);
+                if (operations != null) {
+                    this._generatorOperations.TryAdd(operations, new H2GenReading());
+                    await operations.StartAsync();
                 }
             }
             await Task.WhenAll(taskList);

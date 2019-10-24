@@ -6,9 +6,9 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace FacilityMonitoring.Common.Hubs {
     public class GasBayHub : Hub<IMonitorBoxHub> {
-        private readonly IGenericBoxController _controller;
+        private readonly IMonitorBoxController _controller;
 
-        public GasBayHub(IGenericBoxController controller) {
+        public GasBayHub(IMonitorBoxController controller) {
             this._controller = controller;
         }
 

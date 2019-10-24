@@ -4,8 +4,8 @@ using FacilityMonitoring.Common.ModbusServices.Operations;
 using System.Threading.Tasks;
 
 namespace FacilityMonitoring.Common.ModbusServices.Controllers {
-    public interface IGenericBoxController : IDeviceController {
-        IGenericBoxOperations Operations { get; }
+    public interface IMonitorBoxController : IDeviceController {
+        IMonitorBoxOperations Operations { get; }
         MonitorBoxReading GetCurrentReading();
         BoxReadingDTO GetDeviceTable();
 

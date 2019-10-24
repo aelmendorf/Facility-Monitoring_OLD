@@ -5,7 +5,7 @@ using FacilityMonitoring.Common.Data.DTO;
 
 namespace FacilityMonitoring.Common.Hubs {
 
-    public interface IAmmoniaControllerHub:IDeviceHub {
+    public interface ITankScaleHub:IDeviceHub {
         Task RecieveAutoReading(IEnumerable<Tank> data);
         Task RecieveReadingCallBack(IEnumerable<Tank> data);
         Task SetCalibrationModeCallBack(bool success);

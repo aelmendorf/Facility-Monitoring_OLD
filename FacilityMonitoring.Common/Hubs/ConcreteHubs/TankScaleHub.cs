@@ -6,10 +6,10 @@ using FacilityMonitoring.Common.ModbusServices.Controllers;
 using Microsoft.AspNetCore.SignalR;
 
 namespace FacilityMonitoring.Common.Hubs {
-    public class AmmoniaControllerHub : Hub<IAmmoniaControllerHub> {
+    public class TankScaleHub : Hub<ITankScaleHub> {
         private readonly ITankScaleController _controller;
 
-        public AmmoniaControllerHub(ITankScaleController controller) {
+        public TankScaleHub(ITankScaleController controller) {
             this._controller = controller;
         }
 

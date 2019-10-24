@@ -1,6 +1,6 @@
 ﻿const gasBayConnection = new signalR.HubConnectionBuilder()
-    .withUrl("http://172.20.4.209:443/hubs/gasbay")
-    //.withUrl("http://localhost:5000/hubs/gasbay")
+    //.withUrl("http://172.20.4.209:443/hubs/gasbay")
+    .withUrl("http://localhost:5000/hubs/gasbay")
     .configureLogging(signalR.LogLevel.Information)
     .build();
 
@@ -13,10 +13,6 @@ var gasBayStore = new DevExpress.data.CustomStore({
 const boxReadingData = [{
     "Identifier": "GasBay"
 }];
-
-const maintSwitchState = false;
-const alarmSwitchState = false;
-const warnSwitchState = false;
 
 async function startGasBay() {
     try {
@@ -56,7 +52,6 @@ async function setupPage() {
     });
 
     $("#maintSwitch").dxSwitch({
-        value: maintSwitchState,
         onValueChanged: async function (e) {
             var success = await gasBayConnection.invoke("SetMaint", e.value);
             const li = document.createElement("li");
@@ -70,7 +65,6 @@ async function setupPage() {
                 li.textContent = "Error Switching Maintenance";
             }
             document.getElementById("messagesList").appendChild(li);
-            maintSwitchState = e.value;
         }
     });
 
@@ -88,7 +82,6 @@ async function setupPage() {
                 li.textContent = "Error Switching Alarm";
             }
             document.getElementById("messagesList").appendChild(li);
-            alarmSwitchState = e.value;
         }
     });
 
@@ -106,11 +99,19 @@ async function setupPage() {
                 li.textContent = "Error Switching Warning";
             }
             document.getElementById("messagesList").appendChild(li);
-            warnSwitchState = e.value;
         }
     });
+}
+
+function OnConnected() {
     const li = document.createElement("li");
     li.textContent = "Connected";
+    document.getElementById("messagesList").appendChild(li);
+}
+
+function OnClose() {
+    const li = document.createElement("li");
+    li.textContent = "Disconnected";
     document.getElementById("messagesList").appendChild(li);
 }
 
@@ -143,6 +144,7 @@ gasBayConnection.on("SetMaintenanceCallBack",(result) => {
 
 gasBayConnection.onclose(async () => {
     await startGasBay();
+    OnClose();
 });
 
 $(async function () { await startGasBay(); });

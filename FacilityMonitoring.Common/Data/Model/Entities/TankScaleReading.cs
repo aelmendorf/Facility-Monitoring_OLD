@@ -11,7 +11,7 @@ namespace FacilityMonitoring.Common.Data.Entities {
         public int AmmoniaControllerId { get; set; }
         public TankScale AmmoniaController { get; set; }
 
-        public AmmoniaControllerAlert AmmoniaControllerAlert { get; set; }
+        public TankScaleAlert AmmoniaControllerAlert { get; set; }
 
         public TankScaleReading() { }
 

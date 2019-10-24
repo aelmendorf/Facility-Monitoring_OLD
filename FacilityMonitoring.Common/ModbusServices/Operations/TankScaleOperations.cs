@@ -4,12 +4,17 @@ using FacilityMonitoring.Common.Data;
 using FacilityMonitoring.Common.Converters;
 using System.Threading.Tasks;
 using FacilityMonitoring.Common.Data.Entities;
+using Microsoft.Extensions.Logging;
 
 namespace FacilityMonitoring.Common.ModbusServices.Operations {
-    public class AmmoniaOperations : IAmmoniaOperations {
+    public class TankScaleOperations : ITankScaleOperations {
+
+        private readonly IAddTankScaleReading _addReading;
+        private readonly ILogger<ITankScaleOperations> _logger;
+
         private TankScale _device { get; set; }
         private IModbusOperations _modbus;
-        private AddNHControllerReading _addReading;
+
         private TimeSpan _saveInterval;
         private TimeSpan _readInterval;
         private DateTime _lastSave;
@@ -34,10 +39,11 @@ namespace FacilityMonitoring.Common.ModbusServices.Operations {
             private set => this._device = (TankScale)value;
         }
 
-        public AmmoniaOperations(TankScale device) {
+        public TankScaleOperations(TankScale device,IAddTankScaleReading addReading,ILogger<ITankScaleOperations> logger) {
             this._device = device;
             this._modbus = new ModbusOperations(this._device.IpAddress, this._device.Port,this._device.SlaveAddress);
-            this._addReading = new AddNHControllerReading();
+            this._addReading = addReading;
+            this._logger = logger;
             this._saveInterval = new TimeSpan(0, 0, (int)device.SaveInterval);
             this._readInterval = new TimeSpan(0, 0, (int)device.ReadInterval);
             this.Data = "";
@@ -76,7 +82,7 @@ namespace FacilityMonitoring.Common.ModbusServices.Operations {
                     }
                 }//End loop
                 TankScaleReading reading = new TankScaleReading(DateTime.Now, this._device);
-                AmmoniaControllerAlert alert = new AmmoniaControllerAlert();
+                TankScaleAlert alert = new TankScaleAlert();
                 reading.Set(regValues, data.Item2);
                 alert.AmmoniaControllerReading = reading;
                 reading.AmmoniaControllerAlert = alert;
@@ -150,7 +156,7 @@ namespace FacilityMonitoring.Common.ModbusServices.Operations {
                     }
                 }//End loop
                 TankScaleReading reading = new TankScaleReading(DateTime.Now, this._device);
-                AmmoniaControllerAlert alert = new AmmoniaControllerAlert();
+                TankScaleAlert alert = new TankScaleAlert();
                 reading.Set(regValues, data.Item2);
                 alert.AmmoniaControllerReading = reading;
                 reading.AmmoniaControllerAlert = alert;

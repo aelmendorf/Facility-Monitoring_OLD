@@ -83,7 +83,7 @@ namespace FacilityMonitoring.Common.Data.Entities {
         public bool OutputCh9 { get; set; }
         public bool OutputCh10 { get; set; }
 
-        public MonitorBoxAlert GenericMonitorBoxAlert { get; set; }
+        public MonitorBoxAlert MonitorBoxAlert { get; set; }
 
         public bool Alarm1 { get; set; }
         public bool Alarm2 { get; set; }

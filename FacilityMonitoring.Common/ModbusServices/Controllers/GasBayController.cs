@@ -12,22 +12,23 @@ using FacilityMonitoring.Common.Data.DTO;
 
 namespace FacilityMonitoring.Common.ModbusServices.Controllers {
 
-    public class GasBayController : IGenericBoxController {
+    public class GasBayController : IMonitorBoxController {
         private readonly FacilityContext _context;
-        private readonly ILogger<IGenericBoxController> _logger;
+        private readonly ILogger<IMonitorBoxController> _logger;
         private readonly IHubContext<GasBayHub, IMonitorBoxHub> _boxHub;
-        private IGenericBoxOperations _operations;
-
+        private readonly DeviceOperationsFactory _operationsFactory;
+        private IMonitorBoxOperations _gasBayOperations;
         private double _readInterval = 10.0;
 
-        public GasBayController(FacilityContext context, ILogger<IGenericBoxController> logger, IHubContext<GasBayHub, IMonitorBoxHub> boxHub) {
+        public GasBayController(FacilityContext context,DeviceOperationsFactory operationsFactory,ILogger<IMonitorBoxController> logger, IHubContext<GasBayHub, IMonitorBoxHub> boxHub) {
             this._context = context;
             this._logger = logger;
             this._boxHub = boxHub;
+            this._operationsFactory = operationsFactory;
         }
 
-        public IGenericBoxOperations Operations {
-            get => this._operations;
+        public IMonitorBoxOperations Operations {
+            get => this._gasBayOperations;
         }
 
         public double ReadInterval {
@@ -40,11 +41,11 @@ namespace FacilityMonitoring.Common.ModbusServices.Controllers {
             .OfType<MonitorBox>()
             .Include(e => e.Registers)
                 .ThenInclude(e => e.SensorType).SingleOrDefault(e=>e.Identifier=="GasBay");
-            var controller = (IGenericBoxOperations)DeviceOperationFactory.OperationFactory(this._context, box);
+            var controller = (IMonitorBoxOperations)this._operationsFactory.GetOperations(box);
             if (controller != null) {
-                this._operations = controller;
+                this._gasBayOperations = controller;
                 controller.Start();
-                this._readInterval = this._operations.ReadInterval;
+                this._readInterval = this._gasBayOperations.ReadInterval;
                 this._logger.LogInformation("GasBay service started");
             } else {
                 this._logger.LogError("{0}: Error starting GasBay service");
@@ -58,11 +59,12 @@ namespace FacilityMonitoring.Common.ModbusServices.Controllers {
             .OfType<MonitorBox>()
             .Include(e => e.Registers)
                 .ThenInclude(e => e.SensorType).SingleOrDefaultAsync(e => e.Identifier == "GasBay");
-            var controller = (IGenericBoxOperations)DeviceOperationFactory.OperationFactory(this._context, box);
+            
+            var controller = (IMonitorBoxOperations)this._operationsFactory.GetOperations(box);
             if (controller != null) {
-                this._operations = controller;
+                this._gasBayOperations = controller;
                 await controller.StartAsync();
-                this._readInterval = this._operations.ReadInterval;
+                this._readInterval = this._gasBayOperations.ReadInterval;
                 this._logger.LogInformation("GasBay service started");
             } else {
                 this._logger.LogError("{0}: Error starting GasBay service");
@@ -70,11 +72,11 @@ namespace FacilityMonitoring.Common.ModbusServices.Controllers {
         }
 
         public async void TimeHandler(object state) {
-            var reading = await this._operations.ReadAsync();
+            var reading = await this._gasBayOperations.ReadAsync();
             await this._boxHub.Clients.All.RecieveAutoReading(reading);
-            if (this._operations.CheckSaveTime()) {
-                await this._operations.SaveAsync();
-                this._operations.ResetSaveTimer();
+            if (this._gasBayOperations.CheckSaveTime()) {
+                await this._gasBayOperations.SaveAsync();
+                this._gasBayOperations.ResetSaveTimer();
             }
         }
 
@@ -87,56 +89,56 @@ namespace FacilityMonitoring.Common.ModbusServices.Controllers {
         }
 
         public bool SetAlarm( bool on_off) {
-            return this._operations.SetAlarm(on_off);
+            return this._gasBayOperations.SetAlarm(on_off);
         }
 
         public async Task<bool> SetAlarmAsync(bool on_off) {
-            return await this._operations.SetAlarmAsync(on_off);
+            return await this._gasBayOperations.SetAlarmAsync(on_off);
         }
 
         public bool SetWarning(bool on_off) {
-            return this._operations.SetWarning(on_off);
+            return this._gasBayOperations.SetWarning(on_off);
         }
 
         public async Task<bool> SetWarningAsync(bool on_off) {
-            return await this._operations.SetWarningAsync(on_off);
+            return await this._gasBayOperations.SetWarningAsync(on_off);
         }
 
         public bool SetMaintenance(bool on_off) {
-            return this._operations.SetMaintenance(on_off);
+            return this._gasBayOperations.SetMaintenance(on_off);
         }
 
         public async Task<bool> SetMaintenanceAsync(bool on_off) {
-            return await this._operations.SetMaintenanceAsync(on_off);
+            return await this._gasBayOperations.SetMaintenanceAsync(on_off);
         }
 
         public bool GetDeviceState(out DeviceState state) {
-            state = this._operations.Device.State;
+            state = this._gasBayOperations.Device.State;
             return true;
         }
 
         public ushort GetAnalogChannelRaw(int channel) {
-            return this._operations.GetAnalogChannelRaw(channel);
+            return this._gasBayOperations.GetAnalogChannelRaw(channel);
         }
 
         public async Task<ushort> GetAnalogChannelRawAsync(int channel) {
-            return await this._operations.GetAnalogChannelRawAsync(channel);
+            return await this._gasBayOperations.GetAnalogChannelRawAsync(channel);
         }
 
         public async Task<double> GetAnalogChannelVoltageAsync(int channel) {
-            return await this._operations.GetAnalogChannelVoltageAsync(channel);
+            return await this._gasBayOperations.GetAnalogChannelVoltageAsync(channel);
         }
 
         public double GetAnalogChannelVoltage(int channel) {
-            return this._operations.GetAnalogChannelVoltage(channel);
+            return this._gasBayOperations.GetAnalogChannelVoltage(channel);
         }
 
         public BoxReadingDTO GetDeviceTable() {
-            return this._operations.DeviceTable;
+            return this._gasBayOperations.DeviceTable;
         }
 
         public MonitorBoxReading GetCurrentReading() {
-            return this._operations.LastReading;
+            return this._gasBayOperations.LastReading;
         }
     }
 }

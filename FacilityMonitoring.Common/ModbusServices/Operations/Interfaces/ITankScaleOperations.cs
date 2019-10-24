@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 
 namespace FacilityMonitoring.Common.ModbusServices.Operations {
-    public interface IAmmoniaOperations:IDeviceOperations {
+    public interface ITankScaleOperations:IDeviceOperations {
         TankScaleReading LastReading { get; }
         TankScaleReading Read();
         Task<TankScaleReading> ReadAsync();

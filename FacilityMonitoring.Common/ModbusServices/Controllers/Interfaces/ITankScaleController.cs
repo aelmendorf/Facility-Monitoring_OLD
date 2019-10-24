@@ -2,7 +2,7 @@
 
 namespace FacilityMonitoring.Common.ModbusServices.Controllers {
     public interface ITankScaleController : IDeviceController {
-        IAmmoniaOperations Operations { get; }
+        ITankScaleOperations Operations { get; }
 
     }
 }

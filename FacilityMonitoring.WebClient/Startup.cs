@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using FacilityMonitoring.Common.Model;
+using FacilityMonitoring.Common.Data.Context;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -10,8 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json.Serialization;
 
-namespace FacilityMonitoring_WebClient
-{
+namespace FacilityMonitoring_WebClient {
     public class Startup
     {
         public Startup(IConfiguration configuration)
@@ -24,10 +19,6 @@ namespace FacilityMonitoring_WebClient
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            // Add framework services.
-            //services.AddTransient<FacilityContext>(provider => {
-            //    return new FacilityContext();
-            //});
             services.AddDbContext<FacilityContext>();
             services.AddMvc()
                 .AddNewtonsoftJson(options => { 

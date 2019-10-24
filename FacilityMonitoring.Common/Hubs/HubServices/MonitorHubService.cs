@@ -7,10 +7,10 @@ using Microsoft.Extensions.Logging;
 namespace FacilityMonitoring.Common.Hubs.HubServices {
     public class MonitorHubService : IHubService{
         private readonly ILogger<MonitorHubService> _logger;
-        private IGenericBoxController _controller;
+        private readonly IMonitorBoxController _controller;
         private Timer _timer;
 
-        public MonitorHubService(ILogger<MonitorHubService> logger, IGenericBoxController controller) {
+        public MonitorHubService(ILogger<MonitorHubService> logger, IMonitorBoxController controller) {
             this._logger = logger;
             this._controller = controller;
         }

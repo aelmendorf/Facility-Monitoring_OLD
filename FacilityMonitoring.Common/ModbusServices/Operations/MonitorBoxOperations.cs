@@ -5,11 +5,15 @@ using System.Collections.Generic;
 using FacilityMonitoring.Common.Data;
 using FacilityMonitoring.Common.Data.DTO;
 using FacilityMonitoring.Common.Data.Entities;
+using Microsoft.Extensions.Logging;
 
 namespace FacilityMonitoring.Common.ModbusServices.Operations {
-    public class MonitorBoxOperations:IGenericBoxOperations  {
+    public class MonitorBoxOperations:IMonitorBoxOperations  {
+        
+        private readonly ILogger<IMonitorBoxOperations> _logger;
+        private readonly IAddMonitorBoxReading _addReading;
+
         private IModbusOperations _modbus;
-        private MonitorBoxReadingAdd _addReading;
         private TimeSpan _saveInterval;
         private TimeSpan _readInterval;
         private DateTime _lastSave;
@@ -39,12 +43,13 @@ namespace FacilityMonitoring.Common.ModbusServices.Operations {
             private set => this._device = (MonitorBox)value;
         }
 
-        public MonitorBoxOperations(MonitorBox box) {
+        public MonitorBoxOperations(MonitorBox box,IAddMonitorBoxReading addReading,ILogger<IMonitorBoxOperations> logger) {
             this._device = box;
             this._saveInterval = new TimeSpan(0, 0, (int)box.SaveInterval);
             this._readInterval = new TimeSpan(0, 0, (int)box.ReadInterval);
             this._modbus = new ModbusOperations(this._device.IpAddress, this._device.Port, this._device.SlaveAddress);
-            this._addReading = new MonitorBoxReadingAdd();
+            this._addReading = addReading;
+            this._logger = logger;
             this._readingDTO = new BoxReadingDTO();
         }
 
@@ -132,8 +137,8 @@ namespace FacilityMonitoring.Common.ModbusServices.Operations {
                     reading[channel.PropertyMap] = regData[channel.RegisterIndex] == 1 ? true : false;
                 }
                 this._device.LastRead = reading;
-                this._device.LastRead.GenericMonitorBoxAlert = alert;
-                this._device.LastRead.GenericMonitorBoxAlert.MonitorBoxReadingId = this._device.LastRead.Id;
+                this._device.LastRead.MonitorBoxAlert = alert;
+                this._device.LastRead.MonitorBoxAlert.MonitorBoxReadingId = this._device.LastRead.Id;
                 this._lastReading = this._device.LastRead;
                 lock (sync) {
                     this._readingDTO.Row = reading;
@@ -193,8 +198,8 @@ namespace FacilityMonitoring.Common.ModbusServices.Operations {
                     reading[channel.PropertyMap] = regData[channel.RegisterIndex] == 1 ? true : false;
                 }
                 this._device.LastRead = reading;
-                this._device.LastRead.GenericMonitorBoxAlert = alert;
-                this._device.LastRead.GenericMonitorBoxAlert.MonitorBoxReadingId = this._device.LastRead.Id;
+                this._device.LastRead.MonitorBoxAlert = alert;
+                this._device.LastRead.MonitorBoxAlert.MonitorBoxReadingId = this._device.LastRead.Id;
                 this._lastReading = this._device.LastRead;
                 this._lastReading.Identifier = this._device.Identifier;
                 this._readingDTO.Row = this._device.LastRead;

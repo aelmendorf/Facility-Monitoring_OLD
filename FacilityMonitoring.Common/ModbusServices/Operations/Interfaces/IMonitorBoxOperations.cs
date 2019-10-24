@@ -3,7 +3,7 @@ using FacilityMonitoring.Common.Data.Entities;
 using System.Threading.Tasks;
 
 namespace FacilityMonitoring.Common.ModbusServices.Operations {
-    public interface IGenericBoxOperations : IDeviceOperations {
+    public interface IMonitorBoxOperations : IDeviceOperations {
         BoxReadingDTO DeviceTable { get; }
         MonitorBoxReading LastReading { get; }
         BoxReadingDTO Read();

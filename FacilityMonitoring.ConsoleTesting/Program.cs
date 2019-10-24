@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Linq;
-using FacilityMonitoring.Common.Model;
 using Microsoft.EntityFrameworkCore;
 using System.Text;
 using System.Reflection;
 using System.IO;
-using FacilityMonitoring.Common.Harware;
+using FacilityMonitoring.Common.Data;
+using FacilityMonitoring.Common.Data.Context;
+using FacilityMonitoring.Common.Data.Entities;
 
 namespace FacilityMonitoring.ConsoleTesting {
     class Program {
@@ -19,10 +20,9 @@ namespace FacilityMonitoring.ConsoleTesting {
             //TestMaintenance(true);
             //TestMaintenance(false);
             //TestRead();
-            //ImportModbus();
-            //CreateAmmoniaController();
-            //ImportModbusGeneric();
-            //CreateAmmoniaController();
+            
+            CreateAmmoniaController();
+            ImportModbusGeneric();
             //TestAmmoniaRead();
             //TestSetCal(true);
             //TestGetCal();
@@ -31,66 +31,71 @@ namespace FacilityMonitoring.ConsoleTesting {
             //ExportH2ReadingParam();
             //ExportNH3ReadingParam();
             //ExportH2SystemErrorParam();
-            //ImportModbusH2("Generator 1", "172.21.100.25", 1);
-            //ImportModbusH2("Generator 2", "172.21.100.26", 1);
-            //ImportModbusH2("Generator 3", "172.21.100.27", 1);
+            ImportModbusH2("Generator 1", "172.21.100.25", 1);
+            ImportModbusH2("Generator 2", "172.21.100.26", 1);
+            ImportModbusH2("Generator 3", "172.21.100.27", 1);
 
             //TestGeneratorRead("Generator 1");
             //TestGeneratorRead("Generator 2");
             //TestGeneratorRead("Generator 3");
         }
 
-        public static void TestEmail() {
-
-        }
-
-        public static void TestingNewLinq() {
-            using FacilityContext context = new FacilityContext();
-
-            var box =context.ModbusDevices.OfType<GenericMonitorBox>().Include(device => device.Registers).ThenInclude(register=>register.SensorType).SingleOrDefault(e => e.Id == 1);
-            Console.WriteLine("Device: {0}", box.Identifier);
-            foreach(var register in box.Registers) {
-                if (register.SensorType != null) {
-                    Console.WriteLine("Register: {0}  Sensor: {1}", register.Name, register.SensorType.Name);
-                } else {
-                    Console.WriteLine("Register: {0}  Sensor: NULL", register.Name);
-                }
-
-            }
+        public static void Test<T>() {
+            Console.WriteLine(typeof(T));
             Console.ReadKey();
         }
 
-        public static void ExportH2ReadingParam() {
-            PropertyInfo[] properties = typeof(H2GenReading).GetProperties();
-            StringBuilder builder = new StringBuilder();
-            foreach(var property in properties) {
-                builder.AppendFormat("{0}\t{1}", property.Name, property.PropertyType.Name).AppendLine();
-            }
-            File.WriteAllText(@"D:\Software Development\Monitoring\ImportFiles\H2GenParam.txt", builder.ToString());
-        }
+        //public static void TestEmail() {
 
-        public static void ExportNH3ReadingParam() {
+        //}
 
-            PropertyInfo[] properties = typeof(AmmoniaControllerReading).GetProperties();
-            StringBuilder builder = new StringBuilder();
-            foreach (var property in properties) {
-                builder.AppendFormat("{0}\t{1}", property.Name, property.PropertyType.Name).AppendLine();
-            }
-            File.WriteAllText(@"D:\Software Development\Monitoring\ImportFiles\NH3GenParam.txt", builder.ToString());
-        }
+        //public static void TestingNewLinq() {
+        //    using FacilityContext context = new FacilityContext();
 
-        public static void ExportH2SystemErrorParam() {
-            PropertyInfo[] properties = typeof(GeneratorSystemError).GetProperties();
-            StringBuilder builder = new StringBuilder();
-            foreach (var property in properties) {
-                builder.AppendFormat("{0}\t{1}", property.Name, property.PropertyType.Name).AppendLine();
-            }
-            File.WriteAllText(@"D:\Software Development\Monitoring\ImportFiles\H2SystemErrorParam.txt", builder.ToString());
-        }
+        //    var box =context.ModbusDevices.OfType<GenericMonitorBox>().Include(device => device.Registers).ThenInclude(register=>register.SensorType).SingleOrDefault(e => e.Id == 1);
+        //    Console.WriteLine("Device: {0}", box.Identifier);
+        //    foreach(var register in box.Registers) {
+        //        if (register.SensorType != null) {
+        //            Console.WriteLine("Register: {0}  Sensor: {1}", register.Name, register.SensorType.Name);
+        //        } else {
+        //            Console.WriteLine("Register: {0}  Sensor: NULL", register.Name);
+        //        }
+
+        //    }
+        //    Console.ReadKey();
+        //}
+
+        //public static void ExportH2ReadingParam() {
+        //    PropertyInfo[] properties = typeof(H2GenReading).GetProperties();
+        //    StringBuilder builder = new StringBuilder();
+        //    foreach(var property in properties) {
+        //        builder.AppendFormat("{0}\t{1}", property.Name, property.PropertyType.Name).AppendLine();
+        //    }
+        //    File.WriteAllText(@"D:\Software Development\Monitoring\ImportFiles\H2GenParam.txt", builder.ToString());
+        //}
+
+        //public static void ExportNH3ReadingParam() {
+
+        //    PropertyInfo[] properties = typeof(AmmoniaControllerReading).GetProperties();
+        //    StringBuilder builder = new StringBuilder();
+        //    foreach (var property in properties) {
+        //        builder.AppendFormat("{0}\t{1}", property.Name, property.PropertyType.Name).AppendLine();
+        //    }
+        //    File.WriteAllText(@"D:\Software Development\Monitoring\ImportFiles\NH3GenParam.txt", builder.ToString());
+        //}
+
+        //public static void ExportH2SystemErrorParam() {
+        //    PropertyInfo[] properties = typeof(GeneratorSystemError).GetProperties();
+        //    StringBuilder builder = new StringBuilder();
+        //    foreach (var property in properties) {
+        //        builder.AppendFormat("{0}\t{1}", property.Name, property.PropertyType.Name).AppendLine();
+        //    }
+        //    File.WriteAllText(@"D:\Software Development\Monitoring\ImportFiles\H2SystemErrorParam.txt", builder.ToString());
+        //}
 
         public static void CreateAmmoniaController() {
             using var context = new FacilityContext();
-            AmmoniaController controller = new AmmoniaController();
+            TankScale controller = new TankScale();
             controller.Identifier = "AmmoniaController";
             controller.IpAddress = "172.21.100.29";
             controller.Port = 502;
@@ -104,8 +109,8 @@ namespace FacilityMonitoring.ConsoleTesting {
             controller.CalInputLength = 12;
             controller.SlaveAddress = 0;
             controller.State = DeviceState.OKAY;
-            controller.ReadInterval = 10;
-            controller.SaveInterval = 30;
+            controller.ReadInterval = 1;
+            controller.SaveInterval = 300;
             controller.AlarmSetPoint = 100;
             controller.WarningSetPoint = 150;
             controller.Tank1AlertEnabled = true;
@@ -121,7 +126,7 @@ namespace FacilityMonitoring.ConsoleTesting {
 
         private static void ImportModbusGeneric() {
             using (FacilityContext context = new FacilityContext()) {
-                GenericMonitorBox monitorBox = new GenericMonitorBox();
+                MonitorBox monitorBox = new MonitorBox();
                 monitorBox.IpAddress = "172.21.100.30";
                 monitorBox.Port = 502;
                 monitorBox.Identifier = "GasBay";
@@ -134,8 +139,8 @@ namespace FacilityMonitoring.ConsoleTesting {
                 monitorBox.SoftwareMaintAddr = 40;
                 monitorBox.WarningAddr = 41;
                 monitorBox.AlarmAddr = 42;
-                monitorBox.ReadInterval = 10;
-                monitorBox.SaveInterval = 30;
+                monitorBox.ReadInterval = 2;
+                monitorBox.SaveInterval = 300;
                 context.ModbusDevices.Add(monitorBox);
                 context.SaveChanges();
                 if (ImportModbusSettings.ImportSensorType(monitorBox, context)) {

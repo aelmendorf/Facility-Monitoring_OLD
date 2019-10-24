@@ -8,7 +8,7 @@ namespace FacilityMonitoring.Common.Data.Entities {
     public partial class MonitorBoxAlert {
         public int Id { get; set; }
         public int MonitorBoxReadingId { get; set; }
-        public MonitorBoxReading GenericMonitorBoxReading { get; set; }
+        public MonitorBoxReading MonitorBoxReading { get; set; }
        
         public AnalogAlert AnalogCh1 { get; set; }
         public AnalogAlert AnalogCh2 { get; set; }
