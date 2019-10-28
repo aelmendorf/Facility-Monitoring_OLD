@@ -8,7 +8,9 @@ namespace FacilityMonitoring.Common.Data.Entities {
         public int ActiveTank { get; set; }
 
         public int WarningSetPoint { get; set; }
+        public AlertAction WarningAction { get; set; }
         public int AlarmSetPoint { get; set; }
+        public AlertAction AlarmAction { get; set; }
 
         public bool Tank1AlertEnabled { get; set; }
         public bool Tank2AlertEnabled { get; set; }

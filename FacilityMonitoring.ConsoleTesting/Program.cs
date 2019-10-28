@@ -12,6 +12,7 @@ namespace FacilityMonitoring.ConsoleTesting {
     class Program {
 
         static void Main(string[] args) {
+            BuildAlertDef();
             //TestingNewLinq();
             //TestWarning(true);
             //TestWarning(false);
@@ -20,9 +21,9 @@ namespace FacilityMonitoring.ConsoleTesting {
             //TestMaintenance(true);
             //TestMaintenance(false);
             //TestRead();
-            
-            CreateAmmoniaController();
-            ImportModbusGeneric();
+
+            //CreateAmmoniaController();
+            //ImportModbusGeneric();
             //TestAmmoniaRead();
             //TestSetCal(true);
             //TestGetCal();
@@ -31,9 +32,9 @@ namespace FacilityMonitoring.ConsoleTesting {
             //ExportH2ReadingParam();
             //ExportNH3ReadingParam();
             //ExportH2SystemErrorParam();
-            ImportModbusH2("Generator 1", "172.21.100.25", 1);
-            ImportModbusH2("Generator 2", "172.21.100.26", 1);
-            ImportModbusH2("Generator 3", "172.21.100.27", 1);
+            //ImportModbusH2("Generator 1", "172.21.100.25", 1);
+            //ImportModbusH2("Generator 2", "172.21.100.26", 1);
+            //ImportModbusH2("Generator 3", "172.21.100.27", 1);
 
             //TestGeneratorRead("Generator 1");
             //TestGeneratorRead("Generator 2");
@@ -43,6 +44,49 @@ namespace FacilityMonitoring.ConsoleTesting {
         public static void Test<T>() {
             Console.WriteLine(typeof(T));
             Console.ReadKey();
+        }
+
+        public static void BuildAlertDef() {
+            using FacilityContext context = new FacilityContext();
+            AlertSettings alarm = new AlertSettings();
+            alarm.Name = "Alarm";
+            alarm.Frequency = 1.0;
+            alarm.Notification = NotificationType.EMAIL;
+            alarm.AlertAction = AlertAction.ALARM;
+
+            AlertSettings warn = new AlertSettings();
+            warn.Name = "Warning";
+            warn.Frequency = 4;
+            warn.Notification = NotificationType.EMAIL;
+            warn.AlertAction = AlertAction.WARN;
+
+            AlertSettings SoftWarning = new AlertSettings();
+            SoftWarning.Name = "Soft Warning";
+            SoftWarning.Frequency = 24;
+            SoftWarning.Notification = NotificationType.EMAIL;
+            SoftWarning.AlertAction = AlertAction.SOFTWARN;
+
+            AlertSettings Maintenance = new AlertSettings();
+            Maintenance.Name = "Maintenance";
+            Maintenance.Frequency = 0;
+            Maintenance.AlertAction = AlertAction.MAINTENANCE;
+            Maintenance.Notification = NotificationType.WEBSITE;
+
+            AlertSettings none = new AlertSettings();
+            none.Name = "Nothing";
+            none.Frequency = 0;
+            none.Notification = NotificationType.NONE;
+            none.AlertAction = AlertAction.NOTHING;
+
+            context.AlertSettings.Add(alarm);
+            context.AlertSettings.Add(warn);
+            context.AlertSettings.Add(Maintenance);
+            context.AlertSettings.Add(SoftWarning);
+            context.AlertSettings.Add(none);
+            context.SaveChanges();
+            Console.WriteLine("Should be done");
+            Console.ReadKey();
+
         }
 
         //public static void TestEmail() {

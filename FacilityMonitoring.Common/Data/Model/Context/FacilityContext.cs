@@ -20,6 +20,7 @@ namespace FacilityMonitoring.Common.Data.Context {
         public DbSet<GeneratorSystemWarning> GeneratorSystemWarnings { get; set; }
         public DbSet<Register> Registers { get; set; }
         public DbSet<Category> Categories { get; set; }
+        public DbSet<AlertSettings> AlertSettings { get; set; }
 
         public FacilityContext(DbContextOptions<FacilityContext> options):base(options) {
             this.ChangeTracker.LazyLoadingEnabled = false;

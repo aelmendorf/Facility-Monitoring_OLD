@@ -9,6 +9,8 @@ using FacilityMonitoring.Common.ModbusServices.Operations;
 using FacilityMonitoring.Common.Services;
 using FacilityMonitoring.Common.Data.Entities;
 using FacilityMonitoring.Common.Data.DTO;
+using MediatR;
+
 
 namespace FacilityMonitoring.Common.ModbusServices.Controllers {
 
@@ -19,12 +21,15 @@ namespace FacilityMonitoring.Common.ModbusServices.Controllers {
         private readonly DeviceOperationsFactory _operationsFactory;
         private IMonitorBoxOperations _gasBayOperations;
         private double _readInterval = 10.0;
+        private readonly IMediator _mediator;
+        private bool emailSent = false;
 
-        public GasBayController(FacilityContext context,DeviceOperationsFactory operationsFactory,ILogger<IMonitorBoxController> logger, IHubContext<GasBayHub, IMonitorBoxHub> boxHub) {
+        public GasBayController(FacilityContext context,DeviceOperationsFactory operationsFactory,ILogger<IMonitorBoxController> logger, IHubContext<GasBayHub, IMonitorBoxHub> boxHub,IMediator mediator) {
             this._context = context;
             this._logger = logger;
             this._boxHub = boxHub;
             this._operationsFactory = operationsFactory;
+            this._mediator = mediator;
         }
 
         public IMonitorBoxOperations Operations {
@@ -74,9 +79,15 @@ namespace FacilityMonitoring.Common.ModbusServices.Controllers {
         public async void TimeHandler(object state) {
             var reading = await this._gasBayOperations.ReadAsync();
             await this._boxHub.Clients.All.RecieveAutoReading(reading);
+
             if (this._gasBayOperations.CheckSaveTime()) {
                 await this._gasBayOperations.SaveAsync();
                 this._gasBayOperations.ResetSaveTimer();
+            }
+
+            if (!emailSent) {
+                var responce=await this._mediator.Send(new AlertServiceCommand() { Message = "Sent From GasBayController" });
+                emailSent = true;
             }
         }
 

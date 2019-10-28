@@ -9,7 +9,6 @@
     // Low:  Logic Low=Turn on
 
     public enum LogicType { HIGH=0, LOW }
-    public enum AlertAction { ALARM,WARN,SOFTWARN,MAINTENANCE,NOTHING }
     public enum OutputControl { HARDWARE,SOFTWARE}
 
     public abstract class Register {

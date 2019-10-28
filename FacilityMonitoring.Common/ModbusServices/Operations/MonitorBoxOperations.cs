@@ -105,11 +105,11 @@ namespace FacilityMonitoring.Common.ModbusServices.Operations {
                     if (equation != null) {
                         var value = Math.Round((current * equation.Item1 + equation.Item2), 3);
                         reading[channel.PropertyMap] = value;
-                        if (value >= channel.Alarm1SetPoint) {
+                        if (value >= channel.Alarm3SetPoint && !channel.Bypass) {
                             alert[channel.PropertyMap] = AnalogAlert.ALARM1;
-                        } else if (value >= channel.Alarm2SetPoint) {
+                        } else if (value < channel.Alarm3SetPoint && value>=channel.Alarm2SetPoint && !channel.Bypass) {
                             alert[channel.PropertyMap] = AnalogAlert.ALARM2;
-                        } else if (value >= channel.Alarm3SetPoint) {
+                        } else if (value < channel.Alarm2SetPoint && value>=channel.Alarm1SetPoint && !channel.Bypass) {
                             alert[channel.PropertyMap] = AnalogAlert.ALARM3;
                         } else {
                             alert[channel.PropertyMap] = AnalogAlert.NONE;

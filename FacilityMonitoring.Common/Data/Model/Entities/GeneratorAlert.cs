@@ -5,7 +5,5 @@
         public H2GenReading H2GenReading { get; set; }
 
         public GenericAlert Pressure { get; set; }
-
-
     }
 }

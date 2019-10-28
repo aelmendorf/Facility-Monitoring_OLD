@@ -142,9 +142,4 @@ gasBayConnection.on("SetMaintenanceCallBack",(result) => {
     document.getElementById("messagesList").appendChild(li);
 });
 
-gasBayConnection.onclose(async () => {
-    await startGasBay();
-    OnClose();
-});
 
-$(async function () { await startGasBay(); });
