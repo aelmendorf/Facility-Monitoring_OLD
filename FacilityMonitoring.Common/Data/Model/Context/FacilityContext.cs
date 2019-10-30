@@ -15,12 +15,13 @@ namespace FacilityMonitoring.Common.Data.Context {
         public DbSet<MonitorBoxAlert> MonitorBoxAlerts { get; set; }
         public DbSet<H2GenReading> H2GenReadings { get; set; }
         public DbSet<TankScaleReading> TankScaleReadings { get; set; }
-        public DbSet<TankScaleAlert> TankScaleAlerts { get; set; }
+        public DbSet<TankScalAlertReading> TankScaleAlerts { get; set; }
         public DbSet<GeneratorSystemError> GeneratorSystemErrors { get; set; }
         public DbSet<GeneratorSystemWarning> GeneratorSystemWarnings { get; set; }
         public DbSet<Register> Registers { get; set; }
         public DbSet<Category> Categories { get; set; }
-        public DbSet<AlertSettings> AlertSettings { get; set; }
+        public DbSet<AlertSetting> AlertSettings { get; set; }
+
 
         public FacilityContext(DbContextOptions<FacilityContext> options):base(options) {
             this.ChangeTracker.LazyLoadingEnabled = false;
@@ -32,8 +33,8 @@ namespace FacilityMonitoring.Common.Data.Context {
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
             optionsBuilder.UseLazyLoadingProxies(false);
-            //optionsBuilder.UseSqlServer("server=172.20.4.20;database=facilitymonitoring;User Id=aelmendorf;Password=Drizzle123!;");
-            optionsBuilder.UseSqlServer("server=172.20.4.20;database=facilitymonitoring;Trusted_Connection=True;MultipleActiveResultSets=true");
+            optionsBuilder.UseSqlServer("server=172.20.4.20;database=facilitymonitoring;User Id=aelmendorf;Password=Drizzle123!;");
+            //optionsBuilder.UseSqlServer("server=172.20.4.20;database=monitoring_dev;Trusted_Connection=True;MultipleActiveResultSets=true");
             //optionsBuilder.UseSqlServer(Microsoft.Extensions.Configuration.GetConnectionString("FacilityConnection"));
         }
 
@@ -92,7 +93,7 @@ namespace FacilityMonitoring.Common.Data.Context {
             builder.Entity<TankScaleReading>()
                 .HasOne(e => e.AmmoniaControllerAlert)
                 .WithOne(e => e.AmmoniaControllerReading)
-                .HasForeignKey<TankScaleAlert>(e => e.AmmoniaControllerReadingId);
+                .HasForeignKey<TankScalAlertReading>(e => e.AmmoniaControllerReadingId);
 
             builder.Entity<Register>()
                 .HasOne(e => e.Device)
@@ -105,6 +106,7 @@ namespace FacilityMonitoring.Common.Data.Context {
                 .WithOne(e => e.SensorType)
                 .HasForeignKey(e=>e.SensorTypeId)
                 .IsRequired(false);
+           
         }
 
         private static Func<FacilityContext, string, QueryTrackingBehavior, Task<H2Generator>> _getGeneratorAsync =
@@ -122,6 +124,12 @@ namespace FacilityMonitoring.Common.Data.Context {
             .OfType<H2Generator>()
             .Include(e => e.Registers)
             .ToList());
+
+        private static Func<FacilityContext, List<AlertSetting>> _getAlertSettins =
+            EF.CompileQuery((FacilityContext context) =>context.AlertSettings.AsNoTracking().ToList());
+
+        private static Func<FacilityContext, Task<List<AlertSetting>>> _getAlertSettinsAsync =
+            EF.CompileAsyncQuery((FacilityContext context) => context.AlertSettings.AsNoTracking().ToList());
 
         private static Func<FacilityContext, string, QueryTrackingBehavior, H2Generator> _getGenerator =
                 EF.CompileQuery((FacilityContext context, string identifier, QueryTrackingBehavior tracking) =>
@@ -274,6 +282,14 @@ namespace FacilityMonitoring.Common.Data.Context {
 
         public List<ModbusDevice> GetAllDevices() {
             return FacilityContext._getAllDevices(this);
+        }
+
+        public List<AlertSetting> GetAlertSettings() {
+            return FacilityContext._getAlertSettins(this);
+        }
+
+        public async Task<List<AlertSetting>> GetAlertSettingsAsync() {
+            return await FacilityContext._getAlertSettinsAsync(this);
         }
     }
 }

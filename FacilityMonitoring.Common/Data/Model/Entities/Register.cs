@@ -1,4 +1,6 @@
-﻿namespace FacilityMonitoring.Common.Data.Entities {
+﻿using System;
+
+namespace FacilityMonitoring.Common.Data.Entities {
 
     //Inputs
     //High: Logic High=Tripped
@@ -22,12 +24,12 @@
         public string PropertyMap { get; set; }
         public LogicType Logic { get; set; }
         public bool Display { get; set; }
+        public DateTime? LastAlert { get; set; }
 
         public int DeviceId { get; set; }
         public virtual ModbusDevice Device { get; set; }
 
         public int? SensorTypeId { get; set; }
         public virtual SensorType SensorType { get; set; }
-
     }
 }

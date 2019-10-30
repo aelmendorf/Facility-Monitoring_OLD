@@ -9,7 +9,6 @@ namespace FacilityMonitoring.Common.Data.Entities {
         NONE
     }
 
-
     public enum AlertAction { 
         ALARM, 
         WARN, 
@@ -18,8 +17,7 @@ namespace FacilityMonitoring.Common.Data.Entities {
         NOTHING 
     }
 
-
-    public partial class AlertSettings {
+    public partial class AlertSetting {
         public int Id { get; set; }
         public string Name { get; set; }
 

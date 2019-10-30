@@ -6,12 +6,12 @@ using FacilityMonitoring.Common.Data;
 using FacilityMonitoring.Common.Data.Entities;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.SignalR;
+using System.Diagnostics;
 
 namespace FacilityMonitoring.Common.ModbusServices.Operations {
     public class GeneratorOperations : IGeneratorOperations {
         private readonly ILogger<IGeneratorOperations> _logger;
         private readonly IAddGeneratorReading _addReading;
-
         private H2Generator _device { get; set; }
         private IModbusOperations _modbus;
         private TimeSpan _saveInterval;
@@ -42,7 +42,6 @@ namespace FacilityMonitoring.Common.ModbusServices.Operations {
             this._saveInterval = new TimeSpan(0, 0, (int)generator.SaveInterval);
             this._readInterval = new TimeSpan(0, 0, (int)generator.ReadInterval);
             this._modbus = new ModbusOperations(this._device.IpAddress, this._device.Port, this._device.SlaveAddress);
-            //this._addReading = new AddGeneratorReading();
             this._logger = logger;
             this._addReading = addReading;
             this.Data = "";

@@ -11,6 +11,7 @@ using FacilityMonitoring.Common.Data.Context;
 using FacilityMonitoring.Common.Hubs;
 using FacilityMonitoring.Common.Data.DTO;
 using FacilityMonitoring.Common.Services;
+using System.Diagnostics;
 
 namespace FacilityMonitoring.Common.ModbusServices.Controllers {
     public class GeneratorController : IGeneratorController {
@@ -96,6 +97,7 @@ namespace FacilityMonitoring.Common.ModbusServices.Controllers {
             List<Task> readTaskList = new List<Task>();
             List<Task> saveTaskList = new List<Task>();
             List<Task> broadcastTaskList = new List<Task>();
+
             foreach (var operation in this.Operations.Keys) {
 
                 readTaskList.Add(operation.ReadAsync().ContinueWith(async (data) => {

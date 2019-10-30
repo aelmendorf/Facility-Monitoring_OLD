@@ -50,6 +50,5 @@ namespace FacilityMonitoring.Common.Data.Entities {
 
         [NotMapped]
         public TankScaleReading LastRead { get; set; }
-
     }
 }

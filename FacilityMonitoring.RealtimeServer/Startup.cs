@@ -33,15 +33,13 @@ namespace FacilityMonitoring.RealtimeServer {
             //    ServiceLifetime.Transient, 
             //    ServiceLifetime.Transient);
 
-            services.AddMediatR(typeof(AlertService).Assembly);
-
-
+            //services.AddMediatR(typeof(AlertService).Assembly);
 
             services.AddTransient<DeviceOperationsFactory>();
             services.AddTransient<IAddMonitorBoxReading, AddMonitorBoxReading>();
             services.AddTransient<IAddTankScaleReading, AddTankScaleReading>();
             services.AddTransient<IAddGeneratorReading, AddGeneratorReading>();
-            services.AddTransient<IEmailService, EmailService>();
+            //services.AddTransient<IEmailService, EmailService>();
 
             services.AddSingleton<IGeneratorController,GeneratorController>();
             services.AddSingleton<IMonitorBoxController, GasBayController>();
@@ -49,7 +47,7 @@ namespace FacilityMonitoring.RealtimeServer {
             services.AddHostedService<GeneratorsHubService>();
             services.AddHostedService<MonitorHubService>();
             services.AddHostedService<AmmoniaHubService>();
-            services.AddHostedService<AlertService>();
+            //services.AddHostedService<AlertService>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env) {

@@ -6,10 +6,10 @@ using FacilityMonitoring.Common.Data;
 using FacilityMonitoring.Common.Data.DTO;
 using FacilityMonitoring.Common.Data.Entities;
 using Microsoft.Extensions.Logging;
+using System.Diagnostics;
 
 namespace FacilityMonitoring.Common.ModbusServices.Operations {
-    public class MonitorBoxOperations:IMonitorBoxOperations  {
-        
+    public class MonitorBoxOperations:IMonitorBoxOperations  {       
         private readonly ILogger<IMonitorBoxOperations> _logger;
         private readonly IAddMonitorBoxReading _addReading;
 
@@ -75,6 +75,7 @@ namespace FacilityMonitoring.Common.ModbusServices.Operations {
             columns.ForEach(read => {
                 cols.Add(new Column() { ColumnName = Char.ToLowerInvariant(read.PropertyMap[0]) + read.PropertyMap.Substring(1), Header = read.Name });
             });
+
             reading.Columns = cols;
             reading.Row=this._lastReading;
             this._readingDTO = reading;
@@ -96,6 +97,7 @@ namespace FacilityMonitoring.Common.ModbusServices.Operations {
                 bool[] coilData = data.Item2;
                 MonitorBoxReading reading = new MonitorBoxReading(DateTime.Now, "", this._device);
                 MonitorBoxAlert alert = new MonitorBoxAlert();
+
                 foreach (var channel in this._device.Registers.OfType<AnalogChannel>().OrderBy(e => e.RegisterIndex)) {
                     double x = regData[channel.RegisterIndex];
                     x = (channel.ValueDivisor != 0) ? (x / channel.ValueDivisor) : x;
@@ -105,12 +107,16 @@ namespace FacilityMonitoring.Common.ModbusServices.Operations {
                     if (equation != null) {
                         var value = Math.Round((current * equation.Item1 + equation.Item2), 3);
                         reading[channel.PropertyMap] = value;
-                        if (value >= channel.Alarm3SetPoint && !channel.Bypass) {
-                            alert[channel.PropertyMap] = AnalogAlert.ALARM1;
-                        } else if (value < channel.Alarm3SetPoint && value>=channel.Alarm2SetPoint && !channel.Bypass) {
-                            alert[channel.PropertyMap] = AnalogAlert.ALARM2;
-                        } else if (value < channel.Alarm2SetPoint && value>=channel.Alarm1SetPoint && !channel.Bypass) {
-                            alert[channel.PropertyMap] = AnalogAlert.ALARM3;
+                        if (channel.Connected) {
+                            if (value >= channel.Alarm3SetPoint) {
+                                alert[channel.PropertyMap] = AnalogAlert.ALARM3;
+                            } else if (value < channel.Alarm3SetPoint && value >= channel.Alarm2SetPoint) {
+                                alert[channel.PropertyMap] = AnalogAlert.ALARM2;
+                            } else if (value < channel.Alarm2SetPoint && value >= channel.Alarm1SetPoint) {
+                                alert[channel.PropertyMap] = AnalogAlert.ALARM1;
+                            } else {
+                                alert[channel.PropertyMap] = AnalogAlert.NONE;
+                            }
                         } else {
                             alert[channel.PropertyMap] = AnalogAlert.NONE;
                         }
@@ -150,6 +156,8 @@ namespace FacilityMonitoring.Common.ModbusServices.Operations {
         }
 
         public async Task<BoxReadingDTO> ReadAsync() {
+            var stopWatch = new Stopwatch();
+            stopWatch.Start();
             int regCount = this._device.AnalogChannelCount + this._device.DigitalOutputChannelCount;
             var data = await this._modbus.ReadRegistersAndCoilsAsync(0, regCount, 0, this._device.DigitalInputChannelCount);
             if (data != null) {
@@ -166,12 +174,16 @@ namespace FacilityMonitoring.Common.ModbusServices.Operations {
                     if (equation != null) {
                         var value = Math.Round((current * equation.Item1 + equation.Item2), 3);
                         reading[channel.PropertyMap] = value;
-                        if (value >= channel.Alarm1SetPoint) {
-                            alert[channel.PropertyMap] = AnalogAlert.ALARM1;
-                        } else if (value >= channel.Alarm2SetPoint) {
-                            alert[channel.PropertyMap] = AnalogAlert.ALARM2;
-                        } else if (value >= channel.Alarm3SetPoint) {
-                            alert[channel.PropertyMap] = AnalogAlert.ALARM3;
+                        if (channel.Connected) {
+                            if (value >= channel.Alarm3SetPoint) {
+                                alert[channel.PropertyMap] = AnalogAlert.ALARM3;
+                            } else if (value < channel.Alarm3SetPoint && value >= channel.Alarm2SetPoint) {
+                                alert[channel.PropertyMap] = AnalogAlert.ALARM2;
+                            } else if (value < channel.Alarm2SetPoint && value >= channel.Alarm1SetPoint) {
+                                alert[channel.PropertyMap] = AnalogAlert.ALARM1;
+                            } else {
+                                alert[channel.PropertyMap] = AnalogAlert.NONE;
+                            }
                         } else {
                             alert[channel.PropertyMap] = AnalogAlert.NONE;
                         }
@@ -197,12 +209,17 @@ namespace FacilityMonitoring.Common.ModbusServices.Operations {
                 foreach (var channel in this._device.Registers.OfType<DigitalOutputChannel>().OrderBy(e => e.RegisterIndex)) {
                     reading[channel.PropertyMap] = regData[channel.RegisterIndex] == 1 ? true : false;
                 }
+
                 this._device.LastRead = reading;
                 this._device.LastRead.MonitorBoxAlert = alert;
                 this._device.LastRead.MonitorBoxAlert.MonitorBoxReadingId = this._device.LastRead.Id;
                 this._lastReading = this._device.LastRead;
                 this._lastReading.Identifier = this._device.Identifier;
                 this._readingDTO.Row = this._device.LastRead;
+                stopWatch.Stop();
+                var elapsed = stopWatch.ElapsedMilliseconds;
+
+                    
                 return this._readingDTO;
             } else {
                 return null;

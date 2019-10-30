@@ -5,41 +5,49 @@ using FacilityMonitoring.Common.ModbusServices.Controllers;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MediatR;
+using System.Collections.Generic;
+using System.Collections.Concurrent;
+using FacilityMonitoring.Common.Data.Context;
+using FacilityMonitoring.Common.Data.Entities;
 
 namespace FacilityMonitoring.Common.Services {
-    public class AlertService:IHostedService,IDisposable,IRequestHandler<AlertServiceCommand,AlertServiceResponce> {
-
-
+    public class AlertService:IHostedService,IDisposable{
         private Timer _timer;
         private readonly IEmailService _emailService;
         private readonly ILogger<AlertService> _logger;
+        private List<AlertSetting> _alertSettings;
+        //private readonly IGeneratorController _generatorController;
+        //private readonly IMonitorBoxController _monitorBoxController;
+        //private readonly ITankScaleController _tankScaleControlller;
+        private readonly FacilityContext _context;
 
-        public AlertService(IEmailService emailService,ILogger<AlertService> logger) {
+        public AlertService(FacilityContext context,IEmailService emailService,ILogger<AlertService> logger, IGeneratorController generatorController, IMonitorBoxController monitorBoxController, ITankScaleController tankScaleControlller) {
             this._emailService = emailService;
             this._logger = logger;
             this._logger.LogInformation("AlertService Initiated!");
+            //this._generatorController = generatorController;
+            //this._monitorBoxController = monitorBoxController;
+            //this._tankScaleControlller = tankScaleControlller;
+            this._context = context;
         }
 
-        public Task StartAsync(CancellationToken cancellationToken) {
-            return Task.CompletedTask;
+        public async Task StartAsync(CancellationToken cancellationToken) {
+            this._alertSettings = await this._context.GetAlertSettingsAsync();
+            //this._timer = new Timer(this.TimeHandler, null, TimeSpan.Zero, TimeSpan.FromSeconds(30));
         }
 
-        public async void TimerHandler(object state) {
+        //public async Task<AlertServiceResponce> Handle(MonitorBoxAlertCommand request, CancellationToken cancellationToken) {
+        //    var register = request.Register;
+        //    var reading = request.Reading;
 
-        }
+        //}
 
-        public async Task<AlertServiceResponce> Handle(AlertServiceCommand request, CancellationToken cancellationToken) {
-            string responce = "Not Initialized";
-            await this._emailService.SendMessageAsync(request.Message).ContinueWith(res=> {
-                if (res.IsCompletedSuccessfully) {
-                    responce = "Success";
-                } else {
-                    responce = "Failed to Send";
-                }
-            
-            });
-            AlertServiceResponce res = new AlertServiceResponce() { Responce = responce };
-            return res;
+        //public async void TimeHandler(object state) {
+
+        //}
+
+        private void CheckAlerts() {
+
         }
 
         public Task StopAsync(CancellationToken cancellationToken) {

@@ -48,31 +48,31 @@ namespace FacilityMonitoring.ConsoleTesting {
 
         public static void BuildAlertDef() {
             using FacilityContext context = new FacilityContext();
-            AlertSettings alarm = new AlertSettings();
+            AlertSetting alarm = new AlertSetting();
             alarm.Name = "Alarm";
             alarm.Frequency = 1.0;
             alarm.Notification = NotificationType.EMAIL;
             alarm.AlertAction = AlertAction.ALARM;
 
-            AlertSettings warn = new AlertSettings();
+            AlertSetting warn = new AlertSetting();
             warn.Name = "Warning";
             warn.Frequency = 4;
             warn.Notification = NotificationType.EMAIL;
             warn.AlertAction = AlertAction.WARN;
 
-            AlertSettings SoftWarning = new AlertSettings();
+            AlertSetting SoftWarning = new AlertSetting();
             SoftWarning.Name = "Soft Warning";
             SoftWarning.Frequency = 24;
             SoftWarning.Notification = NotificationType.EMAIL;
             SoftWarning.AlertAction = AlertAction.SOFTWARN;
 
-            AlertSettings Maintenance = new AlertSettings();
+            AlertSetting Maintenance = new AlertSetting();
             Maintenance.Name = "Maintenance";
             Maintenance.Frequency = 0;
             Maintenance.AlertAction = AlertAction.MAINTENANCE;
             Maintenance.Notification = NotificationType.WEBSITE;
 
-            AlertSettings none = new AlertSettings();
+            AlertSetting none = new AlertSetting();
             none.Name = "Nothing";
             none.Frequency = 0;
             none.Notification = NotificationType.NONE;

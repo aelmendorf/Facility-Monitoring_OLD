@@ -1,5 +1,5 @@
 ﻿namespace FacilityMonitoring.Common.Data.Entities {
-    public partial class TankScaleAlert {
+    public partial class TankScalAlertReading {
         public int Id { get; set; }
         public int AmmoniaControllerReadingId { get; set; }
         public TankScaleReading AmmoniaControllerReading { get; set; }

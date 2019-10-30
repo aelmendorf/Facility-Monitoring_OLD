@@ -82,7 +82,7 @@ namespace FacilityMonitoring.Common.ModbusServices.Operations {
                     }
                 }//End loop
                 TankScaleReading reading = new TankScaleReading(DateTime.Now, this._device);
-                TankScaleAlert alert = new TankScaleAlert();
+                TankScalAlertReading alert = new TankScalAlertReading();
                 reading.Set(regValues, data.Item2);
                 alert.AmmoniaControllerReading = reading;
                 reading.AmmoniaControllerAlert = alert;
@@ -156,7 +156,7 @@ namespace FacilityMonitoring.Common.ModbusServices.Operations {
                     }
                 }//End loop
                 TankScaleReading reading = new TankScaleReading(DateTime.Now, this._device);
-                TankScaleAlert alert = new TankScaleAlert();
+                TankScalAlertReading alert = new TankScalAlertReading();
                 reading.Set(regValues, data.Item2);
                 alert.AmmoniaControllerReading = reading;
                 reading.AmmoniaControllerAlert = alert;
