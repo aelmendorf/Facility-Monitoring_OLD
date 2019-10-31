@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FacilityMonitoring.Common.Data.Entities {
-    public enum AnalogAlert { ALARM1, ALARM2, ALARM3, NONE }   
+    public enum AnalogAlert { ALARM1=0, ALARM2=1, ALARM3=2, NONE=3 }   
     public enum GenericAlert { WARNING=1, ALARM=2, NONE=0 }
 
     public partial class MonitorBoxAlert {

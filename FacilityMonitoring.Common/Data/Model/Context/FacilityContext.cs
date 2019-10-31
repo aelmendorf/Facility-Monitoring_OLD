@@ -106,6 +106,10 @@ namespace FacilityMonitoring.Common.Data.Context {
                 .WithOne(e => e.SensorType)
                 .HasForeignKey(e=>e.SensorTypeId)
                 .IsRequired(false);
+
+            builder.Entity<AnalogChannel>()
+                .Property(e => e.PreviousAlert)
+                .HasDefaultValue(AnalogAlert.NONE);
            
         }
 

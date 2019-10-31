@@ -7,11 +7,16 @@ using FacilityMonitoring.Common.Data.DTO;
 using FacilityMonitoring.Common.Data.Entities;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
+using FacilityMonitoring.Common.Services;
+using MediatR;
+using FacilityMonitoring.Common.Data.Context;
 
 namespace FacilityMonitoring.Common.ModbusServices.Operations {
     public class MonitorBoxOperations:IMonitorBoxOperations  {       
         private readonly ILogger<IMonitorBoxOperations> _logger;
         private readonly IAddMonitorBoxReading _addReading;
+        private readonly IMediator _mediator;
+        private readonly FacilityContext _context;
 
         private IModbusOperations _modbus;
         private TimeSpan _saveInterval;
@@ -20,6 +25,7 @@ namespace FacilityMonitoring.Common.ModbusServices.Operations {
         private MonitorBoxReading _lastReading;
         private MonitorBox _device;
         private BoxReadingDTO _readingDTO;
+
         private readonly object sync = new object();
 
         public BoxReadingDTO DeviceTable {
@@ -43,7 +49,7 @@ namespace FacilityMonitoring.Common.ModbusServices.Operations {
             private set => this._device = (MonitorBox)value;
         }
 
-        public MonitorBoxOperations(MonitorBox box,IAddMonitorBoxReading addReading,ILogger<IMonitorBoxOperations> logger) {
+        public MonitorBoxOperations(MonitorBox box,FacilityContext context,IAddMonitorBoxReading addReading,ILogger<IMonitorBoxOperations> logger,IMediator mediator) {
             this._device = box;
             this._saveInterval = new TimeSpan(0, 0, (int)box.SaveInterval);
             this._readInterval = new TimeSpan(0, 0, (int)box.ReadInterval);
@@ -51,13 +57,15 @@ namespace FacilityMonitoring.Common.ModbusServices.Operations {
             this._addReading = addReading;
             this._logger = logger;
             this._readingDTO = new BoxReadingDTO();
+            this._mediator = mediator;
+            this._context = context;
         }
 
         public async Task StartAsync() {
             await this.ReadAsync();
             await this.SaveAsync();
             this.GenerateTable();
-            this.ResetSaveTimer();       
+            this.ResetSaveTimer();
         }
 
         public void Start() {
@@ -65,6 +73,10 @@ namespace FacilityMonitoring.Common.ModbusServices.Operations {
             this.Save();
             this.GenerateTable();
             this.ResetSaveTimer();
+        }
+
+        private async Task Reload() {
+
         }
 
         private void GenerateTable() {
@@ -156,8 +168,7 @@ namespace FacilityMonitoring.Common.ModbusServices.Operations {
         }
 
         public async Task<BoxReadingDTO> ReadAsync() {
-            var stopWatch = new Stopwatch();
-            stopWatch.Start();
+            List<Register> alerts = new List<Register>();
             int regCount = this._device.AnalogChannelCount + this._device.DigitalOutputChannelCount;
             var data = await this._modbus.ReadRegistersAndCoilsAsync(0, regCount, 0, this._device.DigitalInputChannelCount);
             if (data != null) {
@@ -177,10 +188,13 @@ namespace FacilityMonitoring.Common.ModbusServices.Operations {
                         if (channel.Connected) {
                             if (value >= channel.Alarm3SetPoint) {
                                 alert[channel.PropertyMap] = AnalogAlert.ALARM3;
+                                alerts.Add(channel);
                             } else if (value < channel.Alarm3SetPoint && value >= channel.Alarm2SetPoint) {
                                 alert[channel.PropertyMap] = AnalogAlert.ALARM2;
+                                alerts.Add(channel);
                             } else if (value < channel.Alarm2SetPoint && value >= channel.Alarm1SetPoint) {
                                 alert[channel.PropertyMap] = AnalogAlert.ALARM1;
+                                alerts.Add(channel);
                             } else {
                                 alert[channel.PropertyMap] = AnalogAlert.NONE;
                             }
@@ -195,10 +209,17 @@ namespace FacilityMonitoring.Common.ModbusServices.Operations {
 
                 foreach (var channel in this._device.Registers.OfType<DigitalInputChannel>().OrderBy(e => e.RegisterIndex)) {
                     if (channel.Connected) {
+                        var trigger = (bool)coilData[channel.RegisterIndex];
                         if (channel.Logic == LogicType.HIGH) {
-                            alert[channel.PropertyMap] = coilData[channel.RegisterIndex];
+                            if (trigger) {
+                                alerts.Add(channel);
+                            }
+                            alert[channel.PropertyMap] = trigger;
                         } else {
-                            alert[channel.PropertyMap] = !coilData[channel.RegisterIndex];
+                            if (!trigger) {
+                                alerts.Add(channel);
+                            }
+                            alert[channel.PropertyMap] = !trigger;
                         }
                     } else {
                         alert[channel.PropertyMap] = false;
@@ -216,10 +237,9 @@ namespace FacilityMonitoring.Common.ModbusServices.Operations {
                 this._lastReading = this._device.LastRead;
                 this._lastReading.Identifier = this._device.Identifier;
                 this._readingDTO.Row = this._device.LastRead;
-                stopWatch.Stop();
-                var elapsed = stopWatch.ElapsedMilliseconds;
-
-                    
+                if (alerts.Count > 0) {
+                    await this._mediator.Send(new MonitorBoxAlertCommand(this._device, alerts));
+                }
                 return this._readingDTO;
             } else {
                 return null;

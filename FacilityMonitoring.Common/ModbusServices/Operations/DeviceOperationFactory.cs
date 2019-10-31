@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using FacilityMonitoring.Common.Data;
 using Microsoft.Extensions.Logging;
 using FacilityMonitoring.Common.ModbusServices.Controllers;
+using MediatR;
 
 namespace FacilityMonitoring.Common.Services {
     public class DeviceOperationsFactory {
@@ -21,7 +22,11 @@ namespace FacilityMonitoring.Common.Services {
             Type type = device.GetType();
             if (type == typeof(MonitorBox)) {
                 this._logger.LogInformation("Creating MonitorBoxOperations");
-                return new MonitorBoxOperations((MonitorBox)device, this._serviceProvider.GetRequiredService<IAddMonitorBoxReading>(), this._serviceProvider.GetRequiredService<ILogger<IMonitorBoxOperations>>());
+                return new MonitorBoxOperations((MonitorBox)device,
+                    this._serviceProvider.GetRequiredService<FacilityContext>(),
+                    this._serviceProvider.GetRequiredService<IAddMonitorBoxReading>(), 
+                    this._serviceProvider.GetRequiredService<ILogger<IMonitorBoxOperations>>(),
+                    this._serviceProvider.GetRequiredService<IMediator>());
             } else if (type == typeof(H2Generator)) {
                 this._logger.LogInformation("Creating GeneratorOperations");
                 return new GeneratorOperations((H2Generator)device, this._serviceProvider.GetRequiredService<IAddGeneratorReading>(), this._serviceProvider.GetRequiredService<ILogger<IGeneratorOperations>>());

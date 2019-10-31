@@ -28,26 +28,23 @@ namespace FacilityMonitoring.RealtimeServer {
             services.AddSignalR();
             services.AddTransient<FacilityContext>(provider => {
                 return new FacilityContext();
-            });
-            //services.AddDbContext<FacilityContext>(options => options.UseSqlServer(Configuration.GetConnectionString("FacilityConnection")), 
-            //    ServiceLifetime.Transient, 
-            //    ServiceLifetime.Transient);
-
-            //services.AddMediatR(typeof(AlertService).Assembly);
-
+            });            
             services.AddTransient<DeviceOperationsFactory>();
+
             services.AddTransient<IAddMonitorBoxReading, AddMonitorBoxReading>();
             services.AddTransient<IAddTankScaleReading, AddTankScaleReading>();
             services.AddTransient<IAddGeneratorReading, AddGeneratorReading>();
-            //services.AddTransient<IEmailService, EmailService>();
+            services.AddTransient<IEmailService, EmailService>();
 
+            services.AddSingleton<StartupHostedServiceCheck>();
             services.AddSingleton<IGeneratorController,GeneratorController>();
             services.AddSingleton<IMonitorBoxController, GasBayController>();
             services.AddSingleton<ITankScaleController, TankScaleController>();
             services.AddHostedService<GeneratorsHubService>();
             services.AddHostedService<MonitorHubService>();
             services.AddHostedService<AmmoniaHubService>();
-            //services.AddHostedService<AlertService>();
+            services.AddHostedService<AlertService>();
+            services.AddMediatR(typeof(AlertService).Assembly);
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env) {

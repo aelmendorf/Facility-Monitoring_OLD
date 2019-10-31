@@ -22,7 +22,9 @@ namespace FacilityMonitoring.Common.Data.Entities {
         public AlertAction Alarm3Action { get; set; }
         public bool Alarm3Enabled { get; set; }
 
+        public AnalogAlert PreviousAlert { get; set; }
         public double ValueDivisor { get; set; }
+
 
         public AnalogChannel(string name, int chnum,int regLength, bool connected, string pName){
             this.Name = name;
