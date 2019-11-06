@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.0</TargetFramework>
-    <StartupObject>FacilityMonitoring.ConsoleTesting.Program2</StartupObject>
+    <StartupObject>FacilityMonitoring.ConsoleTesting.Program</StartupObject>
     <ApplicationIcon />
   </PropertyGroup>
 

@@ -1,7 +1,7 @@
 ﻿
 const tankScaleConnection = new signalR.HubConnectionBuilder()
-    //.withUrl("http://172.20.4.209:443/hubs/tankscales")
-    .withUrl("http://localhost:5000/hubs/tankscales")
+    .withUrl("http://172.20.4.209:443/hubs/tankscales")
+    //.withUrl("http://localhost:5000/hubs/tankscales")
     .configureLogging(signalR.LogLevel.Information)
     .build();
 

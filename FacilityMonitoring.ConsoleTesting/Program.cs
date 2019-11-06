@@ -12,7 +12,7 @@ namespace FacilityMonitoring.ConsoleTesting {
     class Program {
 
         static void Main(string[] args) {
-            BuildAlertDef();
+            //BuildAlertDef();
             //TestingNewLinq();
             //TestWarning(true);
             //TestWarning(false);
@@ -39,11 +39,28 @@ namespace FacilityMonitoring.ConsoleTesting {
             //TestGeneratorRead("Generator 1");
             //TestGeneratorRead("Generator 2");
             //TestGeneratorRead("Generator 3");
+
+            AddSensor();
         }
 
         public static void Test<T>() {
             Console.WriteLine(typeof(T));
             Console.ReadKey();
+        }
+
+        public static void AddSensor() {
+            using FacilityContext context = new FacilityContext();
+            SensorType sensor = new SensorType();
+            sensor.Name = "H2 Detector-LEL";
+            sensor.ZeroPoint = 0;
+            sensor.MaxPoint = 100;
+            sensor.Units = "LEL%";
+            context.Categories.Add(sensor);
+            context.SaveChanges();
+
+            Console.WriteLine("Should be done!");
+            Console.ReadKey();
+
         }
 
         public static void BuildAlertDef() {
