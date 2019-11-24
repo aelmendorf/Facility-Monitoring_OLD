@@ -1,0 +1,79 @@
+﻿<UserControl x:Class="FacilityMonitoring.ArduinoDebugger.View.MainView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:FacilityMonitoring.ArduinoDebugger.View"
+              xmlns:dx="http://schemas.devexpress.com/winfx/2008/xaml/core"
+			 xmlns:dxmvvm="http://schemas.devexpress.com/winfx/2008/xaml/mvvm"
+			 xmlns:dxwui="http://schemas.devexpress.com/winfx/2008/xaml/windowsui"
+			 xmlns:dxui="http://schemas.devexpress.com/winfx/2008/xaml/navigation"	
+			 xmlns:dxdo="http://schemas.devexpress.com/winfx/2008/xaml/docking"
+			 xmlns:dxa="http://schemas.devexpress.com/winfx/2008/xaml/accordion"
+             xmlns:dxe="http://schemas.devexpress.com/winfx/2008/xaml/editors"
+			 xmlns:ViewModel="clr-namespace:FacilityMonitoring.ArduinoDebugger.ViewModel"
+			 xmlns:common="clr-namespace:FacilityMonitoring.ArduinoDebugger.Common"
+			 xmlns:dxwuin="http://schemas.devexpress.com/winfx/2008/xaml/windowsui/navigation" 
+             xmlns:dxlc="http://schemas.devexpress.com/winfx/2008/xaml/layoutcontrol"
+             xmlns:dxga="http://schemas.devexpress.com/winfx/2008/xaml/gauges" 
+             xmlns:dxg="http://schemas.devexpress.com/winfx/2008/xaml/grid"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <dxmvvm:Interaction.Behaviors>
+        <dxmvvm:DispatcherService />
+    </dxmvvm:Interaction.Behaviors>
+    <UserControl.DataContext>
+        <ViewModel:MainViewModel/>
+    </UserControl.DataContext>
+    <dxlc:LayoutControl>
+        <dxlc:LayoutGroup>
+            <dxlc:GroupBox Header="Analog Channels">
+                <dxg:GridControl x:Name="_analogList" ItemsSource="{Binding AnalogModels,IsAsync=True}" >
+                    <dxg:GridControl.View>
+                        <dxg:TableView ShowGroupPanel="False"/>
+                    </dxg:GridControl.View>
+                    <dxg:GridControl.Columns>
+                        <dxg:GridColumn FieldName="Channel"/>
+                        <dxg:GridColumn FieldName="Reading">
+                            <dxg:GridColumn.EditSettings>
+                                <dxe:TextEditSettings MaskType="Numeric" MaskUseAsDisplayFormat="True" Mask="d" />
+                            </dxg:GridColumn.EditSettings>
+                        </dxg:GridColumn>
+                    </dxg:GridControl.Columns>
+                </dxg:GridControl>
+            </dxlc:GroupBox>
+            <dxlc:GroupBox Header="Digital 24V ">
+                <dxg:GridControl x:Name="_digital24List" ItemsSource="{Binding Digital24List,IsAsync=True}" >
+                    <dxg:GridControl.View>
+                        <dxg:TableView ShowGroupPanel="False"/>
+                    </dxg:GridControl.View>
+                    <dxg:GridControl.Columns>
+                        <dxg:GridColumn FieldName="Channel"/>
+                        <dxg:GridColumn FieldName="Reading">
+                            <dxg:GridColumn.EditSettings>
+                                <dxe:ToggleSwitchEditSettings IsThreeState="False" />
+                            </dxg:GridColumn.EditSettings>
+                        </dxg:GridColumn>
+                    </dxg:GridControl.Columns>
+                </dxg:GridControl>
+            </dxlc:GroupBox>
+            <dxlc:GroupBox Header="Digital Pullup">
+                <dxg:GridControl x:Name="_digitalPullList" ItemsSource="{Binding DigitalPullupList,IsAsync=True}" >
+                    <dxg:GridControl.View>
+                        <dxg:TableView ShowGroupPanel="False"/>
+                    </dxg:GridControl.View>
+                    <dxg:GridControl.Columns>
+                        <dxg:GridColumn FieldName="Channel"/>
+                        <dxg:GridColumn FieldName="Reading">
+                            <dxg:GridColumn.EditSettings>
+                                <dxe:ToggleSwitchEditSettings />
+                            </dxg:GridColumn.EditSettings>
+                        </dxg:GridColumn>
+                    </dxg:GridControl.Columns>
+                </dxg:GridControl>
+            </dxlc:GroupBox>
+
+        </dxlc:LayoutGroup>
+
+    </dxlc:LayoutControl>
+</UserControl>

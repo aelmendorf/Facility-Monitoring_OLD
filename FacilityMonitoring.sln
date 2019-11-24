@@ -29,6 +29,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FacilityMonitoring.DesktopC
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FacilityMonitoring.WebClient", "FacilityMonitoring.WebClient\FacilityMonitoring.WebClient.csproj", "{E6AA3AA5-7DE5-47AB-8A4E-A0A791318CC9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FacilityMonitoring.ArduinoDebugger", "FacilityMonitoring.ArduinoDebugger\FacilityMonitoring.ArduinoDebugger.csproj", "{130A6CDB-C207-4DFE-8FDB-F095580E8C8B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,6 +57,10 @@ Global
 		{E6AA3AA5-7DE5-47AB-8A4E-A0A791318CC9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E6AA3AA5-7DE5-47AB-8A4E-A0A791318CC9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E6AA3AA5-7DE5-47AB-8A4E-A0A791318CC9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{130A6CDB-C207-4DFE-8FDB-F095580E8C8B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{130A6CDB-C207-4DFE-8FDB-F095580E8C8B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{130A6CDB-C207-4DFE-8FDB-F095580E8C8B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{130A6CDB-C207-4DFE-8FDB-F095580E8C8B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -65,6 +71,7 @@ Global
 		{09CF7C25-99E3-4F11-B0CB-5D6A7CF261BC} = {DD41F26A-EC6E-4465-AE17-BA0B28D99A56}
 		{5526E003-9040-43AA-849C-9D246A2CCC77} = {9BFA9E61-CC25-465E-BFAF-4B3A7E1A0616}
 		{E6AA3AA5-7DE5-47AB-8A4E-A0A791318CC9} = {9BFA9E61-CC25-465E-BFAF-4B3A7E1A0616}
+		{130A6CDB-C207-4DFE-8FDB-F095580E8C8B} = {9BFA9E61-CC25-465E-BFAF-4B3A7E1A0616}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F1F8E3AC-EC08-4D85-A0AB-BCC0D5AAAFD7}
