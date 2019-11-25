@@ -72,7 +72,6 @@ namespace FacilityMonitoring.Common.ModbusServices.Controllers {
                 }
             }
             this._readInterval = this.Operations.Min(gen => gen.Key.ReadInterval);
-
         }
 
         public async Task StartAsync() {

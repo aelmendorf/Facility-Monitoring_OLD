@@ -176,6 +176,8 @@ namespace FacilityMonitoring.Common.ModbusServices.Operations {
                 bool[] coilData = data.Item2;
                 MonitorBoxReading reading = new MonitorBoxReading(DateTime.Now, "", this._device);
                 MonitorBoxAlert alert = new MonitorBoxAlert();
+                bool warning = false;
+                bool alarm = false;
                 foreach (var channel in this._device.Registers.OfType<AnalogChannel>().OrderBy(e => e.RegisterIndex)) {
                     double x = regData[channel.RegisterIndex];
                     x = (channel.ValueDivisor != 0) ? (x / channel.ValueDivisor) : x;
@@ -187,14 +189,22 @@ namespace FacilityMonitoring.Common.ModbusServices.Operations {
                         reading[channel.PropertyMap] = value;
                         if (channel.Connected) {
                             if (value >= channel.Alarm3SetPoint) {
-                                alert[channel.PropertyMap] = AnalogAlert.ALARM3;
-                                alerts.Add(channel);
+                                if (channel.Alarm3Enabled) {
+                                    alert[channel.PropertyMap] = AnalogAlert.ALARM3;
+                                    alerts.Add(channel);
+                                    alarm = true;
+                                }
                             } else if (value < channel.Alarm3SetPoint && value >= channel.Alarm2SetPoint) {
-                                alert[channel.PropertyMap] = AnalogAlert.ALARM2;
-                                alerts.Add(channel);
+                                if (channel.Alarm2Enabled) {
+                                    alert[channel.PropertyMap] = AnalogAlert.ALARM2;
+                                    alerts.Add(channel);
+                                    warning = true;
+                                }
                             } else if (value < channel.Alarm2SetPoint && value >= channel.Alarm1SetPoint) {
-                                alert[channel.PropertyMap] = AnalogAlert.ALARM1;
-                                alerts.Add(channel);
+                                if (channel.Alarm1Enabled) {
+                                    alert[channel.PropertyMap] = AnalogAlert.ALARM1;
+                                    alerts.Add(channel);
+                                }
                             } else {
                                 alert[channel.PropertyMap] = AnalogAlert.NONE;
                             }
@@ -208,16 +218,18 @@ namespace FacilityMonitoring.Common.ModbusServices.Operations {
                 }
 
                 foreach (var channel in this._device.Registers.OfType<DigitalInputChannel>().OrderBy(e => e.RegisterIndex)) {
-                    if (channel.Connected) {
+                    if (channel.Connected && !channel.Bypass) {
                         var trigger = (bool)coilData[channel.RegisterIndex];
                         if (channel.Logic == LogicType.HIGH) {
                             if (trigger) {
                                 alerts.Add(channel);
+                                alarm = true;
                             }
                             alert[channel.PropertyMap] = trigger;
                         } else {
                             if (!trigger) {
                                 alerts.Add(channel);
+                                alarm = true;
                             }
                             alert[channel.PropertyMap] = !trigger;
                         }
@@ -237,8 +249,17 @@ namespace FacilityMonitoring.Common.ModbusServices.Operations {
                 this._lastReading = this._device.LastRead;
                 this._lastReading.Identifier = this._device.Identifier;
                 this._readingDTO.Row = this._device.LastRead;
+
                 if (alerts.Count > 0) {
-                    await this._mediator.Send(new MonitorBoxAlertCommand(this._device, alerts));
+                    var statReg = this._device.Registers.Where(e => e.Connected && e.Display).ToList();
+                    await this._mediator.Send(new MonitorBoxAlertCommand(this._device, alerts,statReg));
+                }
+                if (alarm) {
+                    await this.SetAlarmAsync(true);
+                } else if (warning) {
+                    await this.SetWarningAsync(true);
+                } else {
+                    await this.ClearAsync();
                 }
                 return this._readingDTO;
             } else {
@@ -263,6 +284,11 @@ namespace FacilityMonitoring.Common.ModbusServices.Operations {
 
         public async Task<bool> SetMaintenanceAsync(bool on_off) {
             bool[] com = { true, on_off, false, false };
+            return await this._modbus.WriteCoilsAsync(this._device.ModbusComAddr, com);
+        }
+
+        public async Task<bool> ClearAsync() {
+            bool[] com = { true, false, false, false };
             return await this._modbus.WriteCoilsAsync(this._device.ModbusComAddr, com);
         }
 

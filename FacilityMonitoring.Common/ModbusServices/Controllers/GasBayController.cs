@@ -90,11 +90,6 @@ namespace FacilityMonitoring.Common.ModbusServices.Controllers {
                 await this._gasBayOperations.SaveAsync();
                 this._gasBayOperations.ResetSaveTimer();
             }
-
-            //if (!emailSent) {
-            //    var responce=await this._mediator.Send(new MonitorBoxAlertCommand() { Message = "Sent From GasBayController" });
-            //    emailSent = true;
-            //}
         }
 
         public async Task StopAsync() {

@@ -16,9 +16,13 @@ namespace FacilityMonitoring.Common.Services {
         public void SendMessage(string msg) {
             EmailMessage message = new EmailMessage(this._exchange);
             message.ToRecipients.Add("aelmendorf@s-et.com");
-            message.Subject = "Facility Alert Service";
+            message.ToRecipients.Add("mestes@s-et.com");
+            message.ToRecipients.Add("rakesh@s-et.com");
+            message.ToRecipients.Add("rkennedy@s-et.com");
+            message.ToRecipients.Add("bmurdaugh@s-et.com");
+            message.Subject = "Facility Monitoring Alert";
             MessageBody body = new MessageBody();
-            body.BodyType = BodyType.Text;
+            body.BodyType = BodyType.HTML;
             body.Text = msg;
             message.Body = body;
             message.SendAndSaveCopy();
@@ -27,12 +31,18 @@ namespace FacilityMonitoring.Common.Services {
         public async Task SendMessageAsync(string msg) {
             EmailMessage message = new EmailMessage(this._exchange);
             message.ToRecipients.Add("aelmendorf@s-et.com");
+            message.ToRecipients.Add("mestes@s-et.com");
+            message.ToRecipients.Add("rakesh@s-et.com");
+            message.ToRecipients.Add("rkennedy@s-et.com");
+            message.ToRecipients.Add("bmurdaugh@s-et.com");
             message.Subject = "Facility Alert Service";
             MessageBody body = new MessageBody();
-            body.BodyType = BodyType.Text;
+            body.BodyType = BodyType.HTML;
             body.Text = msg;
             message.Body = body;
             await message.SendAndSaveCopy();
         }
+
+
     }
 }

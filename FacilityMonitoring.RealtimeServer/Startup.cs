@@ -35,6 +35,7 @@ namespace FacilityMonitoring.RealtimeServer {
             services.AddTransient<IAddTankScaleReading, AddTankScaleReading>();
             services.AddTransient<IAddGeneratorReading, AddGeneratorReading>();
             services.AddTransient<IEmailService, EmailService>();
+            services.AddTransient<IMessageBuilder, MessageBuilder>();
 
             services.AddSingleton<StartupHostedServiceCheck>();
             services.AddSingleton<IGeneratorController,GeneratorController>();

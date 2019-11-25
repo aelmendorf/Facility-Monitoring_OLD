@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.0</TargetFramework>
-    <StartupObject>FacilityMonitoring.ConsoleTesting.Program</StartupObject>
+    <StartupObject>FacilityMonitoring.ConsoleTesting.Program3</StartupObject>
     <ApplicationIcon />
   </PropertyGroup>
 
@@ -29,7 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FacilityMonitoring.Common\FacilityMonitoring.Common.csproj" />
+    <ProjectReference Include="..\FacilityMonitoring.Common\FacilityMonitoring.Common.csproj"/>
   </ItemGroup>
 
   <ItemGroup>

@@ -10,6 +10,7 @@ namespace FacilityMonitoring.Common.Services {
 
     public interface IMonitorBoxAlertCommand : IAlertCommand {
         List<Register> AlertRegisters { get; set; }
+        List<Register> AllReg { get; set; }
         MonitorBox Device { get; set; }
     }
 
@@ -27,14 +28,16 @@ namespace FacilityMonitoring.Common.Services {
     public class MonitorBoxAlertCommand : IRequest<bool> {
         public MonitorBox Device { get; set; }
         public List<Register> AlertRegisters { get; set; }
+        public List<Register> AllReg { get; set; }
 
         public MonitorBoxAlertCommand() {
 
         }
 
-        public MonitorBoxAlertCommand(MonitorBox device,List<Register> registers) {
+        public MonitorBoxAlertCommand(MonitorBox device,List<Register> alertReg,List<Register> statReg) {
             this.Device = device;
-            this.AlertRegisters = registers;
+            this.AlertRegisters = alertReg;
+            this.AllReg = statReg;
         }
     }
 
