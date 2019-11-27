@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using Microsoft.AspNetCore.SignalR.Client;
 
 namespace FacilityMonitoring_WebClient.Controllers
 {
@@ -17,6 +18,7 @@ namespace FacilityMonitoring_WebClient.Controllers
     public class RegistersController : Controller
     {
         private readonly FacilityContext _context;
+        private HubConnection _hubConnection;
 
         public RegistersController(FacilityContext context) {
             this._context = context;
@@ -26,9 +28,9 @@ namespace FacilityMonitoring_WebClient.Controllers
         [HttpGet]
         public async Task<object> AnalogRegisters(DataSourceLoadOptions loadOptions) {
             var result = await Task.Run(() => {
-
                 return DataSourceLoader.Load(this._context.Registers.OfType<AnalogChannel>().Include(e => e.SensorType).OrderBy(e => e.RegisterIndex), loadOptions);
             });
+
             return result;
         }
 
@@ -39,6 +41,12 @@ namespace FacilityMonitoring_WebClient.Controllers
             JsonConvert.PopulateObject(values, register);
             this._context.Entry<AnalogChannel>(register).State=EntityState.Modified;
             await this._context.SaveChangesAsync();
+            this._hubConnection = new HubConnectionBuilder()
+            //.WithUrl("http://172.20.4.209:443/hubs/gasbay")
+            .WithUrl("http://localhost:5000/hubs/gasbay")
+            .Build();
+            await this._hubConnection.StartAsync();
+            await this._hubConnection.InvokeAsync("Reset");
             return Ok();
         }
     }

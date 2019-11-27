@@ -10,6 +10,7 @@ using System.Diagnostics;
 using FacilityMonitoring.Common.Services;
 using MediatR;
 using FacilityMonitoring.Common.Data.Context;
+using Microsoft.EntityFrameworkCore;
 
 namespace FacilityMonitoring.Common.ModbusServices.Operations {
     public class MonitorBoxOperations:IMonitorBoxOperations  {       
@@ -17,7 +18,7 @@ namespace FacilityMonitoring.Common.ModbusServices.Operations {
         private readonly IAddMonitorBoxReading _addReading;
         private readonly IMediator _mediator;
         private readonly FacilityContext _context;
-
+        
         private IModbusOperations _modbus;
         private TimeSpan _saveInterval;
         private TimeSpan _readInterval;
@@ -25,6 +26,7 @@ namespace FacilityMonitoring.Common.ModbusServices.Operations {
         private MonitorBoxReading _lastReading;
         private MonitorBox _device;
         private BoxReadingDTO _readingDTO;
+        private bool _reset;
 
         private readonly object sync = new object();
 
@@ -44,6 +46,11 @@ namespace FacilityMonitoring.Common.ModbusServices.Operations {
             get => this._saveInterval.TotalSeconds;
         }
 
+        public bool Reset { 
+            get=>this._reset;
+            private set => this._reset = value;
+        }
+
         public ModbusDevice Device {
             get => this._device;
             private set => this._device = (MonitorBox)value;
@@ -59,6 +66,7 @@ namespace FacilityMonitoring.Common.ModbusServices.Operations {
             this._readingDTO = new BoxReadingDTO();
             this._mediator = mediator;
             this._context = context;
+            this._reset = false;
         }
 
         public async Task StartAsync() {
@@ -75,8 +83,8 @@ namespace FacilityMonitoring.Common.ModbusServices.Operations {
             this.ResetSaveTimer();
         }
 
-        private async Task Reload() {
-
+        private void Reload() {
+            this._reset = true;
         }
 
         private void GenerateTable() {

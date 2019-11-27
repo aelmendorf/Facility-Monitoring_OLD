@@ -17,6 +17,7 @@ namespace FacilityMonitoring.Common.ModbusServices.Controllers {
         Task<bool> SetMaintenanceAsync(bool on_off);
 
         bool GetDeviceState(out DeviceState state);
+        Task Reset();
 
         Task<ushort> GetAnalogChannelRawAsync(int channel);
         Task<double> GetAnalogChannelVoltageAsync(int channel);

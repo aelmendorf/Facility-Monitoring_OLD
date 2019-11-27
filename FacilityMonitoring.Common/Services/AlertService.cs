@@ -88,7 +88,6 @@ namespace FacilityMonitoring.Common.Services {
                             if (reg.LastAlert.HasValue) {
                                 if (reg.PreviousAlert!=analogAlert) {
                                     this._messageBuilder.AppendAlert(reg.Name, alertName , ((double)reading[reg.PropertyMap]).ToString());
-                                    //builder.AppendFormat("{3}: Detector: {0} Alarm: {1} Value: {2}", reg.Name, reg.SensorType.Name, (double)reading[reg.PropertyMap], action.AlertAction.ToString()).AppendLine();
                                     reg.LastAlert = DateTime.Now;
                                     reg.PreviousAlert = analogAlert;
                                     modified = true;
@@ -97,7 +96,6 @@ namespace FacilityMonitoring.Common.Services {
                                 } else {
                                     if ((DateTime.Now - reg.LastAlert.Value).TotalMinutes >= action.Frequency) {
                                         this._messageBuilder.AppendAlert(reg.Name, alertName, ((double)reading[reg.PropertyMap]).ToString());
-                                        //builder.AppendFormat("{3}: Detector: {0} Alarm: {1} Value: {2}", reg.Name, reg.SensorType.Name, (double)reading[reg.PropertyMap], action.AlertAction.ToString()).AppendLine();
                                         reg.LastAlert = DateTime.Now;
                                         reg.PreviousAlert = analogAlert;
                                         modified = true;
@@ -107,7 +105,6 @@ namespace FacilityMonitoring.Common.Services {
                                 }
                             } else {
                                 this._messageBuilder.AppendAlert(reg.Name, alertName, ((double)reading[reg.PropertyMap]).ToString());
-                                //builder.AppendFormat("{3}: Detector: {0} Alarm: {1} Value: {2}", reg.Name, reg.SensorType.Name, (double)reading[reg.PropertyMap], action.AlertAction.ToString()).AppendLine();
                                 reg.LastAlert = DateTime.Now;
                                 reg.PreviousAlert = analogAlert;
                                 modified = true;
@@ -163,7 +160,6 @@ namespace FacilityMonitoring.Common.Services {
                     string value;
                     if (digital.Logic == LogicType.HIGH) {
                         value = (trigger) ? "Tripped" : "Okay";
-                        //alert[channel.PropertyMap] = trigger;
                     } else {
                         value = (!trigger) ? "Tripped" : "Okay";
                     }

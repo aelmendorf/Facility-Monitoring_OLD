@@ -19,5 +19,6 @@ namespace FacilityMonitoring.Common.ModbusServices.Operations {
         Task<double> GetAnalogChannelVoltageAsync(int channel);
         ushort GetAnalogChannelRaw(int channel);
         double GetAnalogChannelVoltage(int channel);
+        bool Reset { get; }
     }
 }

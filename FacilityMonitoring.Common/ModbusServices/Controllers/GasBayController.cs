@@ -21,16 +21,7 @@ namespace FacilityMonitoring.Common.ModbusServices.Controllers {
         private readonly DeviceOperationsFactory _operationsFactory;
         private IMonitorBoxOperations _gasBayOperations;
         private double _readInterval = 10.0;
-        //private readonly IMediator _mediator;
         private bool emailSent = false;
-
-        //public GasBayController(FacilityContext context,DeviceOperationsFactory operationsFactory,ILogger<IMonitorBoxController> logger, IHubContext<GasBayHub, IMonitorBoxHub> boxHub,IMediator mediator) {
-        //    this._context = context;
-        //    this._logger = logger;
-        //    this._boxHub = boxHub;
-        //    this._operationsFactory = operationsFactory;
-        //    this._mediator = mediator;
-        //}
 
         public GasBayController(FacilityContext context, DeviceOperationsFactory operationsFactory, ILogger<IMonitorBoxController> logger, IHubContext<GasBayHub, IMonitorBoxHub> boxHub) {
             this._context = context;
@@ -84,6 +75,9 @@ namespace FacilityMonitoring.Common.ModbusServices.Controllers {
         }
 
         public async void TimeHandler(object state) {
+            //if (this._gasBayOperations.Reset) {
+            //    await this.StartAsync();
+            //}
             var reading = await this._gasBayOperations.ReadAsync();
             await this._boxHub.Clients.All.RecieveAutoReading(reading);
             if (this._gasBayOperations.CheckSaveTime()) {
@@ -98,6 +92,10 @@ namespace FacilityMonitoring.Common.ModbusServices.Controllers {
 
         public void Stop() {
             this._logger.LogInformation("MonitorBox Controller Stopping");
+        }
+
+        public async Task Reset() {
+            await this._gasBayOperations.StartAsync();
         }
 
         public bool SetAlarm( bool on_off) {
