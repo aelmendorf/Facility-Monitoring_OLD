@@ -21,6 +21,7 @@ namespace FacilityMonitoring.Common.Data.Context {
         public DbSet<Register> Registers { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<AlertSetting> AlertSettings { get; set; }
+        public DbSet<EmailRecipients> EmailRecipients { get; set; }
 
 
         public FacilityContext(DbContextOptions<FacilityContext> options):base(options) {
@@ -221,6 +222,14 @@ namespace FacilityMonitoring.Common.Data.Context {
             EF.CompileAsyncQuery((FacilityContext context) =>
                 context.ModbusDevices.ToList());
 
+        private static Func<FacilityContext, List<EmailRecipients>> _getEmailRecipients =
+            EF.CompileQuery((FacilityContext context) =>
+                context.EmailRecipients.ToList());
+
+        private static Func<FacilityContext, Task<List<EmailRecipients>>> _getEmailRecipientsAsync =
+            EF.CompileAsyncQuery((FacilityContext context) =>
+                context.EmailRecipients.ToList());
+
         private static Func<FacilityContext, List<ModbusDevice>> _getAllDevices =
             EF.CompileQuery((FacilityContext context) =>
                 context.ModbusDevices.ToList());
@@ -282,6 +291,14 @@ namespace FacilityMonitoring.Common.Data.Context {
 
         public async Task<List<ModbusDevice>> GetAllDevicesAsync() {
             return await FacilityContext._getAllDevicesAsync(this);
+        }
+
+        public async Task<List<EmailRecipients>> GetEmailRecipientsAsync() {
+            return await FacilityContext._getEmailRecipientsAsync(this);
+        }
+
+        public List<EmailRecipients> GetEmailRecipients() {
+            return FacilityContext._getEmailRecipients(this);
         }
 
         public List<ModbusDevice> GetAllDevices() {

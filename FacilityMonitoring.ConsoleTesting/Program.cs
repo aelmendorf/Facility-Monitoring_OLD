@@ -42,28 +42,38 @@ namespace FacilityMonitoring.ConsoleTesting {
             //TestGeneratorRead("Generator 3");
 
             //AddSensor();
-            EmailService emailer = new EmailService();
-            MessageBuilder builder = new MessageBuilder();
+            using var context = new FacilityContext();
+            context.EmailRecipients.Add(new EmailRecipients() { Name="Andrew Elmendorf",Email="aelmendorf@s-et.com"});
+            context.EmailRecipients.Add(new EmailRecipients() { Name = "Mills Estes", Email = "mestes@s-et.com" });
+            context.EmailRecipients.Add(new EmailRecipients() { Name = "Rakesh Jain", Email = "rakesh@s-et.com" });
+            context.EmailRecipients.Add(new EmailRecipients() { Name = "Brad Murdaugh", Email = "bmurdaugh@s-et.com" });
 
-            builder.StartMessage();
-            builder.AppendAlert("Test Analog Channel", "654.25", "ALARM3");
-            builder.AppendAlert("Test Analog Channel 2", "255.25", "ALARM3");
-            builder.AppendAlert("Test Analog Channel 3", "456.25", "ALARM3");
-            builder.AppendAlert("Test Digital Channel 1", "Alarm", "Tripped");
-            builder.AppendAlert("Test Digital Channel 2", "Alarm", "Tripped");
-            builder.AppendAlert("Test Digital Channel 3", "Alarm", "Tripped");
-
-            builder.AppendStatus("Test Analog Channel", "654.25");
-            builder.AppendStatus("Test Analog Channel 2", "255.25");
-            builder.AppendStatus("Test Analog Channel 3", "456.25");
-            builder.AppendStatus("Test Digital Channel 1", "Alarm");
-            builder.AppendStatus("Test Digital Channel 2", "Alarm");
-            builder.AppendStatus("Test Digital Channel 3", "Alarm");
-
-            emailer.SendMessage(builder.FinishMessage());
-
-            Console.WriteLine("Should be done!");
+            context.SaveChanges();
+            Console.WriteLine("Should be done");
             Console.ReadKey();
+
+            //EmailService emailer = new EmailService();
+            //MessageBuilder builder = new MessageBuilder();
+
+            //builder.StartMessage();
+            //builder.AppendAlert("Test Analog Channel", "654.25", "ALARM3");
+            //builder.AppendAlert("Test Analog Channel 2", "255.25", "ALARM3");
+            //builder.AppendAlert("Test Analog Channel 3", "456.25", "ALARM3");
+            //builder.AppendAlert("Test Digital Channel 1", "Alarm", "Tripped");
+            //builder.AppendAlert("Test Digital Channel 2", "Alarm", "Tripped");
+            //builder.AppendAlert("Test Digital Channel 3", "Alarm", "Tripped");
+
+            //builder.AppendStatus("Test Analog Channel", "654.25");
+            //builder.AppendStatus("Test Analog Channel 2", "255.25");
+            //builder.AppendStatus("Test Analog Channel 3", "456.25");
+            //builder.AppendStatus("Test Digital Channel 1", "Alarm");
+            //builder.AppendStatus("Test Digital Channel 2", "Alarm");
+            //builder.AppendStatus("Test Digital Channel 3", "Alarm");
+
+            //emailer.SendMessage(builder.FinishMessage());
+
+            //Console.WriteLine("Should be done!");
+            //Console.ReadKey();
         }
 
         public static void Test<T>() {

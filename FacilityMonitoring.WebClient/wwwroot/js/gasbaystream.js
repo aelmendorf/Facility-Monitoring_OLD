@@ -1,6 +1,6 @@
 ﻿const gasBayConnection = new signalR.HubConnectionBuilder()
-    //.withUrl("http://172.20.4.209:443/hubs/gasbay")
-    .withUrl("http://localhost:5000/hubs/gasbay")
+    .withUrl("http://172.20.4.209:443/hubs/gasbay")
+    //.withUrl("http://localhost:5000/hubs/gasbay")
     .configureLogging(signalR.LogLevel.Information)
     .build();
 

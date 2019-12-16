@@ -57,8 +57,8 @@ namespace FacilityMonitoring.RealtimeServer {
 
             app.UseRouting();
             app.UseCors(builder => {
-                builder.WithOrigins("http://localhost:51864")
-                //builder.WithOrigins("http://172.20.4.202")
+                //builder.WithOrigins("http://localhost:51864")
+                builder.WithOrigins("http://172.20.4.202")
                     .AllowAnyHeader()
                     .AllowAnyMethod()
                     .AllowCredentials();
