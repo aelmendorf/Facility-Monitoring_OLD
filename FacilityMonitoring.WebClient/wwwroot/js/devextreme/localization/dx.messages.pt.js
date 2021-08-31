@@ -1,9 +1,9 @@
 /*!
 * DevExtreme (dx.messages.pt.js)
-* Version: 19.1.7
-* Build date: Fri Oct 11 2019
+* Version: 19.1.11
+* Build date: Fri May 15 2020
 *
-* Copyright (c) 2012 - 2019 Developer Express Inc. ALL RIGHTS RESERVED
+* Copyright (c) 2012 - 2020 Developer Express Inc. ALL RIGHTS RESERVED
 * Read about DevExtreme licensing here: https://js.devexpress.com/Licensing/
 */
 "use strict";
@@ -89,6 +89,7 @@
             "dxForm-optionalMark": "opcional",
             "dxForm-requiredMessage": "{0} \xe9 de preenchimento obrigat\xf3rio",
             "dxNumberBox-invalidValueMessage": "Valor deve ser um n\xfamero",
+            "dxNumberBox-noDataText": "Sem dados",
             "dxDataGrid-columnChooserTitle": "Seletor de Colunas",
             "dxDataGrid-columnChooserEmptyText": "Arraste uma coluna para at\xe9 aqui para escond\xea-la",
             "dxDataGrid-groupContinuesMessage": "Continua na p\xe1gina seguinte",
@@ -145,6 +146,7 @@
             "dxDataGrid-columnFixingRightPosition": "\xc0 direita",
             "dxDataGrid-exportTo": "Exportar para",
             "dxDataGrid-exportToExcel": "Exportar para Excel",
+            "dxDataGrid-exporting": "Exportar...",
             "dxDataGrid-excelFormat": "Planilha Excel",
             "dxDataGrid-exportAll": "Exportar todos os dados",
             "dxDataGrid-exportSelectedRows": "Exportar linhas selecionadas",

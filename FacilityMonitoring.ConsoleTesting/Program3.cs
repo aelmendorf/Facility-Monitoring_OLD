@@ -19,25 +19,30 @@ namespace FacilityMonitoring.ConsoleTesting {
         static double[] OffsetValues = { 0.00998, 0.00920, .008976, 0.00919, 0.00744, 0.00791, -.00462, 0.0000, 0.00787, 0.00763, 0.00761, 0.00761, 0.00761, 0.00833, 0.00782, 0.0000 };
         static double[] RValues = { 250.81, 250.474, 246.2776, 210.223, 250.58, 240.204, 332.018, 0.000, 250.902, 250.918, 250.684, 250.808, 251.002, 250.576, 250.821, 0.000 };
 
-        static double[] SlopeValues2 = { 1.01174103164028,1.01223435559576,1.01215128068412,1.01174426957096,1.01281383805584,
-            1.00082150332614,1.01185081367171,1.0125878200513,1.01223915022351,1.01209679127947,1.01263492500699,1.01218416712602,
-            1.01234793849366,1.01285282346365,1.01306112354811,1.01231805170184};
-        static double[] OffsetValues2 = {0.00882890508871403,0.00816490767368672,
-            0.00940871971475588,0.00837291496113712,0.00951697364154436,0.0224976841510642,
-            0.00972872122543178,0.0101032927963121,0.0088550029428931,0.00957254261189355,
-            0.0092690590719684,0.00987601328296295,0.0093797500824353, 0.00848172687139748,
-            0.00841940842012434,0.0104318273225825};
-        static double[] RValues2 = {247.925473427001,248.257788637752,249.254734270006,
-            248.627367135003,249.013439218082,248.643249847282,248.020158827123,
-            248.114233353696,249.453879047037,249.040317654246,248.362248014661,
-            249.221136224801,248.781307269395,248.401343921808,248.957849725107,249.018937080024};
+        static double[] SlopeValues2 = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+        static double[] OffsetValues2 = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+        static double[] RValues2 = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+
+        //static double[] SlopeValues2 = { 1.01174103164028,1.01223435559576,1.01215128068412,1.01174426957096,1.01281383805584,
+        //    1.00082150332614,1.01185081367171,1.0125878200513,1.01223915022351,1.01209679127947,1.01263492500699,1.01218416712602,
+        //    1.01234793849366,1.01285282346365,1.01306112354811,1.01231805170184};
+        //static double[] OffsetValues2 = {0.00882890508871403,0.00816490767368672,
+        //    0.00940871971475588,0.00837291496113712,0.00951697364154436,0.0224976841510642,
+        //    0.00972872122543178,0.0101032927963121,0.0088550029428931,0.00957254261189355,
+        //    0.0092690590719684,0.00987601328296295,0.0093797500824353, 0.00848172687139748,
+        //    0.00841940842012434,0.0104318273225825};
+        //static double[] RValues2 = {247.925473427001,248.257788637752,249.254734270006,
+        //    248.627367135003,249.013439218082,248.643249847282,248.020158827123,
+        //    248.114233353696,249.453879047037,249.040317654246,248.362248014661,
+        //    249.221136224801,248.781307269395,248.401343921808,248.957849725107,249.018937080024};
 
         static double[] MinValues = { 4, 4, 4, 0, 4, 4.152, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
         static double[] MaxValues = { 20, 20, 20, 0, 20, 20.868, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
         static double[] Alarm1SetPoints = { 300, 10, 0, 0, 0, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
         static double[] Alarm2SetPoints = { 500, 25, 23, 0, -118, 500, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
         static double[] Alarm3SetPoints = { 1000, 50, 25, 0, -118, 1000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-        static string IpAddress = "172.20.1.202";
+        static string IpAddress = "172.20.5.100";
+        //static string IpAddress = "172.21.100.31";
 
         static void Main(string[] args) {
             //ImportModbus();
@@ -48,10 +53,38 @@ namespace FacilityMonitoring.ConsoleTesting {
             //TestingAnalogRead();
             //TestingAddChannels();
             //DisplayMeasurments();
-            TestingProgram();
+            //TestingProgram();
+            //RaiseWarning();
             //ReadAndDisplay2();
             //SendMaintNew();
             //SendAlarmNew(false);
+            //ReadAnalog();
+            //ReadDigital();
+            ReadAnalogSimple();
+           
+        }
+
+        private static void ReadDigital() {
+            Console.Clear();
+            Console.WriteLine("Retrieving Values, Please Wait");
+            if (CheckConnection(IpAddress, 100)) {
+                bool[] coilData;
+                using (TcpClient client = new TcpClient(IpAddress, 502)) {
+                    ModbusIpMaster master = ModbusIpMaster.CreateIp(client);
+                    coilData = master.ReadCoils(1,0, 47);
+                    client.Close();
+                }
+                Console.WriteLine();
+                Console.WriteLine("Coils: ");
+                for (int i = 0; i < 47; i++) {
+                    Console.Write(" D{0}: {1}", i, coilData[i]);
+                }
+                Console.WriteLine();
+                Console.WriteLine("Press any key to continue");
+                Console.ReadKey();
+            } else {
+                Console.WriteLine("Connection Failed");
+            }
         }
 
 
@@ -93,7 +126,7 @@ namespace FacilityMonitoring.ConsoleTesting {
 
                         case ConsoleKey.D6:
                         case ConsoleKey.NumPad6: {
-                            ReadDigital24v();
+                            ReadDigital();
                             break;
                         }
 
@@ -138,8 +171,7 @@ namespace FacilityMonitoring.ConsoleTesting {
             Console.Clear();
             Console.WriteLine("Raising Alarm Please Wait....");
             if (CheckConnection(IpAddress, 500)) {
-                using (TcpClient client = new TcpClient(IpAddress
-                    , 502)) {
+                using (TcpClient client = new TcpClient(IpAddress, 502)) {
                     bool[] com = { true, false, false, false };
                     ModbusIpMaster master = ModbusIpMaster.CreateIp(client);
                     com[1] = false;
@@ -208,6 +240,28 @@ namespace FacilityMonitoring.ConsoleTesting {
             }
         }
 
+        private static void ReadAnalogSimple() {
+            Console.Clear();
+            Console.WriteLine("Retrieving Values, Please Wait");
+            if (CheckConnection(IpAddress, 100)) {
+                ushort[] regData;
+                using (TcpClient client = new TcpClient(IpAddress, 502)) {
+                    ModbusIpMaster master = ModbusIpMaster.CreateIp(client);
+                    regData = master.ReadInputRegisters(1,0, 24);
+                    //regData = master.ReadHoldingRegisters(0, 16);
+                    client.Close();
+                }
+                for(int i=0; i < regData.Length; i++) {
+                   // double value = 62.5 * Convert.ToDouble(regData[i]) - 250.00;
+                    Console.WriteLine("A{0}:{1}",i,regData[i]);
+                }
+                Console.WriteLine("Press any key to finish");
+                Console.ReadKey();
+            } else {
+                Console.WriteLine("Connection Failed");
+            }
+        }
+
         private static void ReadAnalog() {
             Console.Clear();
             Console.WriteLine("Retrieving Values, Please Wait");
@@ -215,18 +269,21 @@ namespace FacilityMonitoring.ConsoleTesting {
                 ushort[] regData;
                 using (TcpClient client = new TcpClient(IpAddress, 502)) {
                     ModbusIpMaster master = ModbusIpMaster.CreateIp(client);
-                    regData = master.ReadHoldingRegisters(0, 16);
+                    regData = master.ReadHoldingRegisters(0, 26);
                     client.Close();
                 }
                 Console.WriteLine();
                 Console.WriteLine("Analog Values");
-                for (int i = 0; i < regData.Length; i++) {
+                for (int i = 0; i < 16; i++) {
                     double x = regData[i];
                     x = (x / 1000);
-                    double y = SlopeValues2[i] * x + OffsetValues2[i];
-                    double current = (RValues2[i] != 0) ? (y / RValues2[i]) * 1000 : 0.00;
-                    Console.WriteLine(" A{0}: Voltage: {1} Current: {2}", i, Math.Round(y, 3), Math.Round(current, 3));
-                    //Console.WriteLine(" A{0}: Voltage: {1}", i,Math.Round(x,3));
+
+                    Console.WriteLine(" A{0}: Current: {1}", i, Math.Round(x, 3));
+                }
+
+                Console.WriteLine("Outputs and State: ");
+                for (int i = 16; i < 25; i++) {
+                    Console.WriteLine(" Ch{0}: Value: {1}", i,regData[i]);
                 }
                 Console.WriteLine();
                 Console.WriteLine("Press any key to continue");
@@ -258,28 +315,7 @@ namespace FacilityMonitoring.ConsoleTesting {
             }
         }
 
-        private static void ReadDigital24v() {
-            Console.Clear();
-            Console.WriteLine("Retrieving Values, Please Wait");
-            if (CheckConnection(IpAddress, 100)) {
-                bool[] coilData;
-                using (TcpClient client = new TcpClient(IpAddress, 502)) {
-                    ModbusIpMaster master = ModbusIpMaster.CreateIp(client);
-                    coilData = master.ReadCoils(0, 48);
-                    client.Close();
-                }
-                Console.WriteLine();
-                Console.WriteLine("Digitals 24Volt");
-                for (int i = 22; i < 38; i++) {
-                    Console.WriteLine(" D{0}: {1}", i - 22, coilData[i]);
-                }
-                Console.WriteLine();
-                Console.WriteLine("Press any key to continue");
-                Console.ReadKey();
-            } else {
-                Console.WriteLine("Connection Failed");
-            }
-        }
+
 
         private static void PutInMaintenceMode() {
             Console.Clear();
@@ -332,11 +368,6 @@ namespace FacilityMonitoring.ConsoleTesting {
                     }
                     Console.WriteLine("Analog");
                     for (int i = 0; i < regData.Length; i++) {
-                        //double x = regData[i];
-                        //x = (x / 1000);
-                        //double y = SlopeValues[i] * x + OffsetValues[i];
-                        //double current = (RValues[i] != 0) ? (y / RValues[i]) * 1000 : 0.00;
-
                         Console.WriteLine(" A{0}: Voltage: {1} Current: {2}", i,regData[i]);
                     }
                     Console.WriteLine();

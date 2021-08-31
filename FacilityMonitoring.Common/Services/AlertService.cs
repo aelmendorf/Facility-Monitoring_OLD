@@ -28,8 +28,7 @@ namespace FacilityMonitoring.Common.Services {
         private readonly FacilityContext _context;
         private readonly StartupHostedServiceCheck _initalized;
 
-        public AlertService(FacilityContext context,IEmailService emailService,ILogger<AlertService> logger,StartupHostedServiceCheck serviceCheck,IMessageBuilder messageBuilder, 
-            IGeneratorController generatorController, IMonitorBoxController monitorBoxController, ITankScaleController tankScaleControlller) {
+        public AlertService(FacilityContext context,IEmailService emailService,ILogger<AlertService> logger,StartupHostedServiceCheck serviceCheck,IMessageBuilder messageBuilder) {
             this._emailService = emailService;
             this._messageBuilder = messageBuilder;
             this._logger = logger;

@@ -1,9 +1,9 @@
 /*!
 * DevExtreme (dx.messages.tr.js)
-* Version: 19.1.7
-* Build date: Fri Oct 11 2019
+* Version: 19.1.11
+* Build date: Fri May 15 2020
 *
-* Copyright (c) 2012 - 2019 Developer Express Inc. ALL RIGHTS RESERVED
+* Copyright (c) 2012 - 2020 Developer Express Inc. ALL RIGHTS RESERVED
 * Read about DevExtreme licensing here: https://js.devexpress.com/Licensing/
 */
 "use strict";
@@ -89,6 +89,7 @@
             "dxForm-optionalMark": "iste\u011fe ba\u011fl\u0131",
             "dxForm-requiredMessage": "{0} gerekli",
             "dxNumberBox-invalidValueMessage": "De\u011fer bir say\u0131 olmal\u0131",
+            "dxNumberBox-noDataText": "Veri yok",
             "dxDataGrid-columnChooserTitle": "S\xfctun Se\xe7ici",
             "dxDataGrid-columnChooserEmptyText": "S\xfctunu gizlemek i\xe7in buraya s\xfcr\xfckleyin",
             "dxDataGrid-groupContinuesMessage": "Bir sonraki sayfada devam ediyor",
@@ -145,6 +146,7 @@
             "dxDataGrid-columnFixingRightPosition": "Sa\u011fa",
             "dxDataGrid-exportTo": "D\u0131\u015fa aktar",
             "dxDataGrid-exportToExcel": "Excel dosyas\u0131na aktar",
+            "dxDataGrid-exporting": "D\u0131\u015fa Aktar...",
             "dxDataGrid-excelFormat": "Excel dosyas\u0131",
             "dxDataGrid-selectedRows": "Se\xe7ili sat\u0131rlar",
             "dxDataGrid-exportSelectedRows": "Se\xe7ili sat\u0131rlar\u0131 aktar",

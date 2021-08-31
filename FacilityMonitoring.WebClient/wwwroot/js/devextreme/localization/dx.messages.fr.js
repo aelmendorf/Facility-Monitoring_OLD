@@ -1,9 +1,9 @@
 /*!
 * DevExtreme (dx.messages.fr.js)
-* Version: 19.1.7
-* Build date: Fri Oct 11 2019
+* Version: 19.1.11
+* Build date: Fri May 15 2020
 *
-* Copyright (c) 2012 - 2019 Developer Express Inc. ALL RIGHTS RESERVED
+* Copyright (c) 2012 - 2020 Developer Express Inc. ALL RIGHTS RESERVED
 * Read about DevExtreme licensing here: https://js.devexpress.com/Licensing/
 */
 "use strict";
@@ -77,8 +77,8 @@
             "dxFileUploader-Gb": "Gb",
             "dxFileUploader-upload": "T\xe9l\xe9charger",
             "dxFileUploader-uploaded": "T\xe9l\xe9charg\xe9",
-            "dxFileUploader-readyToUpload": "Pret \xe0 t\xe9l\xe9charger",
-            "dxFileUploader-uploadFailedMessage": "Echec du t\xe9l\xe9chargement",
+            "dxFileUploader-readyToUpload": "Pr\xeat \xe0 t\xe9l\xe9charger",
+            "dxFileUploader-uploadFailedMessage": "\xc9chec du t\xe9l\xe9chargement",
             "dxFileUploader-invalidFileExtension": "Type de fichier non autoris\xe9",
             "dxFileUploader-invalidMaxFileSize": "Fichier trop volumineux",
             "dxFileUploader-invalidMinFileSize": "Fichier trop petit",
@@ -89,6 +89,7 @@
             "dxForm-optionalMark": "optionnel",
             "dxForm-requiredMessage": "{0} est obligatoire",
             "dxNumberBox-invalidValueMessage": "La valeur doit \xeatre un nombre",
+            "dxNumberBox-noDataText": "Pas de donn\xe9es",
             "dxDataGrid-columnChooserTitle": "Choisir les colonnes",
             "dxDataGrid-columnChooserEmptyText": "Faites glisser une colonne ici pour la cacher",
             "dxDataGrid-groupContinuesMessage": "Suite \xe0 la page suivante",
@@ -145,6 +146,7 @@
             "dxDataGrid-columnFixingRightPosition": "A droite",
             "dxDataGrid-exportTo": "Exporter",
             "dxDataGrid-exportToExcel": "Exporter sous Excel",
+            "dxDataGrid-exporting": "Exporter...",
             "dxDataGrid-excelFormat": "Fichier Excel",
             "dxDataGrid-selectedRows": "Lignes s\xe9lectionn\xe9es",
             "dxDataGrid-exportSelectedRows": "Exporter les lignes s\xe9lectionn\xe9es",

@@ -9,11 +9,11 @@ using System.Linq;
 
 namespace FacilityMonitoring.Common.Data {
     public static class ImportModbusSettings {
-        private static readonly string analogFile = @"D:\Software Development\Monitoring\ImportFiles\AnalogChannels.txt";
-        private static readonly string digitalFile = @"D:\Software Development\Monitoring\ImportFiles\DigitalChannels.txt";
-        private static readonly string outputFile = @"D:\Software Development\Monitoring\ImportFiles\OutputChannels.txt";
-        private static readonly string sensorFile = @"D:\Software Development\Monitoring\ImportFiles\SensorTypes.txt";
-        private static readonly string h2File = @"D:\Software Development\Monitoring\ImportFiles\H2GenParam.txt";
+        private static readonly string analogFile = @"E:\Software Development\Monitoring\ImportFiles\AnalogChannels.txt";
+        private static readonly string digitalFile = @"E:\Software Development\Monitoring\ImportFiles\DigitalChannels.txt";
+        private static readonly string outputFile = @"E:\Software Development\Monitoring\ImportFiles\OutputChannels.txt";
+        private static readonly string sensorFile = @"E:\Software Development\Monitoring\ImportFiles\SensorTypes.txt";
+        private static readonly string h2File = @"E:\Software Development\Monitoring\ImportFiles\H2GenParam.txt";
 
         public static bool ImportAnalog(MonitorBox box,FacilityContext context) {
             if (File.Exists(analogFile)) {

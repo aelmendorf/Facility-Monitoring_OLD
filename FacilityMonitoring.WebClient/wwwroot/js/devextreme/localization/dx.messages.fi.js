@@ -1,9 +1,9 @@
 /*!
 * DevExtreme (dx.messages.fi.js)
-* Version: 19.1.7
-* Build date: Fri Oct 11 2019
+* Version: 19.1.11
+* Build date: Fri May 15 2020
 *
-* Copyright (c) 2012 - 2019 Developer Express Inc. ALL RIGHTS RESERVED
+* Copyright (c) 2012 - 2020 Developer Express Inc. ALL RIGHTS RESERVED
 * Read about DevExtreme licensing here: https://js.devexpress.com/Licensing/
 */
 "use strict";
@@ -89,6 +89,7 @@
             "dxForm-optionalMark": "valinnainen",
             "dxForm-requiredMessage": "{0} on valinnainen",
             "dxNumberBox-invalidValueMessage": "Arvon on oltava numero",
+            "dxNumberBox-noDataText": "Ei dataa",
             "dxDataGrid-columnChooserTitle": "Sarakkeenvalitsin",
             "dxDataGrid-columnChooserEmptyText": "Ved\xe4 sarake t\xe4\xe4ll\xe4 piilottaa sen",
             "dxDataGrid-groupContinuesMessage": "Jatkuu seuraavalla sivulla",
@@ -145,6 +146,7 @@
             "dxDataGrid-columnFixingRightPosition": "Oikealle",
             "dxDataGrid-exportTo": "Vie",
             "dxDataGrid-exportToExcel": "Vie Exceliin",
+            "dxDataGrid-exporting": "Vienti...",
             "dxDataGrid-excelFormat": "Excel-tiedostot",
             "dxDataGrid-selectedRows": "Valitut tietueet",
             "dxDataGrid-exportSelectedRows": "Vie valitut tietueet",

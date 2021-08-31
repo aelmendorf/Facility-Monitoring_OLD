@@ -1,9 +1,9 @@
 /*!
 * DevExtreme (dx.aspnet.mvc.js)
-* Version: 19.1.7
-* Build date: Fri Oct 11 2019
+* Version: 19.1.11
+* Build date: Fri May 15 2020
 *
-* Copyright (c) 2012 - 2019 Developer Express Inc. ALL RIGHTS RESERVED
+* Copyright (c) 2012 - 2020 Developer Express Inc. ALL RIGHTS RESERVED
 * Read about DevExtreme licensing here: https://js.devexpress.com/Licensing/
 */
 ! function(factory) {
@@ -18,12 +18,15 @@
 }(function($, setTemplateEngine, templateRendered, Guid, validationEngine, iteratorUtils, extractTemplateMarkup, encodeHtml) {
     var templateCompiler = createTemplateCompiler();
     var pendingCreateComponentRoutines = [];
+    var enableAlternativeTemplateTags = true;
 
     function createTemplateCompiler() {
         var OPEN_TAG = "<%",
             CLOSE_TAG = "%>",
             ENCODE_QUALIFIER = "-",
             INTERPOLATE_QUALIFIER = "=";
+        var EXTENDED_OPEN_TAG = /[<[]%/g,
+            EXTENDED_CLOSE_TAG = /%[>\]]/g;
 
         function acceptText(bag, text) {
             if (text) {
@@ -45,10 +48,10 @@
         }
         return function(text) {
             var bag = ["var _ = [];", "with(obj||{}) {"],
-                chunks = text.split(OPEN_TAG);
+                chunks = text.split(enableAlternativeTemplateTags ? EXTENDED_OPEN_TAG : OPEN_TAG);
             acceptText(bag, chunks.shift());
             for (var i = 0; i < chunks.length; i++) {
-                var tmp = chunks[i].split(CLOSE_TAG);
+                var tmp = chunks[i].split(enableAlternativeTemplateTags ? EXTENDED_CLOSE_TAG : CLOSE_TAG);
                 if (2 !== tmp.length) {
                     throw "Template syntax error"
                 }
@@ -103,20 +106,29 @@
     }
 
     function createComponent(name, options, id, validatorOptions) {
-        var selector = "#" + id.replace(/[^\w-]/g, "\\$&");
+        var selector = "#" + String(id).replace(/[^\w-]/g, "\\$&");
         pendingCreateComponentRoutines.push(function() {
-            var $component = $(selector)[name](options);
-            if ($.isPlainObject(validatorOptions)) {
-                $component.dxValidator(validatorOptions)
+            var $element = $(selector);
+            if ($element.length) {
+                var $component = $(selector)[name](options);
+                if ($.isPlainObject(validatorOptions)) {
+                    $component.dxValidator(validatorOptions)
+                }
+                return true
             }
+            return false
         })
     }
     templateRendered.add(function() {
         var snapshot = pendingCreateComponentRoutines.slice();
+        var leftover = [];
         pendingCreateComponentRoutines = [];
         snapshot.forEach(function(func) {
-            func()
-        })
+            if (!func()) {
+                leftover.push(func)
+            }
+        });
+        pendingCreateComponentRoutines = pendingCreateComponentRoutines.concat(leftover)
     });
     return {
         createComponent: createComponent,
@@ -139,6 +151,9 @@
             if (setTemplateEngine) {
                 setTemplateEngine(createTemplateEngine())
             }
+        },
+        enableAlternativeTemplateTags: function(value) {
+            enableAlternativeTemplateTags = value
         },
         createValidationSummaryItems: function(validationGroup, editorNames) {
             var groupConfig, items, summary = getValidationSummary(validationGroup);

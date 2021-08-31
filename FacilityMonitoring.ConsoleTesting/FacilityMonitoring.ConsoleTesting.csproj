@@ -3,9 +3,9 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.0</TargetFramework>
-    <StartupObject>FacilityMonitoring.ConsoleTesting.Program</StartupObject>
+    <StartupObject>FacilityMonitoring.ConsoleTesting.Program3</StartupObject>
     <ApplicationIcon />
-    <FileVersion>1.0.3.1216</FileVersion>
+    <FileVersion>1.0.41.27149</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>

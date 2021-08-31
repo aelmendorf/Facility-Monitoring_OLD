@@ -25,8 +25,8 @@ namespace FacilityMonitoring.WebClient.Controllers
             this._context = context;
             this._context.Registers.Include(e => e.SensorType).Load();
             this._hubConnection = new HubConnectionBuilder()
-                //.WithUrl("http://172.20.4.209:443/hubs/gasbay")
-                .WithUrl("http://localhost:5000/hubs/gasbay")
+                .WithUrl("http://172.20.4.209:443/hubs/gasbay")
+                //.WithUrl("http://localhost:5000/hubs/gasbay")
                 .Build();
         }
 

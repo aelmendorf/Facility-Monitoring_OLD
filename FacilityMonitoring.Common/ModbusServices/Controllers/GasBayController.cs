@@ -75,9 +75,6 @@ namespace FacilityMonitoring.Common.ModbusServices.Controllers {
         }
 
         public async void TimeHandler(object state) {
-            //if (this._gasBayOperations.Reset) {
-            //    await this.StartAsync();
-            //}
             var reading = await this._gasBayOperations.ReadAsync();
             await this._boxHub.Clients.All.RecieveAutoReading(reading);
             if (this._gasBayOperations.CheckSaveTime()) {

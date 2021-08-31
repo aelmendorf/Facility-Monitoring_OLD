@@ -2,29 +2,6 @@
 @using FacilityMonitoring.Common.Data.DTO
 
 <div class="content-block">
-    <div class="dx-area-caption">H2 Generators</div>
-    <div style="margin: 20px 20px 30px 20px">
-        @(Html.DevExtreme().DataGrid<GeneratorReadingDTO>()
-        .ID("genReadings")
-        .Visible(false)
-        .ShowBorders(true)
-        .HighlightChanges(true)
-        .AllowColumnResizing(true)
-        .ColumnAutoWidth(true)
-        .Columns(columns => {
-            columns.AddFor(d => d.TimeStamp).DataField("timeStamp");
-            columns.AddFor(d => d.Identifier).DataField("identifier");
-            columns.AddFor(d => d.SystemMode).DataField("systemMode");
-            columns.AddFor(d => d.OperationMode).DataField("operationMode");
-            columns.AddFor(d => d.SystemState).DataField("systemState");
-            columns.AddFor(d => d.SystemPressure).DataField("systemPressure").Caption("System Pressure,PSI");
-            columns.AddFor(d => d.WaterTemperature).DataField("waterTemperature").Caption("Water Temp, C");
-            columns.AddFor(d => d.HydrogenFlow).DataField("hydrogenFlow").Caption("H2 Flow,SPI");
-        }))
-    </div>
-</div>
-
-<div class="content-block">
     <div class="dx-area-caption">Gas Bay Box</div>
     <div style="margin: 20px 20px 30px 20px">
         @(Html.DevExtreme().DataGrid()
@@ -35,7 +12,6 @@
         .AllowColumnResizing(true)
         .ColumnAutoWidth(true))
     </div>
-
 </div>
 
 <div class="content-block">
@@ -95,5 +71,4 @@
 </div>
 <script src="~/js/signalr/dist/browser/signalr.js"></script>
 <script src="~/js/tankScalestream.js"></script>
-<script src="~/js/generatorstream.js"></script>
 <script src="~/js/gasbaystream.js"></script>

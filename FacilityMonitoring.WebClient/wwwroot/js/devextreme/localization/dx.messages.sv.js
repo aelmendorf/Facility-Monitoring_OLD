@@ -1,9 +1,9 @@
 /*!
 * DevExtreme (dx.messages.sv.js)
-* Version: 19.1.7
-* Build date: Fri Oct 11 2019
+* Version: 19.1.11
+* Build date: Fri May 15 2020
 *
-* Copyright (c) 2012 - 2019 Developer Express Inc. ALL RIGHTS RESERVED
+* Copyright (c) 2012 - 2020 Developer Express Inc. ALL RIGHTS RESERVED
 * Read about DevExtreme licensing here: https://js.devexpress.com/Licensing/
 */
 "use strict";
@@ -89,6 +89,7 @@
             "dxForm-optionalMark": "valfri",
             "dxForm-requiredMessage": "{0} \xe4r n\xf6dv\xe4ndigt",
             "dxNumberBox-invalidValueMessage": "V\xe4rdet m\xe5ste vara ett nummer",
+            "dxNumberBox-noDataText": "Inget data",
             "dxDataGrid-columnChooserTitle": "Kolumnv\xe4ljare",
             "dxDataGrid-columnChooserEmptyText": "Dra en kolumn hit f\xf6r att d\xf6lja den",
             "dxDataGrid-groupContinuesMessage": "Forts\xe4tter p\xe5 n\xe4sta sida",
@@ -145,6 +146,7 @@
             "dxDataGrid-columnFixingRightPosition": "Till h\xf6ger",
             "dxDataGrid-exportTo": "Exportera",
             "dxDataGrid-exportToExcel": "Exportera till Excel fil",
+            "dxDataGrid-exporting": "Exportera...",
             "dxDataGrid-excelFormat": "Excel fil",
             "dxDataGrid-selectedRows": "Valda rader",
             "dxDataGrid-exportSelectedRows": "Exportera valda rader",

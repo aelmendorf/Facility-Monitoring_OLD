@@ -1,9 +1,9 @@
 /*!
 * DevExtreme (dx.messages.cs.js)
-* Version: 19.1.7
-* Build date: Fri Oct 11 2019
+* Version: 19.1.11
+* Build date: Fri May 15 2020
 *
-* Copyright (c) 2012 - 2019 Developer Express Inc. ALL RIGHTS RESERVED
+* Copyright (c) 2012 - 2020 Developer Express Inc. ALL RIGHTS RESERVED
 * Read about DevExtreme licensing here: https://js.devexpress.com/Licensing/
 */
 "use strict";
@@ -89,6 +89,7 @@
             "dxForm-optionalMark": "voliteln\xfd",
             "dxForm-requiredMessage": "{0} je vy\u017eadov\xe1no",
             "dxNumberBox-invalidValueMessage": "Hodnota mus\xed b\xfdt \u010d\xedslo",
+            "dxNumberBox-noDataText": "\u017d\xe1dn\xe1 data",
             "dxDataGrid-columnChooserTitle": "V\xfdb\u011br sloupc\u016f",
             "dxDataGrid-columnChooserEmptyText": "P\u0159esu\u0148te sloupec zde pro skyt\xed",
             "dxDataGrid-groupContinuesMessage": "Pokra\u010dovat na dal\u0161\xed stran\u011b",
@@ -145,6 +146,7 @@
             "dxDataGrid-columnFixingRightPosition": "Vpravo",
             "dxDataGrid-exportTo": "Export",
             "dxDataGrid-exportToExcel": "Export do se\u0161itu Excel",
+            "dxDataGrid-exporting": "Export...",
             "dxDataGrid-excelFormat": "soubor Excel",
             "dxDataGrid-selectedRows": "Vybran\xe9 \u0159\xe1dky",
             "dxDataGrid-exportSelectedRows": "Export vybran\xfdch \u0159\xe1dk\u016f",

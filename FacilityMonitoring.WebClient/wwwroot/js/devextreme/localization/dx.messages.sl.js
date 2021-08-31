@@ -1,9 +1,9 @@
 /*!
 * DevExtreme (dx.messages.sl.js)
-* Version: 19.1.7
-* Build date: Fri Oct 11 2019
+* Version: 19.1.11
+* Build date: Fri May 15 2020
 *
-* Copyright (c) 2012 - 2019 Developer Express Inc. ALL RIGHTS RESERVED
+* Copyright (c) 2012 - 2020 Developer Express Inc. ALL RIGHTS RESERVED
 * Read about DevExtreme licensing here: https://js.devexpress.com/Licensing/
 */
 "use strict";
@@ -89,6 +89,7 @@
             "dxForm-optionalMark": "opcijsko",
             "dxForm-requiredMessage": "Podatek {0} je obvezen",
             "dxNumberBox-invalidValueMessage": "Vrednost mora biti \u0161tevilo",
+            "dxNumberBox-noDataText": "Ni podatkov",
             "dxDataGrid-columnChooserTitle": "Izbirnik stolpcev",
             "dxDataGrid-columnChooserEmptyText": "Povlecite stolpec sem, da ga skrijete",
             "dxDataGrid-groupContinuesMessage": "Nadaljevanje na naslednji strani",
@@ -145,6 +146,7 @@
             "dxDataGrid-columnFixingRightPosition": "Desno",
             "dxDataGrid-exportTo": "Izvozi",
             "dxDataGrid-exportToExcel": "Izvozi v Excel datoteko",
+            "dxDataGrid-exporting": "Izvozi...",
             "dxDataGrid-excelFormat": "Excel datoteka",
             "dxDataGrid-selectedRows": "Izbrane vrstice",
             "dxDataGrid-exportSelectedRows": "Izvozi izbrane vrstice",

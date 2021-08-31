@@ -35,7 +35,8 @@ namespace FacilityMonitoring.Common.Data.Context {
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) {
             optionsBuilder.UseLazyLoadingProxies(false);
             optionsBuilder.UseSqlServer("server=172.20.4.20;database=facilitymonitoring;User Id=aelmendorf;Password=Drizzle123!;");
-            //optionsBuilder.UseSqlServer("server=172.20.4.20;database=monitoring_dev;Trusted_Connection=True;MultipleActiveResultSets=true");
+                //opts => opts.CommandTimeout((int)TimeSpan.FromMinutes(10).TotalSeconds));
+            //optionsBuilder.UseSqlServer("server=172.20.4.20;database=monitoring_dev;User Id=aelmendorf;Password=Drizzle123!;MultipleActiveResultSets=true");
             //optionsBuilder.UseSqlServer(Microsoft.Extensions.Configuration.GetConnectionString("FacilityConnection"));
         }
 

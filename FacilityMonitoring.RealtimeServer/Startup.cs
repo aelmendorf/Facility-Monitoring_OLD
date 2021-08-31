@@ -33,15 +33,15 @@ namespace FacilityMonitoring.RealtimeServer {
 
             services.AddTransient<IAddMonitorBoxReading, AddMonitorBoxReading>();
             services.AddTransient<IAddTankScaleReading, AddTankScaleReading>();
-            services.AddTransient<IAddGeneratorReading, AddGeneratorReading>();
+            //services.AddTransient<IAddGeneratorReading, AddGeneratorReading>();
             services.AddTransient<IEmailService, EmailService>();
             services.AddTransient<IMessageBuilder, MessageBuilder>();
 
             services.AddSingleton<StartupHostedServiceCheck>();
-            services.AddSingleton<IGeneratorController,GeneratorController>();
+            //services.AddSingleton<IGeneratorController,GeneratorController>();
             services.AddSingleton<IMonitorBoxController, GasBayController>();
             services.AddSingleton<ITankScaleController, TankScaleController>();
-            services.AddHostedService<GeneratorsHubService>();
+            //services.AddHostedService<GeneratorsHubService>();
             services.AddHostedService<MonitorHubService>();
             services.AddHostedService<AmmoniaHubService>();
             services.AddHostedService<AlertService>();
@@ -67,7 +67,7 @@ namespace FacilityMonitoring.RealtimeServer {
             app.UseEndpoints(endpoints => {
                 //app.ApplicationServices.GetServices<>
                 endpoints.MapHub<GasBayHub>(HubConstants.GasBayHubRoute);
-                endpoints.MapHub<GeneratorHub>(HubConstants.GeneratorRoute);
+                //endpoints.MapHub<GeneratorHub>(HubConstants.GeneratorRoute);
                 endpoints.MapHub<TankScaleHub>(HubConstants.TankScaleRoute);
             });
         }

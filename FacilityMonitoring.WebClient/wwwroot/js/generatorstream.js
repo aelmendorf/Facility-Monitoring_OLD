@@ -1,6 +1,6 @@
 ﻿const generatorConnection = new signalR.HubConnectionBuilder()
-    .withUrl("http://172.20.4.209:443/hubs/generators")
-    //.withUrl("http://localhost:5000/hubs/generators")
+    //.withUrl("http://172.20.4.209:443/hubs/generators")
+    .withUrl("http://localhost:5000/hubs/generators")
     .configureLogging(signalR.LogLevel.Information)
     .build();
 

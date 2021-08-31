@@ -1,9 +1,9 @@
 /*!
 * DevExtreme (dx.messages.zh.js)
-* Version: 19.1.7
-* Build date: Fri Oct 11 2019
+* Version: 19.1.11
+* Build date: Fri May 15 2020
 *
-* Copyright (c) 2012 - 2019 Developer Express Inc. ALL RIGHTS RESERVED
+* Copyright (c) 2012 - 2020 Developer Express Inc. ALL RIGHTS RESERVED
 * Read about DevExtreme licensing here: https://js.devexpress.com/Licensing/
 */
 "use strict";
@@ -89,6 +89,7 @@
             "dxForm-optionalMark": "\u53ef\u9009",
             "dxForm-requiredMessage": "{0} \u662f\u5fc5\u987b\u7684",
             "dxNumberBox-invalidValueMessage": "\u503c\u5fc5\u987b\u662f\u4e00\u4e2a\u6570\u5b57",
+            "dxNumberBox-noDataText": "\u65e0\u6570\u636e",
             "dxDataGrid-columnChooserTitle": "\u5217\u9009\u62e9\u5668",
             "dxDataGrid-columnChooserEmptyText": "\u5728\u8fd9\u91cc\u62d6\u52a8\u4e00\u5217\u9690\u85cf\u5b83",
             "dxDataGrid-groupContinuesMessage": "\u4e0b\u4e00\u9875",
@@ -145,6 +146,7 @@
             "dxDataGrid-columnFixingRightPosition": "\u5411\u53f3",
             "dxDataGrid-exportTo": "\u5bfc\u51fa",
             "dxDataGrid-exportToExcel": "\u5bfc\u51faExcel\u6587\u4ef6",
+            "dxDataGrid-exporting": "\u5bfc\u51fa...",
             "dxDataGrid-excelFormat": "Excel\u6587\u4ef6",
             "dxDataGrid-selectedRows": "\u5df2\u9009\u884c",
             "dxDataGrid-exportSelectedRows": "\u5bfc\u51fa\u5df2\u9009\u884c",

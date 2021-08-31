@@ -29,6 +29,12 @@ function buildAmmoniaTable() {
     });
 }
 
+function updateData(dto) {
+    for (var x = 0; dto.columns.length; x++) {
+
+    }
+}
+
 tankScaleConnection.on("RecieveAutoReading", function (data) {
     ammoniaStore.push([{ type: "update", key: data.identifier, data: data }]);
 });

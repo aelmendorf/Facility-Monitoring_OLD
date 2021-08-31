@@ -18,30 +18,4 @@
 
         }
     }
-
-    //public partial class AmmoniaRegister:Register {
-    //    public double Alarm1SetPoint { get; set; }
-    //    public AlertAction Alarm1Action { get; set; }
-    //    public bool Alarm1Enabled { get; set; }
-
-    //    public double Alarm2SetPoint { get; set; }
-    //    public AlertAction Alarm2Action { get; set; }
-    //    public bool Alarm2Enabled { get; set; }
-
-    //    public double ValueDivisor { get; set; }
-
-    //    public AmmoniaRegister(string name, int chnum, int regLength, bool connected, string pName) {
-    //        this.Name = name;
-    //        this.RegisterIndex = chnum;
-    //        this.RegisterLength = regLength;
-    //        this.Connected = connected;
-    //        this.PropertyMap = pName;
-    //        this.Bypass = false;
-    //        this.Logic = LogicType.HIGH;
-    //    }
-
-    //    public AmmoniaRegister() {
-
-    //    }
-    //}
 }

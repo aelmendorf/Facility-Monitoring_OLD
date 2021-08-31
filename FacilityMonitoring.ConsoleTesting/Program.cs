@@ -25,6 +25,7 @@ namespace FacilityMonitoring.ConsoleTesting {
 
             //CreateAmmoniaController();
             //ImportModbusGeneric();
+            PurgeReadings();
             //TestAmmoniaRead();
             //TestSetCal(true);
             //TestGetCal();
@@ -42,15 +43,15 @@ namespace FacilityMonitoring.ConsoleTesting {
             //TestGeneratorRead("Generator 3");
 
             //AddSensor();
-            using var context = new FacilityContext();
-            context.EmailRecipients.Add(new EmailRecipients() { Name="Andrew Elmendorf",Email="aelmendorf@s-et.com"});
-            context.EmailRecipients.Add(new EmailRecipients() { Name = "Mills Estes", Email = "mestes@s-et.com" });
-            context.EmailRecipients.Add(new EmailRecipients() { Name = "Rakesh Jain", Email = "rakesh@s-et.com" });
-            context.EmailRecipients.Add(new EmailRecipients() { Name = "Brad Murdaugh", Email = "bmurdaugh@s-et.com" });
+            //using var context = new FacilityContext();
+            //context.EmailRecipients.Add(new EmailRecipients() { Name="Andrew Elmendorf",Email="aelmendorf@s-et.com"});
+            //context.EmailRecipients.Add(new EmailRecipients() { Name = "Mills Estes", Email = "mestes@s-et.com" });
+            //context.EmailRecipients.Add(new EmailRecipients() { Name = "Rakesh Jain", Email = "rakesh@s-et.com" });
+            //context.EmailRecipients.Add(new EmailRecipients() { Name = "Brad Murdaugh", Email = "bmurdaugh@s-et.com" });
 
-            context.SaveChanges();
-            Console.WriteLine("Should be done");
-            Console.ReadKey();
+            //context.SaveChanges();
+            //Console.WriteLine("Should be done");
+            //Console.ReadKey();
 
             //EmailService emailer = new EmailService();
             //MessageBuilder builder = new MessageBuilder();
@@ -74,6 +75,26 @@ namespace FacilityMonitoring.ConsoleTesting {
 
             //Console.WriteLine("Should be done!");
             //Console.ReadKey();
+        }
+
+        public static void PurgeReadings() {
+            using (FacilityContext context = new FacilityContext()) {
+                //var monitorBox = context.ModbusDevices
+                //    .OfType<TankScale>()
+                //    .Include(e => e.Registers)
+                //    .ThenInclude(e => e.SensorType)
+                //    .SingleOrDefault(e => e.Identifier == "AmmoniaController");
+                Console.WriteLine("Found");
+                while (context.H2GenReadings.Count() > 0) {
+                    var readings = context.H2GenReadings.Take(5000);
+                    Console.WriteLine("Readings Loaded");
+                    context.RemoveRange(readings);
+                    context.SaveChanges();
+                    Console.WriteLine("Readings removed");
+                }
+
+                Console.WriteLine("Should be done");
+            }
         }
 
         public static void Test<T>() {
@@ -189,30 +210,35 @@ namespace FacilityMonitoring.ConsoleTesting {
 
         public static void CreateAmmoniaController() {
             using var context = new FacilityContext();
-            TankScale controller = new TankScale();
-            controller.Identifier = "AmmoniaController";
-            controller.IpAddress = "172.21.100.29";
-            controller.Port = 502;
-            controller.RegisterBaseAddress = 0;
-            controller.ReadRegisterLength = 70;
-            controller.CoilBaseAddress = 0;
-            controller.ReadCoilLength = 10;
-            controller.DataForInputAddr = 0;
-            controller.CalModeAddr = 1;
-            controller.CalInputBaseAddr = 70;
-            controller.CalInputLength = 12;
-            controller.SlaveAddress = 0;
-            controller.State = DeviceState.OKAY;
-            controller.ReadInterval = 1;
-            controller.SaveInterval = 300;
-            controller.AlarmSetPoint = 100;
-            controller.WarningSetPoint = 150;
-            controller.Tank1AlertEnabled = true;
-            controller.Tank2AlertEnabled = true;
-            controller.Tank3AlertEnabled = false;
-            controller.Tank4AlertEnabled = false;
-            controller.ActiveTank = 1;
-            context.ModbusDevices.Add(controller);
+            var controller = context.ModbusDevices
+            .OfType<MonitorBox>()
+            .Include(e => e.Registers)
+                .ThenInclude(e => e.SensorType)
+            .SingleOrDefault(e => e.Identifier == "AmmoniaController");
+            //TankScale controller = new TankScale();
+            //controller.Identifier = "AmmoniaController";
+            //controller.IpAddress = "172.21.100.29";
+            //controller.Port = 502;
+            //controller.RegisterBaseAddress = 0;
+            //controller.ReadRegisterLength = 70;
+            //controller.CoilBaseAddress = 0;
+            //controller.ReadCoilLength = 10;
+            //controller.DataForInputAddr = 0;
+            //controller.CalModeAddr = 1;
+            //controller.CalInputBaseAddr = 70;
+            //controller.CalInputLength = 12;
+            //controller.SlaveAddress = 0;
+            //controller.State = DeviceState.OKAY;
+            //controller.ReadInterval = 1;
+            //controller.SaveInterval = 300;
+            //controller.AlarmSetPoint = 100;
+            //controller.WarningSetPoint = 150;
+            //controller.Tank1AlertEnabled = true;
+            //controller.Tank2AlertEnabled = true;
+            //controller.Tank3AlertEnabled = false;
+            //controller.Tank4AlertEnabled = false;
+            //controller.ActiveTank = 1;
+            //context.ModbusDevices.Add(controller);
             context.SaveChanges();
             Console.WriteLine("Should be done");
             Console.ReadKey();
@@ -220,28 +246,33 @@ namespace FacilityMonitoring.ConsoleTesting {
 
         private static void ImportModbusGeneric() {
             using (FacilityContext context = new FacilityContext()) {
-                MonitorBox monitorBox = new MonitorBox();
-                monitorBox.IpAddress = "172.21.100.30";
-                monitorBox.Port = 502;
-                monitorBox.Identifier = "GasBay";
-                monitorBox.SlaveAddress = 0;
-                monitorBox.Status = "Okay";
-                monitorBox.AnalogChannelCount = 16;
-                monitorBox.DigitalInputChannelCount = 39;
-                monitorBox.DigitalOutputChannelCount = 10;
-                monitorBox.ModbusComAddr = 39;
-                monitorBox.SoftwareMaintAddr = 40;
-                monitorBox.WarningAddr = 41;
-                monitorBox.AlarmAddr = 42;
-                monitorBox.ReadInterval = 2;
-                monitorBox.SaveInterval = 300;
-                context.ModbusDevices.Add(monitorBox);
-                context.SaveChanges();
-                if (ImportModbusSettings.ImportSensorType(monitorBox, context)) {
-                    Console.WriteLine("Success: Sensor Types Imported");
-                } else {
-                    Console.WriteLine("Error: Sensor Import Failed");
-                }
+                var monitorBox=context.ModbusDevices
+                    .OfType<MonitorBox>()
+                    .Include(e => e.Registers)
+                    .ThenInclude(e => e.SensorType)
+                    .SingleOrDefault(e => e.Identifier == "GasBay");
+                //MonitorBox monitorBox = new MonitorBox();
+                //monitorBox.IpAddress = "172.21.100.30";
+                //monitorBox.Port = 502;
+                //monitorBox.Identifier = "GasBay";
+                //monitorBox.SlaveAddress = 0;
+                //monitorBox.Status = "Okay";
+                //monitorBox.AnalogChannelCount = 16;
+                //monitorBox.DigitalInputChannelCount = 39;
+                //monitorBox.DigitalOutputChannelCount = 10;
+                //monitorBox.ModbusComAddr = 39;
+                //monitorBox.SoftwareMaintAddr = 40;
+                //monitorBox.WarningAddr = 41;
+                //monitorBox.AlarmAddr = 42;
+                //monitorBox.ReadInterval = 2;
+                //monitorBox.SaveInterval = 300;
+                //context.ModbusDevices.Add(monitorBox);
+                //context.SaveChanges();
+                //if (ImportModbusSettings.ImportSensorType(monitorBox, context)) {
+                //    Console.WriteLine("Success: Sensor Types Imported");
+                //} else {
+                //    Console.WriteLine("Error: Sensor Import Failed");
+                //}
 
                 if (ImportModbusSettings.ImportAnalog(monitorBox, context)) {
                     Console.WriteLine("Success: Analog Channels Imported");

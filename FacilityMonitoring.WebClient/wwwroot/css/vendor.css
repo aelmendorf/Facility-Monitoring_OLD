@@ -1,9 +1,9 @@
 /*!
 * DevExtreme
-* Version: 19.1.7
-* Build date: Oct 11, 2019
+* Version: 19.1.11
+* Build date: May 15, 2020
 *
-* Copyright (c) 2012 - 2019 Developer Express Inc. ALL RIGHTS RESERVED
+* Copyright (c) 2012 - 2020 Developer Express Inc. ALL RIGHTS RESERVED
 * Read about DevExtreme licensing here: https://js.devexpress.com/Licensing/
 */
 .dx-clearfix:before,
@@ -691,6 +691,8 @@
   -webkit-flex-flow: row nowrap;
       -ms-flex-flow: row nowrap;
           flex-flow: row nowrap;
+  height: 100%;
+  width: 100%;
 }
 .dx-buttongroup-item {
   -webkit-box-flex: 0;
@@ -714,7 +716,6 @@
   -webkit-flex: 1 1 auto;
       -ms-flex: 1 1 auto;
           flex: 1 1 auto;
-  width: 100%;
 }
 .dx-scrollable-scrollbar-simulated {
   position: relative;
@@ -1633,6 +1634,12 @@
       -ms-flex-align: baseline;
           align-items: baseline;
 }
+.dx-dropdowneditor-field-template-wrapper > * {
+  -webkit-box-flex: 1;
+  -webkit-flex-grow: 1;
+      -ms-flex-positive: 1;
+          flex-grow: 1;
+}
 .dx-dropdowneditor-active .dx-dropdowneditor-icon {
   opacity: 0.35;
 }
@@ -2039,9 +2046,6 @@
 }
 .dx-texteditor input[type=date]::-webkit-inner-spin-button {
   height: 20px;
-}
-.dx-datebox-native .dx-texteditor-buttons-container {
-  pointer-events: none;
 }
 .dx-datebox-native.dx-state-focused.dx-texteditor-empty .dx-placeholder {
   display: none;
@@ -4090,15 +4094,20 @@ input.dx-hidden {
   max-width: 70px;
 }
 .dx-datagrid-content .dx-datagrid-table .dx-row .dx-command-edit {
+  text-overflow: clip;
   width: 100px;
   min-width: 100px;
 }
 .dx-datagrid-content .dx-datagrid-table .dx-row .dx-command-edit.dx-command-edit-with-icons {
   width: 80px;
   min-width: 80px;
+  white-space: nowrap;
 }
 .dx-datagrid-content .dx-datagrid-table .dx-row .dx-command-edit.dx-command-edit-with-icons .dx-link {
   text-decoration: none;
+}
+.dx-datagrid-content .dx-datagrid-table .dx-row .dx-command-edit .dx-link-icon {
+  display: inline-block;
 }
 .dx-datagrid-content .dx-datagrid-table .dx-row .dx-command-expand {
   padding: 0;
@@ -4382,13 +4391,13 @@ input.dx-hidden {
 .dx-datagrid-rowsview .dx-selection.dx-row:hover > tr > td .dx-link {
   color: inherit;
 }
-.dx-datagrid-rowsview .dx-datagrid-table .dx-freespace-row,
-.dx-datagrid-rowsview .dx-datagrid-table .dx-virtual-row {
+.dx-datagrid-rowsview .dx-datagrid-table .dx-row.dx-freespace-row,
+.dx-datagrid-rowsview .dx-datagrid-table .dx-row.dx-virtual-row {
   border-top: 0;
   border-bottom: 0;
 }
-.dx-datagrid-rowsview .dx-datagrid-table .dx-freespace-row > td,
-.dx-datagrid-rowsview .dx-datagrid-table .dx-virtual-row > td {
+.dx-datagrid-rowsview .dx-datagrid-table .dx-row.dx-freespace-row > td,
+.dx-datagrid-rowsview .dx-datagrid-table .dx-row.dx-virtual-row > td {
   padding-top: 0;
   padding-bottom: 0;
 }
@@ -4425,6 +4434,10 @@ input.dx-hidden {
 }
 .dx-datagrid-hidden-column {
   white-space: nowrap;
+}
+.dx-datagrid .dx-row .dx-datagrid-hidden-column {
+  border-right-width: 0;
+  border-left-width: 0;
 }
 .dx-datagrid-hidden-column > * {
   display: none !important;
@@ -4518,10 +4531,12 @@ input.dx-hidden {
   padding: 7px 32px 7px 7px;
 }
 .dx-rtl .dx-datagrid-headers,
+.dx-rtl .dx-datagrid-rowsview,
 .dx-rtl .dx-datagrid-total-footer {
   direction: ltr;
 }
 .dx-rtl .dx-datagrid-headers .dx-datagrid-table,
+.dx-rtl .dx-datagrid-rowsview .dx-datagrid-table,
 .dx-rtl .dx-datagrid-total-footer .dx-datagrid-table {
   direction: rtl;
 }
@@ -4828,6 +4843,10 @@ input.dx-hidden {
 .dx-pivotgrid .dx-word-wrap .dx-pivotgrid-expanded > span,
 .dx-pivotgrid .dx-word-wrap .dx-pivotgrid-sorted > span {
   white-space: normal;
+  display: -webkit-inline-box;
+  display: -webkit-inline-flex;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
 }
 .dx-pivotgridfieldchooser {
   position: relative;
@@ -5235,15 +5254,20 @@ input.dx-hidden {
   max-width: 70px;
 }
 .dx-treelist-content .dx-treelist-table .dx-row .dx-command-edit {
+  text-overflow: clip;
   width: 100px;
   min-width: 100px;
 }
 .dx-treelist-content .dx-treelist-table .dx-row .dx-command-edit.dx-command-edit-with-icons {
   width: 80px;
   min-width: 80px;
+  white-space: nowrap;
 }
 .dx-treelist-content .dx-treelist-table .dx-row .dx-command-edit.dx-command-edit-with-icons .dx-link {
   text-decoration: none;
+}
+.dx-treelist-content .dx-treelist-table .dx-row .dx-command-edit .dx-link-icon {
+  display: inline-block;
 }
 .dx-treelist-content .dx-treelist-table .dx-row .dx-command-expand {
   padding: 0;
@@ -5527,13 +5551,13 @@ input.dx-hidden {
 .dx-treelist-rowsview .dx-selection.dx-row:hover > tr > td .dx-link {
   color: inherit;
 }
-.dx-treelist-rowsview .dx-treelist-table .dx-freespace-row,
-.dx-treelist-rowsview .dx-treelist-table .dx-virtual-row {
+.dx-treelist-rowsview .dx-treelist-table .dx-row.dx-freespace-row,
+.dx-treelist-rowsview .dx-treelist-table .dx-row.dx-virtual-row {
   border-top: 0;
   border-bottom: 0;
 }
-.dx-treelist-rowsview .dx-treelist-table .dx-freespace-row > td,
-.dx-treelist-rowsview .dx-treelist-table .dx-virtual-row > td {
+.dx-treelist-rowsview .dx-treelist-table .dx-row.dx-freespace-row > td,
+.dx-treelist-rowsview .dx-treelist-table .dx-row.dx-virtual-row > td {
   padding-top: 0;
   padding-bottom: 0;
 }
@@ -5570,6 +5594,10 @@ input.dx-hidden {
 }
 .dx-treelist-hidden-column {
   white-space: nowrap;
+}
+.dx-treelist .dx-row .dx-treelist-hidden-column {
+  border-right-width: 0;
+  border-left-width: 0;
 }
 .dx-treelist-hidden-column > * {
   display: none !important;
@@ -5663,10 +5691,12 @@ input.dx-hidden {
   padding: 7px 32px 7px 7px;
 }
 .dx-rtl .dx-treelist-headers,
+.dx-rtl .dx-treelist-rowsview,
 .dx-rtl .dx-treelist-total-footer {
   direction: ltr;
 }
 .dx-rtl .dx-treelist-headers .dx-treelist-table,
+.dx-rtl .dx-treelist-rowsview .dx-treelist-table,
 .dx-rtl .dx-treelist-total-footer .dx-treelist-table {
   direction: rtl;
 }
