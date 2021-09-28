@@ -6,7 +6,7 @@
     <OutputType>Library</OutputType>
     <StartupObject />
     <LangVersion>8.0</LangVersion>
-    <FileVersion>1.0.13.27149</FileVersion>
+    <FileVersion>1.0.21.36915</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>

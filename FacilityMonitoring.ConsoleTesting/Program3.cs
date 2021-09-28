@@ -41,7 +41,17 @@ namespace FacilityMonitoring.ConsoleTesting {
         static double[] Alarm1SetPoints = { 300, 10, 0, 0, 0, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
         static double[] Alarm2SetPoints = { 500, 25, 23, 0, -118, 500, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
         static double[] Alarm3SetPoints = { 1000, 50, 25, 0, -118, 1000, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-        static string IpAddress = "172.20.5.100";
+        static bool maintState, alarmState, warnState, okayState = false;
+        //static ushort CoilCount = 4;
+        //static ushort DiscreteInputCount = 46;
+        //static ushort HoldingRegisterCount = 16;
+
+        static ushort CoilCount = 4;
+        static ushort DiscreteInputCount = 54;
+        static ushort HoldingRegisterCount = 16;
+
+
+        static string IpAddress = "172.20.5.46";
         //static string IpAddress = "172.21.100.31";
 
         static void Main(string[] args) {
@@ -59,34 +69,11 @@ namespace FacilityMonitoring.ConsoleTesting {
             //SendMaintNew();
             //SendAlarmNew(false);
             //ReadAnalog();
+            //RaiseAlarmNew();
             //ReadDigital();
-            ReadAnalogSimple();
-           
+            // ReadAnalogSimple();
+            TestingProgram();
         }
-
-        private static void ReadDigital() {
-            Console.Clear();
-            Console.WriteLine("Retrieving Values, Please Wait");
-            if (CheckConnection(IpAddress, 100)) {
-                bool[] coilData;
-                using (TcpClient client = new TcpClient(IpAddress, 502)) {
-                    ModbusIpMaster master = ModbusIpMaster.CreateIp(client);
-                    coilData = master.ReadCoils(1,0, 47);
-                    client.Close();
-                }
-                Console.WriteLine();
-                Console.WriteLine("Coils: ");
-                for (int i = 0; i < 47; i++) {
-                    Console.Write(" D{0}: {1}", i, coilData[i]);
-                }
-                Console.WriteLine();
-                Console.WriteLine("Press any key to continue");
-                Console.ReadKey();
-            } else {
-                Console.WriteLine("Connection Failed");
-            }
-        }
-
 
         private static void TestingProgram() {
             if (CheckConnection(IpAddress, 500)) {
@@ -96,19 +83,19 @@ namespace FacilityMonitoring.ConsoleTesting {
                     switch (key) {
                         case ConsoleKey.D1:
                         case ConsoleKey.NumPad1: {
-                            PutInMaintenceMode();
+                            ToggleMaintence();
                             break;
                         }
 
                         case ConsoleKey.D2:
                         case ConsoleKey.NumPad2: {
-                            RaiseAlarm();
+                            ToggleAlarm();
                             break;
                         }
 
                         case ConsoleKey.D3:
                         case ConsoleKey.NumPad3: {
-                            RaiseWarning();
+                            ToggleWarning();
                             break;
                         }
 
@@ -120,18 +107,24 @@ namespace FacilityMonitoring.ConsoleTesting {
 
                         case ConsoleKey.D5:
                         case ConsoleKey.NumPad5: {
-                            ReadDigitalPullup();
+                            ReadCoils();
                             break;
                         }
 
                         case ConsoleKey.D6:
                         case ConsoleKey.NumPad6: {
-                            ReadDigital();
+                            ReadDiscrete();
                             break;
                         }
 
                         case ConsoleKey.D7:
-                        case ConsoleKey.NumPad7: {
+                        case ConsoleKey.NumPad7:{
+                            ReadAndDisplay();
+                            break;
+                        }
+
+                        case ConsoleKey.D8:
+                        case ConsoleKey.NumPad8: {
                             exit = true;
                             break;
                         }
@@ -152,58 +145,64 @@ namespace FacilityMonitoring.ConsoleTesting {
                 Console.ReadKey();
             }
         }
-
         private static ConsoleKey DisplayMenu() {
             Console.Clear();
             Console.WriteLine("What would you like to do?");
-            Console.WriteLine("1: Put In Maintence Mode");
-            Console.WriteLine("2: Raise Alarm");
-            Console.WriteLine("3: Raise Warning");
+            Console.WriteLine("1: Toggle Maintence Mode");
+            Console.WriteLine("2: Toggle Alarm");
+            Console.WriteLine("3: Toggle Warning");
             Console.WriteLine("4: Read Analog");
-            Console.WriteLine("5: Read Digital Pull-ups");
-            Console.WriteLine("6: Read Digital 24v");
-            Console.WriteLine("7: Exit");
+            Console.WriteLine("5: Read Coils ");
+            Console.WriteLine("6: Read Discrete ");
+            Console.WriteLine("7: Read All");
+            Console.WriteLine("8: Exit");
             var responce = Console.ReadKey();
             return responce.Key;
         }
 
-        private static void RaiseAlarm() {
+        private static void ToggleMaintence()
+        {
             Console.Clear();
-            Console.WriteLine("Raising Alarm Please Wait....");
-            if (CheckConnection(IpAddress, 500)) {
-                using (TcpClient client = new TcpClient(IpAddress, 502)) {
+            Console.WriteLine("Switching To Maintence Mode Please Wait....");
+            if (CheckConnection(IpAddress, 500))
+            {
+                using (TcpClient client = new TcpClient(IpAddress, 502))
+                {
                     bool[] com = { true, false, false, false };
                     ModbusIpMaster master = ModbusIpMaster.CreateIp(client);
-                    com[1] = false;
-                    com[2] = false;
-                    com[3] = true;
-                    master.WriteMultipleCoils(39, com);
-                    bool success = false;
-                    while (true) {
-                        var check = master.ReadCoils(39, 1);
-                        if (!check[0]) {
-                            Console.WriteLine("Success, Waiting 2sec then turning off Alarm");
-                            success = true;
-                            break;
-                        }
-                    }
-                    //if (success) {
-                    //    System.Threading.Thread.Sleep(5000);
-                    //    com[1] = false;
-                    //    com[2] = false;
-                    //    com[3] = false;
-                    //    master.WriteMultipleCoils(39, com);
-                    //}
+                    maintState = !maintState;
+                    master.WriteSingleCoil(1, 2, maintState);
                     client.Close();
                 }
                 Console.WriteLine("Press any key to continue");
                 Console.ReadKey();
-            } else {
+            }
+            else
+            {
                 Console.WriteLine("Connection Failed");
             }
         }
 
-        private static void RaiseWarning() {
+        private static void ToggleAlarm(){
+            Console.WriteLine("Raising Alarm Please Wait....");
+            if (CheckConnection(IpAddress, 500))
+            {
+                using (TcpClient client = new TcpClient(IpAddress, 502))
+                {
+                    ModbusIpMaster master = ModbusIpMaster.CreateIp(client);
+                    alarmState= !alarmState;
+                    master.WriteSingleCoil(1,0, alarmState);
+                    client.Close();
+                }
+                Console.WriteLine("Press any key to continue");
+                Console.ReadKey();
+            }else
+            {
+                Console.WriteLine("Connection Failed");
+            }
+        }
+
+        private static void ToggleWarning() {
             Console.Clear();
             Console.WriteLine("Raising Warning Signal Please Wait....");
             if (CheckConnection(IpAddress, 500)) {
@@ -211,51 +210,11 @@ namespace FacilityMonitoring.ConsoleTesting {
 
                 using (TcpClient client = new TcpClient(IpAddress, 502)) {
                     ModbusIpMaster master = ModbusIpMaster.CreateIp(client);
-                    com[1] = false;
-                    com[2] = true;
-                    com[3] = false;
-                    master.WriteMultipleCoils(39, com);
-                    bool success = false;
-                    while (true) {
-                        var check = master.ReadCoils(39, 1);
-                        if (!check[0]) {
-                            Console.WriteLine("Success, Waiting 5 sec then turning off Warning");
-                            success = true;
-                            break;
-                        }
-                    }
-                    //if (success) {
-                    //    System.Threading.Thread.Sleep(5000);
-                    //    com[1] = false;
-                    //    com[2] = false;
-                    //    com[3] = false;
-                    //    master.WriteMultipleCoils(39, com);
-                    //}
+                    warnState = !warnState;
+                    master.WriteSingleCoil(1,1,warnState);
                     client.Close();
                 }
                 Console.WriteLine("Press any key to continue");
-                Console.ReadKey();
-            } else {
-                Console.WriteLine("Connection Failed");
-            }
-        }
-
-        private static void ReadAnalogSimple() {
-            Console.Clear();
-            Console.WriteLine("Retrieving Values, Please Wait");
-            if (CheckConnection(IpAddress, 100)) {
-                ushort[] regData;
-                using (TcpClient client = new TcpClient(IpAddress, 502)) {
-                    ModbusIpMaster master = ModbusIpMaster.CreateIp(client);
-                    regData = master.ReadInputRegisters(1,0, 24);
-                    //regData = master.ReadHoldingRegisters(0, 16);
-                    client.Close();
-                }
-                for(int i=0; i < regData.Length; i++) {
-                   // double value = 62.5 * Convert.ToDouble(regData[i]) - 250.00;
-                    Console.WriteLine("A{0}:{1}",i,regData[i]);
-                }
-                Console.WriteLine("Press any key to finish");
                 Console.ReadKey();
             } else {
                 Console.WriteLine("Connection Failed");
@@ -269,43 +228,32 @@ namespace FacilityMonitoring.ConsoleTesting {
                 ushort[] regData;
                 using (TcpClient client = new TcpClient(IpAddress, 502)) {
                     ModbusIpMaster master = ModbusIpMaster.CreateIp(client);
-                    regData = master.ReadHoldingRegisters(0, 26);
+                    regData = master.ReadInputRegisters(1,0, HoldingRegisterCount);
                     client.Close();
                 }
-                Console.WriteLine();
-                Console.WriteLine("Analog Values");
-                for (int i = 0; i < 16; i++) {
-                    double x = regData[i];
-                    x = (x / 1000);
-
-                    Console.WriteLine(" A{0}: Current: {1}", i, Math.Round(x, 3));
+                for(int i=0; i < regData.Length; i++) {
+                    Console.WriteLine("A{0}:{1}",i,regData[i]);
                 }
-
-                Console.WriteLine("Outputs and State: ");
-                for (int i = 16; i < 25; i++) {
-                    Console.WriteLine(" Ch{0}: Value: {1}", i,regData[i]);
-                }
-                Console.WriteLine();
-                Console.WriteLine("Press any key to continue");
+                Console.WriteLine("Press any key to finish");
                 Console.ReadKey();
             } else {
                 Console.WriteLine("Connection Failed");
             }
         }
 
-        private static void ReadDigitalPullup() {
+        private static void ReadCoils() {
             Console.Clear();
             Console.WriteLine("Retrieving Values, Please Wait");
             if (CheckConnection(IpAddress, 100)) {
                 bool[] coilData;
                 using (TcpClient client = new TcpClient(IpAddress, 502)) {
                     ModbusIpMaster master = ModbusIpMaster.CreateIp(client);
-                    coilData = master.ReadCoils(0, 48);
+                    coilData = master.ReadCoils(1,0,CoilCount);
                     client.Close();
                 }
-                Console.WriteLine("Digitals Pull-up: ");
-                for (int i = 0; i < 22; i++) {
-                    Console.WriteLine(" D{0}: {1}", i + 1, coilData[i]);
+                Console.WriteLine("Coils ");
+                for (int i = 0; i < coilData.Length; i++) {
+                    Console.WriteLine(" C{0}: {1}", i + 1, coilData[i]);
                 }
                 Console.WriteLine();
                 Console.WriteLine("Press any key to continue");
@@ -315,65 +263,66 @@ namespace FacilityMonitoring.ConsoleTesting {
             }
         }
 
-
-
-        private static void PutInMaintenceMode() {
+        private static void ReadDiscrete()
+        {
             Console.Clear();
-            Console.WriteLine("Switching To Maintence Mode Please Wait....");
-            if (CheckConnection(IpAddress, 500)) {
-                ushort[] regData = { 0, 0, 0, 0, 0, 0, 1, 1, 1, 1 };
-                using (TcpClient client = new TcpClient(IpAddress, 502)) {
-                    bool[] com = { true, false, false, false };
+            Console.WriteLine("Retrieving Values, Please Wait");
+            if (CheckConnection(IpAddress, 100))
+            {
+                bool[] inputData;
+                using (TcpClient client = new TcpClient(IpAddress, 502))
+                {
                     ModbusIpMaster master = ModbusIpMaster.CreateIp(client);
-                    com[1] = true;
-                    com[2] = false;
-                    com[3] = false;
-                    master.WriteMultipleCoils(39, com);
-                    bool success = false;
-                    while (true) {
-                        var check = master.ReadCoils(39, 1);
-                        if (!check[0]) {
-                            Console.WriteLine("Success, Waiting 5 sec then turning off Warning");
-                            success = true;
-                            break;
-                        }
-                    }
-                    //if (success) {
-                    //    System.Threading.Thread.Sleep(5000);
-                    //    com[1] = false;
-                    //    com[2] = false;
-                    //    com[3] = false;
-                    //    master.WriteMultipleCoils(39, com);
-                    //}
+                    inputData = master.ReadCoils(1, 0, DiscreteInputCount);
                     client.Close();
                 }
+
+                Console.WriteLine("Discrete Inputs: ");
+                for (int i = 0; i < inputData.Length; i++){
+                    Console.WriteLine(" C{0}: {1}", i + 1, inputData[i]);
+                }
+
+                Console.WriteLine();
                 Console.WriteLine("Press any key to continue");
                 Console.ReadKey();
-            } else {
+            }
+            else
+            {
                 Console.WriteLine("Connection Failed");
             }
         }
+
 
         private static void ReadAndDisplay() {
             if (CheckConnection(IpAddress, 100)) {
                 ushort[] regData;
                 bool[] coilData;
+                bool[] inputData;
                 while (true) {
                     using (TcpClient client = new TcpClient(IpAddress, 502)) {
                         ModbusIpMaster master = ModbusIpMaster.CreateIp(client);
-                        regData = master.ReadHoldingRegisters(0, 16);
-                        coilData = master.ReadCoils(0, 48);
+                        regData = master.ReadInputRegisters(1,0, HoldingRegisterCount);
+                        coilData = master.ReadCoils(1,0, CoilCount);
+                        inputData = master.ReadInputs(1, 0, DiscreteInputCount);
                         client.Close();
                         master.Dispose();
                     }
+                    Console.WriteLine();
                     Console.WriteLine("Analog");
                     for (int i = 0; i < regData.Length; i++) {
-                        Console.WriteLine(" A{0}: Voltage: {1} Current: {2}", i,regData[i]);
+                        Console.WriteLine(" A{0}: {1}", i,regData[i]);
                     }
+
                     Console.WriteLine();
-                    Console.WriteLine("Digitals Pull-up: ");
-                    for (int i = 0; i < 22; i++) {
-                        Console.WriteLine(" D{0}: {1}", i, coilData[i]);
+                    Console.WriteLine("Discrete Inputs");
+                    for (int i = 0; i < inputData.Length; i++){
+                        Console.WriteLine("D{0}: {1}", i, inputData[i]);
+                    }
+
+                    Console.WriteLine();
+                    Console.WriteLine("Coils:  ");
+                    for (int i = 0; i < coilData.Length; i++) {
+                        Console.WriteLine(" C{0}: {1}", i, coilData[i]);
                     }
 
                     Console.WriteLine();
@@ -387,7 +336,6 @@ namespace FacilityMonitoring.ConsoleTesting {
             }
             Console.ReadKey();
         }
-
         private static bool CheckConnection(string address, int timeout) {
             try {
                 Ping check = new Ping();

@@ -105,7 +105,7 @@ namespace FacilityMonitoring.ConsoleTesting {
         public static void AddSensor() {
             using FacilityContext context = new FacilityContext();
             SensorType sensor = new SensorType();
-            sensor.Name = "H2 Detector-LEL";
+            sensor.Name = "H2 Detector-Epi1-1";
             sensor.ZeroPoint = 0;
             sensor.MaxPoint = 100;
             sensor.Units = "LEL%";

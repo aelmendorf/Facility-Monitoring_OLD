@@ -9,8 +9,6 @@ using Microsoft.Exchange.WebServices.Data;
 namespace FacilityMonitoring.ConsoleTesting {
     class Program2 {
         public static async Task<int> Main(string[] args) {
-
-
             ExchangeService service=new ExchangeService(ExchangeVersion.Exchange2007_SP1);
             WebCredentials credentials = new WebCredentials("facilityalerts", "Facility!1sskv", "sskep.com");
             service.Credentials = credentials;
